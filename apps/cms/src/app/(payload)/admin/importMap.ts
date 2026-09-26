@@ -1,0 +1,57 @@
+import {
+  AlignFeatureClient,
+  BlockquoteFeatureClient,
+  BoldFeatureClient,
+  ChecklistFeatureClient,
+  HeadingFeatureClient,
+  HorizontalRuleFeatureClient,
+  IndentFeatureClient,
+  InlineCodeFeatureClient,
+  InlineToolbarFeatureClient,
+  ItalicFeatureClient,
+  LinkFeatureClient,
+  OrderedListFeatureClient,
+  ParagraphFeatureClient,
+  RelationshipFeatureClient,
+  StrikethroughFeatureClient,
+  SubscriptFeatureClient,
+  SuperscriptFeatureClient,
+  UnderlineFeatureClient,
+  UnorderedListFeatureClient,
+  UploadFeatureClient,
+} from '@payloadcms/richtext-lexical/client';
+import {
+  LexicalDiffComponent,
+  RscEntryLexicalCell,
+  RscEntryLexicalField,
+} from '@payloadcms/richtext-lexical/rsc';
+import { S3ClientUploadHandler } from '@payloadcms/storage-s3/client';
+import type { ImportMap } from 'payload';
+
+// Matches Lexical defaults and the S3 provider in 3.54.0. Regenerate after config changes.
+export const importMap: ImportMap = {
+  '@payloadcms/storage-s3/client#S3ClientUploadHandler': S3ClientUploadHandler,
+  '@payloadcms/richtext-lexical/rsc#LexicalDiffComponent': LexicalDiffComponent,
+  '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell': RscEntryLexicalCell,
+  '@payloadcms/richtext-lexical/rsc#RscEntryLexicalField': RscEntryLexicalField,
+  '@payloadcms/richtext-lexical/client#AlignFeatureClient': AlignFeatureClient,
+  '@payloadcms/richtext-lexical/client#BlockquoteFeatureClient': BlockquoteFeatureClient,
+  '@payloadcms/richtext-lexical/client#BoldFeatureClient': BoldFeatureClient,
+  '@payloadcms/richtext-lexical/client#ChecklistFeatureClient': ChecklistFeatureClient,
+  '@payloadcms/richtext-lexical/client#HeadingFeatureClient': HeadingFeatureClient,
+  '@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient': HorizontalRuleFeatureClient,
+  '@payloadcms/richtext-lexical/client#IndentFeatureClient': IndentFeatureClient,
+  '@payloadcms/richtext-lexical/client#InlineCodeFeatureClient': InlineCodeFeatureClient,
+  '@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient': InlineToolbarFeatureClient,
+  '@payloadcms/richtext-lexical/client#ItalicFeatureClient': ItalicFeatureClient,
+  '@payloadcms/richtext-lexical/client#LinkFeatureClient': LinkFeatureClient,
+  '@payloadcms/richtext-lexical/client#OrderedListFeatureClient': OrderedListFeatureClient,
+  '@payloadcms/richtext-lexical/client#ParagraphFeatureClient': ParagraphFeatureClient,
+  '@payloadcms/richtext-lexical/client#RelationshipFeatureClient': RelationshipFeatureClient,
+  '@payloadcms/richtext-lexical/client#StrikethroughFeatureClient': StrikethroughFeatureClient,
+  '@payloadcms/richtext-lexical/client#SubscriptFeatureClient': SubscriptFeatureClient,
+  '@payloadcms/richtext-lexical/client#SuperscriptFeatureClient': SuperscriptFeatureClient,
+  '@payloadcms/richtext-lexical/client#UnderlineFeatureClient': UnderlineFeatureClient,
+  '@payloadcms/richtext-lexical/client#UnorderedListFeatureClient': UnorderedListFeatureClient,
+  '@payloadcms/richtext-lexical/client#UploadFeatureClient': UploadFeatureClient,
+};

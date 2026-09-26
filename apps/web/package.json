@@ -1,0 +1,41 @@
+{
+  "name": "@yourbestride/web",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "test": "tsx --conditions=react-server --test tests/*.test.ts",
+    "test:smoke": "node tests/smoke.mjs",
+    "validate": "npm run lint && npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "next": "catalog:",
+    "@yourbestride/ui": "workspace:*",
+    "@yourbestride/types": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "framer-motion": "^12.23.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "@types/node": "^22.15.0",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "eslint": "^9.25.0",
+    "eslint-config-next": "catalog:",
+    "@yourbestride/config": "workspace:*",
+    "tsx": "^4.20.0"
+  }
+}

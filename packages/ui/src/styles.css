@@ -1,0 +1,11 @@
+@theme {
+  --color-primary: #0b0b0b;
+  --color-gold: #d9a441;
+  --color-gold-light: #f2c96b;
+  --color-white: #fff;
+  --color-gray: #f5f5f5;
+  --color-text: #222;
+}
+
+/* Resolve relative to this stylesheet, including through workspace symlinks. */
+@source './';

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env", "**/.env.*"],
+  "globalPassThroughEnv": [
+    "SITE_URL",
+    "CMS_URL",
+    "CMS_MEDIA_URL",
+    "LIMO_ANYWHERE_BOOKING_URL",
+    "CONTACT_EMAIL",
+    "CONTACT_PHONE",
+    "REVALIDATION_SECRET",
+    "DATABASE_URI",
+    "DATABASE_PUSH",
+    "PAYLOAD_SECRET",
+    "CMS_ALLOW_FIRST_USER",
+    "CMS_CORS_ORIGINS",
+    "S3_*"
+  ],
+  "tasks": {
+    "dev": { "cache": false, "persistent": true },
+    "build": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "lint": { "dependsOn": ["^lint"], "outputs": [] },
+    "typecheck": { "dependsOn": ["^typecheck"], "outputs": [] },
+    "test": { "dependsOn": ["^build"], "outputs": [] }
+  }
+}

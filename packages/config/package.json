@@ -1,0 +1,10 @@
+{
+  "name": "@yourbestride/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./tsconfig/base.json": "./base.json",
+    "./tsconfig/react-library.json": "./react-library.json",
+    "./tsconfig/nextjs.json": "./nextjs.json"
+  }
+}

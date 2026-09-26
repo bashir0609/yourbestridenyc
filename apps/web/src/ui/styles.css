@@ -1,0 +1,64 @@
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-montserrat);
+}
+
+.container-shell {
+  width: min(1280px, calc(100% - 64px));
+  margin-inline: auto;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 50px;
+  padding: 14px 23px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+.button:hover {
+  transform: translateY(-2px);
+}
+.button-gold {
+  background: var(--color-gold);
+  color: var(--color-primary);
+}
+.button-gold:hover {
+  background: var(--color-gold-light);
+}
+.button-outline {
+  border-color: #ffffff55;
+  color: white;
+  background: transparent;
+}
+.button-outline:hover {
+  border-color: var(--color-gold);
+  background: #ffffff0a;
+}
+.button-dark {
+  background: var(--color-primary);
+  color: white;
+}
+.button-dark:hover {
+  background: #303030;
+}
+.card {
+  border: 1px solid #e7e5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+@media (max-width: 640px) {
+  .container-shell {
+    width: calc(100% - 40px);
+  }
+}
