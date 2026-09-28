@@ -1,98 +1,86 @@
 # Your Best Ride Inc.
 
-Premium New York transportation marketing foundation. **Limo Anywhere owns reservations and all transportation operations.** This repository contains no dispatch, driver assignment, vehicle scheduling, or trip management system.
+Premium New York transportation marketing, content, and lead-capture platform. Limo Anywhere remains the transportation operations system and owns reservations, dispatch, driver and vehicle assignments, trip management, and operational passenger/driver workflows.
 
-## Workspace
+## Architecture
+
+The production application is a single Next.js 16 deployment:
 
 ```text
-apps/web        Next.js 16 public website (port 3000)
-apps/cms        Payload 3 admin/API (port 3001)
-packages/ui     Shared shadcn-style/Radix primitives and Tailwind brand tokens
-packages/config Shared strict TypeScript configuration
-packages/types  Marketing types and Zod inquiry validation
+apps/web        Public website, Payload CMS 3.x, /admin, APIs, migrations
+packages/ui     Shared UI primitives and brand tokens
+packages/config Shared TypeScript configuration
+packages/types  Shared marketing and intake schemas/types
 ```
 
-Use Node 22.13+ or Node 24 and pnpm 10.15.1. Install from the repository root; do not install each application separately.
+Runtime services:
+
+- Neon PostgreSQL for Payload and private application records
+- Cloudflare R2 for public marketing media only
+- Resend for inquiry/application notifications
+- GA4 for non-PII analytics
+- Limo Anywhere for the external booking handoff and transportation operations
+
+See [deployment](docs/DEPLOYMENT.md), [Neon migrations](docs/MIGRATIONS.md), [content entry](CONTENT_GUIDE.md), and the [future architecture roadmap](docs/FUTURE_ARCHITECTURE_ROADMAP.md).
+
+## Local development
+
+Use Node 22.13+ or Node 24 and pnpm 10.15.1. From the repository root:
 
 ```sh
 corepack enable
 pnpm install --frozen-lockfile
-pnpm dev
-pnpm typecheck
-pnpm test
-pnpm lint
-pnpm --filter @yourbestride/web build
-pnpm --filter @yourbestride/web test:smoke
+cp apps/web/.env.example apps/web/.env.local
+pnpm --filter @yourbestride/web dev
 ```
 
-`pnpm build` also builds the CMS and requires its environment configuration. `pnpm format` formats source and documentation. The shared packages export source; Next transpiles the UI package. Turbo build caching is disabled because CMS content changes independently of Git. Only explicit application environment variables pass through Turbo.
+The public website and Payload admin run together on port 3000. Open `/admin` for Payload. A complete database and R2 environment is required because the CMS configuration fails closed; no credentials are committed.
 
-## Implemented
+## Commands
 
-- Responsive homepage: navigation, hero, CMS-backed services, fleet, approved driver profiles, testimonials, **Transportation Coverage Areas**, CTAs, contact, footer. Static service/fleet fallback records are removed; published CMS images are supported.
-- Montserrat headings, Inter body, subtle reduced-motion-aware animation, keyboard focus and mobile navigation.
-- Shared tokens: primary `#0B0B0B`, gold `#D9A441`, gold light `#F2C96B`, white `#FFFFFF`, gray `#F5F5F5`, text `#222222`.
-- `/book`: user-initiated HTTPS handoff only. No credentials, passenger data, payment form, API integration, or reservation confirmation.
-- Anonymous, bounded, publication-filtered CMS reads, five-minute caching, authenticated revalidation endpoint, metadata, robots, sitemap.
-- Nine requested content/intake collections, plus Users and public Media; Site Settings, Navigation, and Footer globals.
-- Admin, Content Manager, and Lead Manager roles; private intake permissions and protection against self-service role changes.
-- Leads include `crmStatus`, `externalLeadId`, `assignedTo`, `sourceCampaign`. Driver profiles include `serviceAreas`, `specialties`, `featured`, `displayOrder` and remain marketing-only.
-- PostgreSQL adapter, public Cloudflare R2 (S3-compatible) image storage, generated-type/import-map scripts, migration workflow, environment templates, and focused tests.
+```sh
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+pnpm --filter @yourbestride/web test:smoke
+pnpm --filter @yourbestride/web migrate:create migration_name
+pnpm --filter @yourbestride/web migrate
+pnpm --filter @yourbestride/web migrate:status
+pnpm --filter @yourbestride/web generate:types
+pnpm --filter @yourbestride/web generate:importmap
+```
 
-## Configuration
+Production schema auto-sync is prohibited. `DATABASE_PUSH` must remain `false`; apply reviewed migration artifacts through one controlled job.
 
-Application templates are `apps/web/.env.example` and `apps/cms/.env.example`. Create each application's local environment file; a root environment file is not automatically loaded by Next. Never commit credentials.
+## Environment
 
-### Web
+`apps/web/.env.example` is the combined, credential-free environment contract. There is no separate CMS origin and no `CMS_URL` variable. Important groups are:
 
-| Variable                         | Purpose                                                            |
-| -------------------------------- | ------------------------------------------------------------------ |
-| `SITE_URL`                       | Canonical HTTPS origin; omit for noindex preview deployments       |
-| `CMS_URL`                        | CMS origin; HTTP localhost permitted only in development           |
-| `LIMO_ANYWHERE_BOOKING_URL`      | Verified external HTTPS booking URL; overrides CMS Site Settings   |
-| `CONTACT_EMAIL`, `CONTACT_PHONE` | Verified contact overrides; phone must be international `+` digits |
-| `REVALIDATION_SECRET`            | Independent random secret, at least 32 characters; optional        |
+- Application: `SITE_URL`
+- Payload/Neon: `PAYLOAD_SECRET`, `DATABASE_URI`, `DATABASE_PUSH`, `CMS_ALLOW_FIRST_USER`
+- Internal intake: `INTAKE_API_SECRET`, `INTAKE_HASH_SECRET`
+- Cloudflare R2: `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_ENDPOINT`, `S3_REGION=auto`, `S3_PUBLIC_URL`, `CMS_MEDIA_URL`
+- Resend: `RESEND_API_KEY`, `EMAIL_FROM`, `NOTIFICATION_EMAIL`
+- Analytics: `NEXT_PUBLIC_GA_ID`
+- Booking: `LIMO_ANYWHERE_BOOKING_URL`
+- Cache invalidation: `REVALIDATION_SECRET`
+- Optional admin defense: `ADMIN_ALLOWED_IPS`
 
-Public CMS reads require **no token**. `CMS_READ_TOKEN` from an earlier template is unused and should not be configured. Contact/booking values fall back to the public CMS Site Settings. All five homepage sections use the typed server-only client in `apps/web/src/lib/cms/`; missing configuration, empty published collections and request failures have separate states. No service/fleet/driver/review records are fabricated.
+Only `NEXT_PUBLIC_GA_ID` is intended for browser exposure. Store all secrets in local ignored files and Vercel Environment Variables.
 
-Set **`CMS_MEDIA_URL`** on the web app to the same public HTTPS origin as CMS `S3_PUBLIC_URL`. The frontend accepts only validated images under that origin's `/media/` path, and never receives R2 keys. Rebuild after changing this image allowlist. Services, fleet and driver photos require populated Media relationships, supported MIME types, dimensions and alt text.
+## Security boundaries
 
-### CMS
+- Payload collection access and staff roles protect CMS data.
+- `/admin` receives no-store/noindex headers and can optionally be restricted with `ADMIN_ALLOWED_IPS`; Vercel Firewall controls are recommended.
+- Initial admin registration is disabled unless `CMS_ALLOW_FIRST_USER=true` during isolated bootstrap. Disable it immediately afterward.
+- Browser forms cannot write directly to private collections. Same-origin handlers validate input and call the bearer-authenticated internal intake endpoint.
+- Public Media is restricted to approved marketing images. Driver applications support no document uploads. Do not put private or healthcare data in the public R2 bucket.
+- Public driver profiles are marketing records only and contain no availability, contact, assignment, or trip information.
+- The platform does not create reservations or implement Limo Anywhere operational features.
 
-Required: `PAYLOAD_SECRET` (32+ characters), `DATABASE_URI` (PostgreSQL), `CMS_URL`, `S3_BUCKET`, `S3_REGION=auto`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_ENDPOINT` (the authenticated Cloudflare R2 account endpoint), and `S3_PUBLIC_URL` (a separate public HTTPS media origin/custom domain).
+## Deployment
 
-Optional: `CMS_CORS_ORIGINS` (comma-separated exact origins), `DATABASE_PUSH`, `CMS_ALLOW_FIRST_USER`. The CMS now uses `DATABASE_URI`, not the old `DATABASE_URL`; rename that variable in existing local/Vercel settings. R2 requires `S3_ENDPOINT` and region `auto`; the old `S3_FORCE_PATH_STYLE` variable is no longer used.
+Create one Vercel project rooted at `apps/web` and attach `yourbestride.com`. Configure separate Preview and Production variables and Neon branches. Apply migrations before deploying the compatible release; never run migrations from serverless startup.
 
-Generate secrets locally with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Use independent values for CMS auth and web revalidation. Database schema push is rejected in production. First-admin registration is disabled unless explicitly enabled during isolated setup; immediately disable it after creating the first administrator. Never expose an empty CMS publicly during bootstrap.
-
-See [Cloudflare R2 setup and Vercel deployment](apps/cms/DEPLOYMENT.md), [CMS permissions](apps/cms/README.md), [migration policy](apps/cms/MIGRATIONS.md), and [web integration](apps/web/README.md).
-
-Public media is limited to approved logo, fleet, driver profile, service, blog and testimonial images. Driver applications remain private database records with no attachment upload workflow. Any future sensitive files require a separate private R2 bucket and authenticated delivery; never put them in public Media.
-
-## Security and validation status
-
-**This is an initial scaffold, not cleared for production deployment.**
-
-- Both apps use **Next 16.3.6**, with **React/React DOM 19.1.9**. Payload and its adapters are **3.90.2**. Framework versions are centrally defined in the pnpm catalog; there are no mixed Next majors.
-- After the CMS client/homepage integration, `pnpm typecheck`, `pnpm lint` and **58 tests** passed (23 web, 18 CMS, 17 shared schemas). Client/query tests use synthetic responses, not a live CMS.
-- `pnpm build` failed when the CMS reached its missing-environment check and interrupted the web task. The web production build was then run separately and **passed**, as did its production smoke tests. See [web integration](apps/web/README.md), [earlier R2 verification](apps/cms/DEPLOYMENT.md#8-recorded-results-for-the-r2-configuration-change), and [dependency review](DEPENDENCIES.md).
-- The CMS compiled and passed TypeScript but its production build **failed at page-data collection: missing `PAYLOAD_SECRET`**. Supply its complete environment and verify the build, database and storage before release; no dummy credentials were used.
-- `pnpm audit --prod` reported **one moderate advisory**, in transitive esbuild migration tooling, and no high/critical production findings. Track the upstream fix; do not expose esbuild's development server. Audit counts change over time.
-- No live PostgreSQL, Cloudflare R2, Limo Anywhere, browser accessibility, or production deployment tests have been performed.
-
-## Vercel deployment checklist
-
-1. Configure the CMS build environment and complete `pnpm install --frozen-lockfile`, typecheck, tests, lint, production builds, audit, and browser QA.
-2. Use two Vercel projects from the same repository, root directories `apps/web` and `apps/cms`. Enable access to shared workspace files outside the project root and use pnpm from the root workspace.
-3. Configure each app's variables separately. Preview environments need separate database/storage and must not be indexed.
-4. Provision pooled PostgreSQL connections, bucket-scoped Cloudflare R2 credentials, public image delivery, backups, and restoration procedures. Never use Vercel's filesystem for persistence.
-5. Generate/review the initial database migration and apply it as one controlled release job. Generate Payload types and the admin import map after schema changes.
-6. Isolate CMS bootstrap, create the admin, then disable first registration. Configure WAF/login rate limits and a production email adapter for password resets.
-7. Publish verified content and official booking/contact details. Replace legal placeholder pages with reviewed documents.
-8. Test publication/unpublication, role boundaries, storage, booking destination, robots and sitemap.
-
-### Scope intentionally deferred
-
-Public lead/application submission endpoints, email notifications, private applicant documents, CRM synchronization, detail-page templates, and a CMS block renderer are not part of this initial homepage scaffold. The private collections and validation foundation are ready for a separately secured intake implementation. Do not open anonymous collection writes to implement forms. Define consent, retention, abuse protection and data minimization first; do not collect medical records. Navigation/Footer globals are prepared, while the initial website navigation remains code-defined.
-
-No Git repository has been initialized locally, no commits have been created, and no remote deployment or push has been performed.
+Before release, verify Payload login and roles, all required collections, Neon connectivity, R2 upload/read/delete/public delivery, all form storage and Resend notifications, GA4 events, the Limo Anywhere handoff, legal pages, sitemap, robots, and browser accessibility.

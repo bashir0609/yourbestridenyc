@@ -50,6 +50,7 @@ export type RichBlock = { kind: 'paragraph' | 'heading' | 'list-item' | 'quote';
 export type Faq = { question: string; answer: string };
 export type ServicePage = Service & {
   overview: RichBlock[];
+  bookingCTA?: { label: string };
   benefits: { title: string; description?: string }[];
   features: string[];
   locations: CoverageArea[];
@@ -67,6 +68,7 @@ export type FleetPage = FleetVehicle & {
 export type DriverPage = Driver & {
   biography: RichBlock[];
   experience?: string;
+  experienceYears?: number;
   languages: string[];
   specialties: string[];
   serviceAreas: CoverageArea[];
@@ -76,6 +78,7 @@ export type LocationPage = CoverageArea & {
   id: number;
   introduction: RichBlock[];
   coverageAreas: string[];
+  relatedServices: Service[];
   faqs: Faq[];
   seo: PublicSeo;
 };

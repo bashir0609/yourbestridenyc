@@ -4,7 +4,7 @@ Reviewed against published package metadata and the Next.js upgrade guide on 202
 
 ## Decision
 
-Both `apps/web` and `apps/cms` use **Next.js 16.3.6** from the same pnpm catalog. No mixed Next.js majors and no peer-range overrides are used. Payload and its directly installed adapters/plugins remain **3.90.2**. React and React DOM remain **19.1.9**, shared with the UI package.
+The single `apps/web` application uses **Next.js 16.3.6** from the pnpm catalog and embeds Payload. Payload and its directly installed adapters/plugins remain **3.90.2**. React and React DOM remain **19.1.9**, shared with the UI package. The former separate CMS application was merged into `apps/web`, so mixed Next.js versions are impossible at the application level.
 
 Published dependency compatibility is confirmed. This does not establish production readiness: the CMS production build still requires environment configuration and live infrastructure validation.
 
@@ -72,7 +72,7 @@ Commands were invoked through `npx --yes pnpm@10.15.1` to use the repository's e
 - Web production build: passed after fixing the undefined-access error.
 - Web production smoke tests: passed for routes, security headers, legal 404 and revalidation authentication/payload handling.
 - CMS production build: compiled with warnings and passed TypeScript, then **failed collecting page data** because `PAYLOAD_SECRET` is missing. No fake environment values were supplied. The compiler did not include warning details in captured output.
-- CMS runtime credentials also require `DATABASE_URI`, `CMS_URL`, Cloudflare R2 endpoint/bucket/region/access credentials/public URL as documented in the root README. The build was not rerun with production secrets, a database or an object store.
+- The historical CMS build required runtime credentials. The merged application now uses `SITE_URL`, `DATABASE_URI`, and Cloudflare R2 endpoint/bucket/region/access credentials/public URL as documented in the root README; `CMS_URL` was removed.
 - `pnpm audit --prod`: nonzero exit, **one moderate advisory**, GHSA-67mh-4wv8-2f99, through Payload's PostgreSQL adapter → Drizzle Kit → legacy esbuild loader → esbuild. No critical/high production advisories reported. We did not force a cross-version transitive override of migration tooling; track an upstream fix and do not expose esbuild's development server.
 
 This review does not validate migrations, live admin/database flows, Cloudflare R2 uploads, browser accessibility or deployment. Complete CMS configuration and build/integration checks before release.

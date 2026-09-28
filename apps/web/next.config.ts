@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withPayload } from '@payloadcms/next/withPayload';
 import { siteOrigin } from './src/lib/config';
 
 const mediaOrigin = siteOrigin(process.env.CMS_MEDIA_URL);
@@ -36,4 +37,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPayload(nextConfig);

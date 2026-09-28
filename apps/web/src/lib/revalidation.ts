@@ -7,6 +7,8 @@ export const REVALIDATION_TAGS = [
   'cms:testimonials',
   'cms:locations',
   'cms:site-settings',
+  'leads:transportation',
+  'leads:driver-applications',
 ] as const;
 
 export function authorized(header: string | null, secret: string | undefined): boolean {

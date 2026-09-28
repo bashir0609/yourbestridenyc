@@ -3,6 +3,7 @@ import { Container } from '@/ui';
 import { getBusinessConfig } from '@/lib/cms/queries';
 import { Brand } from './navigation';
 import { Icon } from './icon';
+import { TrackLink } from './analytics';
 
 export async function Footer() {
   const { email, phone } = await getBusinessConfig();
@@ -27,7 +28,13 @@ export async function Footer() {
           </div>
           <div>
             <h2>Your journey</h2>
-            <Link href="/book">Plan your ride</Link>
+            <TrackLink
+              href="/book"
+              eventName="booking_click"
+              eventParams={{ source_page: 'current', button_location: 'footer' }}
+            >
+              Plan your ride
+            </TrackLink>
             <Link href="/#contact">Contact information</Link>
             <Link href="/legal/privacy">Privacy notice</Link>
             <Link href="/legal/terms">Terms of service</Link>
@@ -35,16 +42,25 @@ export async function Footer() {
           <div>
             <h2>Get in touch</h2>
             {phone && (
-              <a href={`tel:${phone}`}>
+              <TrackLink
+                href={`tel:${phone}`}
+                eventName="phone_click"
+                eventParams={{ source_page: 'current', button_location: 'footer' }}
+              >
                 <Icon name="phone" width={16} />
                 {phone}
-              </a>
+              </TrackLink>
             )}
             {email && (
-              <a className="break-contact" href={`mailto:${email}`}>
+              <TrackLink
+                className="break-contact"
+                href={`mailto:${email}`}
+                eventName="email_click"
+                eventParams={{ source_page: 'current', button_location: 'footer' }}
+              >
                 <Icon name="mail" width={16} />
                 {email}
-              </a>
+              </TrackLink>
             )}
             {!phone && !email && (
               <p>
