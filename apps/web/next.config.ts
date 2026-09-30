@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 import { withPayload } from '@payloadcms/next/withPayload';
 import { siteOrigin } from './src/lib/config';
 
-const mediaOrigin = siteOrigin(process.env.CMS_MEDIA_URL);
+const mediaOrigin = siteOrigin(process.env.CMS_MEDIA_URL) ?? siteOrigin(process.env.S3_PUBLIC_URL);
 const media = mediaOrigin ? new URL(mediaOrigin) : undefined;
 
 const nextConfig: NextConfig = {
