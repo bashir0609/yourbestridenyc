@@ -3,7 +3,7 @@ import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import Link from 'next/link';
 import { getDriverDirectory } from '@/lib/cms/page-queries';
-import { getBusinessConfig } from '@/lib/cms/queries';
+
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage, CmsEmptyState } from '@/components/cms-content';
 import { DriverApplicationForm } from '@/components/forms/DriverApplicationForm';
@@ -47,7 +47,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function DriversPage() {
   const directory = await getPageData(1);
-  const { bookingUrl } = await getBusinessConfig();
 
   return (
     <main className="interior-page" id="main-content">
@@ -130,18 +129,14 @@ export default async function DriversPage() {
               Our professional drivers are ready to provide you with a premium transportation
               experience.
             </p>
-            {bookingUrl && (
-              <TrackLink
-                href={bookingUrl}
-                className="button nav-book"
-                target="_blank"
-                rel="noopener noreferrer"
-                eventName="booking_click"
-                eventParams={{ source_page: '/drivers', button_location: 'footer_cta' }}
-              >
-                Book Now <Icon name="arrow" width={16} />
-              </TrackLink>
-            )}
+            <TrackLink
+              href="/book"
+              className="button nav-book"
+              eventName="booking_click"
+              eventParams={{ source_page: '/drivers', button_location: 'footer_cta' }}
+            >
+              Book Now <Icon name="arrow" width={16} />
+            </TrackLink>
           </div>
         </Container>
       </section>

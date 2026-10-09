@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import { getFleetPage, getSitemapRecords } from '@/lib/cms/page-queries';
-import { getBusinessConfig } from '@/lib/cms/queries';
+
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
@@ -64,8 +64,6 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
   if (!page) {
     notFound();
   }
-
-  const { bookingUrl } = await getBusinessConfig();
 
   return (
     <main className="interior-page" id="main-content">
@@ -163,18 +161,14 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
             <p className="eyebrow">Ready to Book?</p>
             <h2 id="cta-heading">Reserve This Vehicle</h2>
             <p>Select this vehicle when booking through our partner.</p>
-            {bookingUrl && (
-              <TrackLink
-                href={bookingUrl}
-                className="button nav-book"
-                target="_blank"
-                rel="noopener noreferrer"
-                eventName="booking_click"
-                eventParams={{ source_page: `/fleet/${page.slug}`, button_location: 'footer_cta' }}
-              >
-                Book Now <Icon name="arrow" width={16} />
-              </TrackLink>
-            )}
+            <TrackLink
+              href="/book"
+              className="button nav-book"
+              eventName="booking_click"
+              eventParams={{ source_page: `/fleet/${page.slug}`, button_location: 'footer_cta' }}
+            >
+              Book Now <Icon name="arrow" width={16} />
+            </TrackLink>
           </div>
         </Container>
       </section>

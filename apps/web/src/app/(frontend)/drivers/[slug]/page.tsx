@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import { getDriverPage, getSitemapRecords } from '@/lib/cms/page-queries';
-import { getBusinessConfig } from '@/lib/cms/queries';
+
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
+import { TrackLink } from '@/components/analytics';
 
 export async function generateStaticParams() {
   const records = await getSitemapRecords();
@@ -63,8 +64,6 @@ export default async function DriverDetailPage({ params }: { params: Promise<{ s
   if (!page) {
     notFound();
   }
-
-  const { bookingUrl } = await getBusinessConfig();
 
   return (
     <main className="interior-page" id="main-content">
@@ -186,14 +185,17 @@ export default async function DriverDetailPage({ params }: { params: Promise<{ s
             <p className="eyebrow">Ready to Book?</p>
             <h2 id="cta-heading">Plan Your Journey Today</h2>
             <p>Continue to our booking partner to arrange your ride.</p>
-            <a
-              href={bookingUrl ?? '/book'}
+            <TrackLink
+              href="/book"
               className="button nav-book"
-              target={bookingUrl ? '_blank' : undefined}
-              rel={bookingUrl ? 'noopener noreferrer' : undefined}
+              eventName="booking_click"
+              eventParams={{
+                source_page: `/drivers/${page.slug}`,
+                button_location: 'footer_cta',
+              }}
             >
               Book Now <Icon name="arrow" width={16} />
-            </a>
+            </TrackLink>
           </div>
         </Container>
       </section>

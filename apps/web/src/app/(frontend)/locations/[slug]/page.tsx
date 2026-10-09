@@ -4,7 +4,7 @@ import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import Link from 'next/link';
 import { getLocationPage, getLocationServices, getSitemapRecords } from '@/lib/cms/page-queries';
-import { getBusinessConfig } from '@/lib/cms/queries';
+
 import { getPublicConfig } from '@/lib/config';
 import { TrackLink } from '@/components/analytics';
 
@@ -73,7 +73,6 @@ export default async function LocationDetailPage({
   const services = [...page.relatedServices, ...servicesResult.items].filter(
     (service, index, entries) => entries.findIndex((item) => item.slug === service.slug) === index,
   );
-  const { bookingUrl } = await getBusinessConfig();
 
   return (
     <main className="interior-page" id="main-content">
@@ -181,21 +180,17 @@ export default async function LocationDetailPage({
             <p>
               Our team is ready to provide premium transportation services throughout this area.
             </p>
-            {bookingUrl && (
-              <TrackLink
-                href={bookingUrl}
-                className="button nav-book"
-                target="_blank"
-                rel="noopener noreferrer"
-                eventName="booking_click"
-                eventParams={{
-                  source_page: `/locations/${page.slug}`,
-                  button_location: 'footer_cta',
-                }}
-              >
-                Book Now <Icon name="arrow" width={16} />
-              </TrackLink>
-            )}
+            <TrackLink
+              href="/book"
+              className="button nav-book"
+              eventName="booking_click"
+              eventParams={{
+                source_page: `/locations/${page.slug}`,
+                button_location: 'footer_cta',
+              }}
+            >
+              Book Now <Icon name="arrow" width={16} />
+            </TrackLink>
           </div>
         </Container>
       </section>

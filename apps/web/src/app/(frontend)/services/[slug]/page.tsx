@@ -4,10 +4,11 @@ import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import Link from 'next/link';
 import { getServicePage, getSitemapRecords } from '@/lib/cms/page-queries';
-import { getBusinessConfig } from '@/lib/cms/queries';
+
 import { getPublicConfig } from '@/lib/config';
 import type { ServicePage } from '@/lib/cms/types';
 import { TransportationInquiryForm } from '@/components/forms/TransportationInquiryForm';
+import { TrackLink } from '@/components/analytics';
 
 export async function generateStaticParams() {
   const records = await getSitemapRecords();
@@ -65,8 +66,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   if (!page) {
     notFound();
   }
-
-  const { bookingUrl } = await getBusinessConfig();
 
   return (
     <main className="interior-page" id="main-content">
@@ -195,14 +194,18 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <p>
               Reserve your ride through our trusted booking partner or contact us for assistance.
             </p>
-            <a
-              href={bookingUrl ?? '/book'}
+            <TrackLink
+              href="/book"
               className="button nav-book"
-              target={bookingUrl ? '_blank' : undefined}
-              rel={bookingUrl ? 'noopener noreferrer' : undefined}
+              eventName="booking_click"
+              eventParams={{
+                source_page: `/services/${page.slug}`,
+                button_location: 'footer_cta',
+                service_page: `/services/${page.slug}`,
+              }}
             >
               {page.bookingCTA?.label ?? 'Book Now'} <Icon name="arrow" width={16} />
-            </a>
+            </TrackLink>
           </div>
         </Container>
       </section>

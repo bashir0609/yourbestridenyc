@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import Link from 'next/link';
-import { getBusinessConfig } from '@/lib/cms/queries';
+
 import { getPublicConfig } from '@/lib/config';
 import { getLocations } from '@/lib/cms/queries';
 import { CmsEmptyState } from '@/components/cms-content';
@@ -48,7 +48,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LocationsPage() {
   const { items: locations, status } = await getPageData();
-  const { bookingUrl } = await getBusinessConfig();
 
   return (
     <main className="interior-page" id="main-content">
@@ -133,18 +132,14 @@ export default async function LocationsPage() {
             <p className="eyebrow">Ready to Book?</p>
             <h2 id="cta-heading">Check Availability in Your Area</h2>
             <p>Our team is ready to serve you wherever you are in the NYC metro area.</p>
-            {bookingUrl && (
-              <TrackLink
-                href={bookingUrl}
-                className="button nav-book"
-                target="_blank"
-                rel="noopener noreferrer"
-                eventName="booking_click"
-                eventParams={{ source_page: '/locations', button_location: 'footer_cta' }}
-              >
-                Book Now <Icon name="arrow" width={16} />
-              </TrackLink>
-            )}
+            <TrackLink
+              href="/book"
+              className="button nav-book"
+              eventName="booking_click"
+              eventParams={{ source_page: '/locations', button_location: 'footer_cta' }}
+            >
+              Book Now <Icon name="arrow" width={16} />
+            </TrackLink>
           </div>
         </Container>
       </section>
