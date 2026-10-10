@@ -217,119 +217,104 @@ section[id] {
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  background: #131719;
+  background: #0b0b0b;
   color: white;
 }
-.hero-art {
-  object-fit: cover;
-  object-position: center 57%;
+.hero-background {
   z-index: -3;
+  left: auto !important;
+  width: 76% !important;
+  object-fit: cover;
+  object-position: center 46%;
 }
 .hero-shade {
   position: absolute;
   inset: 0;
   z-index: -2;
   background:
-    linear-gradient(90deg, #0a0c0dfc 0%, #0a0c0deb 24%, #0a0c0d9e 45%, #0a0c0d18 75%),
-    linear-gradient(0deg, #0a0c0ddb, transparent 35%, #0b0b0b10);
+    linear-gradient(90deg, #0b0b0bfa 0%, #0b0b0be8 30%, #0b0b0b8c 48%, transparent 68%),
+    linear-gradient(0deg, #0b0b0be8 0%, transparent 30%);
 }
 .hero-inner {
   position: relative;
-  min-height: 656px;
+  z-index: 1;
+  min-height: 640px;
   display: flex;
   align-items: center;
-  padding-block: 76px 80px;
+  padding-block: 88px 96px;
 }
 .hero-copy {
-  max-width: 570px;
-}
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--gold-ink);
-  font-size: 10px;
-  letter-spacing: 2.4px;
-  font-weight: 650;
-  line-height: 1.8;
-  margin-bottom: 18px;
+  position: relative;
+  z-index: 1;
+  width: min(640px, 52%);
 }
 .hero .eyebrow {
-  color: #e5bd71;
-  font-size: 10px;
+  color: #f2c96b;
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-bottom: 22px;
 }
 .hero .eyebrow > span {
   display: block;
-  width: 26px;
+  width: 30px;
   height: 1px;
   background: #d9a441;
 }
 .hero h1 {
-  font-size: clamp(44px, 4.4vw, 66px);
-  line-height: 1.16;
-  font-weight: 550;
-  letter-spacing: -2.8px;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: clamp(46px, 4.3vw, 66px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -2.6px;
+  color: #ffffff;
+  text-wrap: balance;
 }
 .hero h1 > span {
-  color: #e4b459;
+  color: #f2c96b;
 }
 .hero-description {
-  max-width: 390px;
-  margin-top: 24px;
-  font-size: 14px;
-  line-height: 1.9;
-  color: #c6c6c3;
+  max-width: 460px;
+  margin-top: 26px;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #c9c9c4;
 }
 .hero-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 30px;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 36px;
 }
-.hero-note {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 27px;
-  font-size: 11px;
-  color: #b4b4b0;
+/* Keep the outlined secondary CTA, but raise border and text
+   contrast and add a subtle dark backing so it stays crisp
+   against the hero's lighter skyline areas. */
+.hero-actions .button-outline {
+  border-color: #ffffff7a;
+  color: #ffffff;
+  background: #0b0b0b59;
 }
-.small-line {
-  display: inline-block;
-  height: 1px;
-  width: 30px;
-  background: #b9934a;
+.hero-actions .button-outline:hover {
+  border-color: var(--color-gold);
+  background: #ffffff14;
 }
-.hero-caption {
+
+/* Subtle gold curved divider transitioning into the next
+   section. The arc glows against the black hero and fades
+   toward the bottom edge where the light journey strip
+   begins, so the section change reads as a clean curve. */
+.hero-curve {
+  position: relative;
+  height: 56px;
+  margin-top: -1px;
+  background: #0b0b0b;
+}
+.hero-curve::before {
+  content: '';
   position: absolute;
-  right: 0;
-  bottom: 26px;
-  font-size: 7px;
-  letter-spacing: 1.5px;
-  color: #c7c7c1;
-}
-.hero-bottom {
-  border-top: 1px solid #ffffff1a;
-  background: #090b0c30;
-}
-.hero-bottom > div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 59px;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: #d0cfcb;
-}
-.hero-bottom a {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-  letter-spacing: 0.4px;
-  font-size: 11px;
-}
-.hero-bottom a span {
-  color: #d9a441;
-  font-size: 20px;
+  inset: 0;
+  background:
+    radial-gradient(90% 130% at 50% 122%, #d9a4412e 0%, #d9a4410d 42%, transparent 68%);
+  border-radius: 100% 100% 0 0;
 }
 .journey-strip {
   background: #f6f5f2;
@@ -1052,9 +1037,24 @@ section[id] {
   color: #d7c6a4;
 }
 .interior-page {
-  padding-block: 92px 110px;
+  padding-block: 0 80px;
   background: #fafaf8;
   min-height: 65vh;
+}
+.interior-hero {
+  background:
+    radial-gradient(circle at 82% 20%, #a77b3026, transparent 34%),
+    linear-gradient(125deg, #070908, #151816 65%, #090b0a);
+  border-bottom: 1px solid #d9a44166;
+  color: white;
+  padding-block: 88px 82px;
+}
+.interior-hero h1 {
+  color: white;
+}
+.interior-hero .hero-description {
+  color: #c6c6c3;
+  margin-top: 18px;
 }
 .interior-page h1 {
   font-size: clamp(36px, 4.5vw, 60px);
@@ -1290,13 +1290,8 @@ section[id] {
   margin-top: 30px;
 }
 @media (min-width: 1700px) {
-  .hero-art {
-    object-position: center 63%;
-  }
-  .hero-shade {
-    background:
-      linear-gradient(90deg, #0a0c0dfc 0%, #0a0c0deb 30%, #0a0c0d9e 48%, #0a0c0d18 78%),
-      linear-gradient(0deg, #0a0c0ddb, transparent 35%);
+  .hero-inner {
+    min-height: 720px;
   }
 }
 @media (max-width: 1100px) {
@@ -1358,15 +1353,19 @@ section[id] {
     min-height: 78px;
   }
   .hero-inner {
-    min-height: 630px;
+    min-height: 600px;
   }
-  .hero-art {
-    object-position: 60% center;
+  .hero-copy {
+    width: min(560px, 58%);
+  }
+  .hero-background {
+    width: 82% !important;
+    object-position: 48% center;
   }
   .hero-shade {
     background:
-      linear-gradient(90deg, #0a0c0df5, #0a0c0dc9 43%, #0a0c0d55),
-      linear-gradient(0deg, #0a0c0dc9, transparent);
+      linear-gradient(90deg, #0b0b0bfa 0%, #0b0b0be8 38%, #0b0b0b7d 58%, transparent 78%),
+      linear-gradient(0deg, #0b0b0be8 0%, transparent 32%);
   }
   .section {
     padding-block: 75px;
@@ -1457,29 +1456,36 @@ section[id] {
     display: none;
   }
   .hero-inner {
-    min-height: 720px;
-    padding-block: 50px 230px;
+    min-height: 620px;
+    padding-block: 44px 210px;
     align-items: flex-start;
   }
+  .hero-copy {
+    width: 100%;
+  }
   .hero h1 {
-    font-size: clamp(40px, 9.5vw, 57px);
+    font-size: clamp(38px, 10vw, 54px);
     letter-spacing: -1.9px;
   }
-  .hero-art {
-    object-fit: cover;
-    object-position: 72% bottom;
-    height: 490px !important;
+  .hero-background {
+    left: 0 !important;
     top: auto !important;
     bottom: 0;
+    width: 100% !important;
+    height: 430px !important;
+    object-position: 48% bottom;
+  }
+  .hero-curve {
+    height: 40px;
   }
   .hero-shade {
     background: linear-gradient(
       180deg,
-      #111719 0%,
-      #111719 25%,
-      #111719ef 43%,
-      #11171966 70%,
-      #0b0e10a8
+      #0b0b0b 0%,
+      #0b0b0bf7 38%,
+      #0b0b0b9e 58%,
+      #0b0b0b47 78%,
+      #0b0b0bd9 100%
     );
   }
   .hero-description {
@@ -1501,26 +1507,6 @@ section[id] {
     padding: 13px 17px;
     font-size: 11px;
     min-height: 47px;
-  }
-  .hero-note {
-    font-size: 10px;
-    margin-top: 21px;
-  }
-  .hero-caption {
-    font-size: 5px;
-    letter-spacing: 0.9px;
-    bottom: 16px;
-  }
-  .hero-bottom > div {
-    min-height: 55px;
-  }
-  .hero-bottom > div > span {
-    font-size: 6px;
-    letter-spacing: 1.2px;
-  }
-  .hero-bottom a {
-    font-size: 9px;
-    gap: 14px;
   }
   .journey-strip > div {
     display: grid;
@@ -1707,7 +1693,10 @@ section[id] {
     display: none;
   }
   .interior-page {
-    padding-block: 58px 75px;
+    padding-block: 0 56px;
+  }
+  .interior-hero {
+    padding-block: 60px 56px;
   }
   .interior-page h1 {
     font-size: 37px;

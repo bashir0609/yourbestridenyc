@@ -39,23 +39,28 @@ export default async function Home() {
   return (
     <main id="main-content">
       <section className="hero" aria-labelledby="hero-title">
-        <Image src="/hero-journey.svg" alt="" fill priority sizes="100vw" className="hero-art" />
-        <div className="hero-shade" />
+        <Image
+          src="/hero-journey-4.png"
+          alt="Professional driver standing beside a black SUV outside a New York building"
+          fill
+          priority
+          sizes="100vw"
+          className="hero-background"
+        />
+        <div className="hero-shade" aria-hidden="true" />
         <Container className="hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">
-              <span /> A MORE CONSIDERED JOURNEY
+              <span /> PROFESSIONAL TRANSPORTATION IN NEW YORK
             </p>
             <h1 id="hero-title">
-              Your destination.
+              YOUR BEST RIDE,
               <br />
-              Your time.
-              <br />
-              <span>Your best ride.</span>
+              <span>EVERY TIME.</span>
             </h1>
             <p className="hero-description">
-              From everyday plans to out-of-the-ordinary moments. Make the journey part of what you
-              look forward to.
+              Reliable transportation for medical appointments, airport transfers,
+              corporate travel, and private rides across New York.
             </p>
             <div className="hero-actions">
               <TrackLink
@@ -64,26 +69,15 @@ export default async function Home() {
                 eventName="booking_click"
                 eventParams={{ source_page: '/', button_location: 'hero' }}
               >
-                Plan your ride <Icon name="arrow" width={18} />
+                BOOK A RIDE <Icon name="arrow" width={18} />
               </TrackLink>
-              <Button href="#services" variant="outline">
-                Explore our services
+              <Button href="/services" variant="outline">
+                EXPLORE SERVICES
               </Button>
             </div>
-            <p className="hero-note">
-              <span className="small-line" /> For the places life takes you.
-            </p>
           </div>
-          <span className="hero-caption">CONCEPT ILLUSTRATION · NOT AN ACTUAL FLEET VEHICLE</span>
         </Container>
-        <div className="hero-bottom">
-          <Container>
-            <span>THE JOURNEY IS PERSONAL.</span>
-            <a href="#services">
-              Discover the possibilities <span aria-hidden="true">↓</span>
-            </a>
-          </Container>
-        </div>
+        <div className="hero-curve" aria-hidden="true" />
       </section>
 
       <div className="journey-strip">

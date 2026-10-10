@@ -78,7 +78,7 @@ function NavbarContent() {
             eventName="booking_click"
             eventParams={{ source_page: 'current', button_location: 'navigation' }}
           >
-            Plan your ride <Icon name="arrow" width={16} />
+            Book a Ride <Icon name="arrow" width={16} />
           </TrackLink>
           <button
             ref={toggle}
@@ -107,7 +107,7 @@ function NavbarContent() {
             eventName="booking_click"
             eventParams={{ source_page: 'current', button_location: 'mobile_navigation' }}
           >
-            Plan your ride <Icon name="arrow" width={16} />
+            Book a Ride <Icon name="arrow" width={16} />
           </TrackLink>
         </nav>
       </div>
