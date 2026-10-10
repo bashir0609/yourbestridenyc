@@ -1,6 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { getPublicConfig } from '../config';
+import { formatPhoneDisplay, OFFICIAL_BUSINESS } from '../business-info';
 import { payloadClient } from './payload-client';
 import {
   mapDrivers,
@@ -85,10 +86,18 @@ export const getHomeContent = cache(() => queries().getHomeContent());
 export const getBusinessConfig = cache(async () => {
   const configured = getPublicConfig();
   const settings = await getSiteSettings();
+  const phone = configured.phone ?? settings.phone ?? OFFICIAL_BUSINESS.primaryPhone.e164;
   return {
     ...configured,
     bookingUrl: configured.bookingUrl ?? settings.bookingUrl,
     email: configured.email ?? settings.email,
-    phone: configured.phone ?? settings.phone,
+    phone,
+    phoneDisplay: formatPhoneDisplay(phone),
+    secondaryPhone: OFFICIAL_BUSINESS.secondaryPhone.e164,
+    secondaryPhoneDisplay: OFFICIAL_BUSINESS.secondaryPhone.display,
+    fax: OFFICIAL_BUSINESS.fax.e164,
+    faxDisplay: OFFICIAL_BUSINESS.fax.display,
+    address: OFFICIAL_BUSINESS.address,
+    businessName: OFFICIAL_BUSINESS.name,
   };
 });

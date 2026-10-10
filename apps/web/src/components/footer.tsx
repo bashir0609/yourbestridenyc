@@ -6,7 +6,8 @@ import { Icon } from './icon';
 import { TrackLink } from './analytics';
 
 export async function Footer() {
-  const { email, phone } = await getBusinessConfig();
+  const { address, email, faxDisplay, phone, phoneDisplay, secondaryPhone, secondaryPhoneDisplay } =
+    await getBusinessConfig();
   return (
     <footer className="site-footer">
       <Container>
@@ -41,16 +42,28 @@ export async function Footer() {
           </div>
           <div>
             <h2>Get in touch</h2>
-            {phone && (
-              <TrackLink
-                href={`tel:${phone}`}
-                eventName="phone_click"
-                eventParams={{ source_page: 'current', button_location: 'footer' }}
-              >
-                <Icon name="phone" width={16} />
-                {phone}
-              </TrackLink>
-            )}
+            <TrackLink
+              href={`tel:${phone}`}
+              eventName="phone_click"
+              eventParams={{ source_page: 'current', button_location: 'footer' }}
+            >
+              <Icon name="phone" width={16} />
+              {phoneDisplay}
+            </TrackLink>
+            <TrackLink
+              href={`tel:${secondaryPhone}`}
+              eventName="phone_click"
+              eventParams={{ source_page: 'current', button_location: 'footer_secondary' }}
+            >
+              <Icon name="phone" width={16} />
+              {secondaryPhoneDisplay}
+            </TrackLink>
+            <span>Fax: {faxDisplay}</span>
+            <address>
+              {address.street}
+              <br />
+              {address.city}, {address.state} {address.postalCode}
+            </address>
             {email && (
               <TrackLink
                 className="break-contact"
@@ -62,13 +75,7 @@ export async function Footer() {
                 {email}
               </TrackLink>
             )}
-            {!phone && !email && (
-              <p>
-                Business contact details
-                <br />
-                have not yet been published.
-              </p>
-            )}
+
             <span className="footer-note">
               Please don’t send medical or other sensitive information by email.
             </span>

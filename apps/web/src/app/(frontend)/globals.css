@@ -946,9 +946,18 @@ section[id] {
   margin-left: auto;
   width: 17px;
 }
-.contact-link > span {
+.contact-link > span,
+.contact-link > address {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.contact-detail {
+  cursor: default;
+}
+.contact-detail address {
+  color: var(--ink);
+  font-style: normal;
+  line-height: 1.6;
 }
 .contact-link small {
   display: block;
@@ -1002,10 +1011,20 @@ section[id] {
 .footer-grid > div > a:hover {
   color: #e1bc75;
 }
-.footer-grid p {
+.footer-grid p,
+.footer-grid address,
+.footer-grid > div > span:not(.footer-note) {
   color: #a8aba3;
   font-size: 11px;
   line-height: 1.9;
+}
+.footer-grid address {
+  font-style: normal;
+  margin-top: 14px;
+}
+.footer-grid > div > span:not(.footer-note) {
+  display: block;
+  margin-top: 14px;
 }
 .footer-brand p {
   margin-top: 23px;

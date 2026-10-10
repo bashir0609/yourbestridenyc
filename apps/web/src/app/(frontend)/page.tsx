@@ -34,7 +34,16 @@ const serviceIcons: Record<string, IconName> = {
 
 export default async function Home() {
   const content = await getHomeContent();
-  const { email, phone, bookingUrl } = await getBusinessConfig();
+  const {
+    address,
+    bookingUrl,
+    email,
+    faxDisplay,
+    phone,
+    phoneDisplay,
+    secondaryPhone,
+    secondaryPhoneDisplay,
+  } = await getBusinessConfig();
   const { services, fleet } = content;
   return (
     <main id="main-content">
@@ -456,11 +465,40 @@ export default async function Home() {
                   <Icon name="phone" />
                   <span>
                     <small>CALL TO DISCUSS YOUR TRIP</small>
-                    {phone}
+                    {phoneDisplay}
                   </span>
                   <Icon name="arrow" />
                 </TrackLink>
               )}
+              <TrackLink
+                className="contact-link"
+                href={`tel:${secondaryPhone}`}
+                eventName="phone_click"
+                eventParams={{ source_page: '/', button_location: 'contact_section_secondary' }}
+              >
+                <Icon name="phone" />
+                <span>
+                  <small>SECONDARY PHONE</small>
+                  {secondaryPhoneDisplay}
+                </span>
+                <Icon name="arrow" />
+              </TrackLink>
+              <div className="contact-link contact-detail">
+                <Icon name="pin" />
+                <address>
+                  <small>BUSINESS ADDRESS</small>
+                  {address.street}
+                  <br />
+                  {address.city}, {address.state} {address.postalCode}
+                </address>
+              </div>
+              <div className="contact-link contact-detail">
+                <Icon name="phone" />
+                <span>
+                  <small>FAX</small>
+                  {faxDisplay}
+                </span>
+              </div>
               {email && (
                 <TrackLink
                   className="contact-link"
@@ -476,15 +514,7 @@ export default async function Home() {
                   <Icon name="arrow" />
                 </TrackLink>
               )}
-              {!phone && !email && (
-                <div className="contact-empty">
-                  <Icon name="mail" />
-                  <h3>Contact information is not yet published.</h3>
-                  <p>
-                    Phone and email links will appear when official business details are configured.
-                  </p>
-                </div>
-              )}
+
               {bookingUrl && (
                 <TrackLink
                   href="/book"
