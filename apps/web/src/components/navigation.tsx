@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Button, Container } from '@/ui';
+import { Container } from '@/ui';
 import { Icon } from './icon';
+import { TrackLink } from './analytics';
 
 const links = [
   ['Services', '/services'],
@@ -71,9 +72,14 @@ function NavbarContent() {
           ))}
         </nav>
         <div className="nav-actions">
-          <Button href="/book" className="nav-book">
-            Plan your ride <Icon name="arrow" width={16} />
-          </Button>
+          <TrackLink
+            href="/book"
+            className="button nav-book"
+            eventName="booking_click"
+            eventParams={{ source_page: 'current', button_location: 'navigation' }}
+          >
+            Book a Ride <Icon name="arrow" width={16} />
+          </TrackLink>
           <button
             ref={toggle}
             type="button"
@@ -95,9 +101,14 @@ function NavbarContent() {
               <Icon name="arrow" width={16} />
             </Link>
           ))}
-          <Link href="/book" onClick={() => setOpen(false)}>
-            Plan your ride <Icon name="arrow" width={16} />
-          </Link>
+          <TrackLink
+            href="/book"
+            onClick={() => setOpen(false)}
+            eventName="booking_click"
+            eventParams={{ source_page: 'current', button_location: 'mobile_navigation' }}
+          >
+            Book a Ride <Icon name="arrow" width={16} />
+          </TrackLink>
         </nav>
       </div>
     </header>

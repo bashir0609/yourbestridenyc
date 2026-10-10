@@ -1,9 +1,18 @@
 import Image from 'next/image';
 import type { CmsStatus, PublicImage } from '@/lib/cms/types';
 
-export function CmsImage({ image }: { image: PublicImage }) {
+export function CmsImage({
+  image,
+  preserveAspectRatio = false,
+}: {
+  image: PublicImage;
+  preserveAspectRatio?: boolean;
+}) {
   return (
-    <div className="cms-photo">
+    <div
+      className={`cms-photo${preserveAspectRatio ? ' cms-photo-natural' : ''}`}
+      style={preserveAspectRatio ? { aspectRatio: `${image.width} / ${image.height}` } : undefined}
+    >
       <Image
         src={image.url}
         alt={image.alt}

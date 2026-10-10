@@ -113,8 +113,10 @@ export function mapServicePage(value: unknown, mediaOrigin?: string): ServicePag
   const doc = record(value);
   const base = mapEditorial({ docs: [doc] }, mediaOrigin)[0];
   if (!doc || !base) return;
+  const bookingLabel = text(record(doc.bookingCTA)?.label, 80);
   return {
     ...base,
+    ...(bookingLabel ? { bookingCTA: { label: bookingLabel } } : {}),
     overview: richBlocks(doc.content),
     benefits: Array.isArray(doc.benefits)
       ? doc.benefits.slice(0, 12).flatMap((item) => {
@@ -164,6 +166,12 @@ export function mapDriverPage(value: unknown, mediaOrigin?: string): DriverPage 
     ...base,
     biography: richBlocks(doc.bio),
     experience: text(doc.experience, 1500),
+    ...(typeof doc.experienceYears === 'number' &&
+    Number.isInteger(doc.experienceYears) &&
+    doc.experienceYears >= 0 &&
+    doc.experienceYears <= 80
+      ? { experienceYears: doc.experienceYears }
+      : {}),
     languages: textItems(doc.languages, 'language', 20),
     specialties: textItems(doc.specialties, 'specialty'),
     serviceAreas: locations(doc.serviceAreas),
@@ -180,6 +188,10 @@ export function mapLocationPage(value: unknown, mediaOrigin?: string): LocationP
     id: doc.id,
     introduction: richBlocks(doc.description),
     coverageAreas: textItems(doc.coverageAreas, 'area'),
+    relatedServices: mapEditorial(
+      { docs: Array.isArray(doc.relatedServices) ? doc.relatedServices : [] },
+      mediaOrigin,
+    ),
     faqs: faqs(doc.faqs),
     seo: seo(doc.seo, mediaOrigin),
   };

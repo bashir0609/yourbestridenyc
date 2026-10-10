@@ -1,4 +1,5 @@
 import 'server-only';
+import type { Where } from 'payload';
 import { cmsOrigin } from '../config';
 import {
   CMS_LIMITS,
@@ -32,7 +33,16 @@ const fields: Record<CmsResource, readonly string[]> = {
 };
 
 const detailFields = {
-  services: [...fields.services, 'content', 'benefits', 'features', 'serviceAreas', 'faqs', 'seo'],
+  services: [
+    ...fields.services,
+    'content',
+    'benefits',
+    'features',
+    'serviceAreas',
+    'bookingCTA.label',
+    'faqs',
+    'seo',
+  ],
   'fleet-vehicles': [
     ...fields['fleet-vehicles'],
     'category',
@@ -45,12 +55,22 @@ const detailFields = {
     ...fields.drivers,
     'bio',
     'experience',
+    'experienceYears',
     'languages',
     'specialties',
     'serviceAreas',
     'seo',
   ],
-  locations: [...fields.locations, 'id', 'description', 'coverageAreas', 'faqs', 'image', 'seo'],
+  locations: [
+    ...fields.locations,
+    'id',
+    'description',
+    'coverageAreas',
+    'relatedServices',
+    'faqs',
+    'image',
+    'seo',
+  ],
 };
 const sitemapFields = [
   'id',
@@ -142,7 +162,8 @@ export function createPayloadClient(
           : mode && Object.hasOwn(detailFields, resource)
             ? detailFields[resource as keyof typeof detailFields]
             : fields[resource];
-      for (const field of selected) url.searchParams.set(`select[${field}]`, 'true');
+      for (const field of selected)
+        url.searchParams.set(`select[${field.split('.').join('][')}]`, 'true');
       if (!global) {
         url.searchParams.set(
           'limit',
@@ -191,6 +212,7 @@ export function createPayloadClient(
                   ...(mode && (resource === 'services' || resource === 'drivers')
                     ? ['cms:locations']
                     : []),
+                  ...(mode && resource === 'locations' ? ['cms:services'] : []),
                 ],
               },
             });
@@ -220,10 +242,79 @@ export function createPayloadClient(
   };
 }
 
-export const payloadClient: PayloadClient = {
-  request: (resource, query) =>
-    createPayloadClient({
-      origin: process.env.CMS_URL,
-      development: process.env.NODE_ENV === 'development',
-    }).request(resource, query),
-};
+async function requestLocalPayload(
+  resource: CmsResource,
+  query: Parameters<PayloadClient['request']>[1] = {},
+): Promise<CmsResult<unknown>> {
+  if (!CMS_RESOURCES.includes(resource)) return { ok: false, reason: 'invalid' };
+  const { mode, slug, page = 1, locationId } = query;
+  if (
+    Object.keys(query).some((key) => !['mode', 'slug', 'page', 'locationId'].includes(key)) ||
+    (mode !== undefined &&
+      (!['detail', 'directory', 'sitemap'].includes(mode) ||
+        !Object.hasOwn(PAGE_PATHS, resource))) ||
+    !Number.isSafeInteger(page) ||
+    page < 1 ||
+    page > 1000 ||
+    (mode === 'detail' &&
+      (typeof slug !== 'string' ||
+        slug.length > 100 ||
+        !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) ||
+        query.page !== undefined)) ||
+    (mode !== 'detail' && slug !== undefined) ||
+    (mode === undefined && Object.keys(query).length > 0) ||
+    (locationId !== undefined &&
+      (resource !== 'services' ||
+        mode !== 'directory' ||
+        !Number.isSafeInteger(locationId) ||
+        locationId < 1))
+  ) {
+    return { ok: false, reason: 'invalid' };
+  }
+
+  try {
+    const [{ getPayload }, { default: config }] = await Promise.all([
+      import('payload'),
+      import('@payload-config'),
+    ]);
+    const payload = await getPayload({ config });
+    if (resource === 'site-settings') {
+      const data = await payload.findGlobal({
+        slug: 'site-settings',
+        depth: 0,
+        overrideAccess: false,
+      });
+      return { ok: true, data };
+    }
+
+    const conditions: Where[] = [{ _status: { equals: 'published' } }];
+    if (mode === 'detail') conditions.push({ slug: { equals: slug } });
+    if (locationId !== undefined) conditions.push({ serviceAreas: { contains: locationId } });
+    if (resource === 'drivers' || resource === 'testimonials') {
+      conditions.push({ websiteApproved: { equals: true } });
+    }
+
+    const data = await payload.find({
+      collection: resource,
+      depth: mode === 'sitemap' ? 0 : 1,
+      draft: false,
+      limit:
+        mode === 'detail'
+          ? 1
+          : mode === 'directory'
+            ? DIRECTORY_LIMIT
+            : mode === 'sitemap'
+              ? SITEMAP_LIMIT
+              : CMS_LIMITS[resource],
+      page: mode === 'directory' || mode === 'sitemap' ? page : 1,
+      sort: '-featured,displayOrder,id',
+      where: conditions.length === 1 ? conditions[0] : { and: conditions },
+      overrideAccess: false,
+    });
+    return { ok: true, data };
+  } catch {
+    return { ok: false, reason: 'unavailable' };
+  }
+}
+
+export const payloadClient: PayloadClient = { request: requestLocalPayload };

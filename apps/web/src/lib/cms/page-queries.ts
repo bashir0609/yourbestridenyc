@@ -137,6 +137,9 @@ export const getServicePage = cache((slug: string) => queries().getPage('service
 export const getFleetPage = cache((slug: string) => queries().getPage('fleet-vehicles', slug));
 export const getDriverPage = cache((slug: string) => queries().getPage('drivers', slug));
 export const getLocationPage = cache((slug: string) => queries().getPage('locations', slug));
+export const getServiceDirectory = cache((page: number) =>
+  queries().getDirectory('services', page),
+);
 export const getFleetDirectory = cache((page: number) =>
   queries().getDirectory('fleet-vehicles', page),
 );

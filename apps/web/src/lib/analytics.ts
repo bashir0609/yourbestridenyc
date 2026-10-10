@@ -1,0 +1,107 @@
+export const ANALYTICS_EVENT_NAMES = [
+  'booking_click',
+  'contact_form_submit',
+  'transportation_inquiry_submit',
+  'driver_application_submit',
+  'phone_click',
+  'email_click',
+] as const;
+
+export type AnalyticsEventName = (typeof ANALYTICS_EVENT_NAMES)[number];
+
+export interface AnalyticsEventMap {
+  booking_click: {
+    service_page?: string;
+    source_page: string;
+    button_location: string;
+  };
+  contact_form_submit: { source_page: string };
+  transportation_inquiry_submit: { service_page?: string; source_page: string };
+  driver_application_submit: { source_page: string };
+  phone_click: { source_page: string; button_location: string };
+  email_click: { source_page: string; button_location: string };
+}
+
+export type AnalyticsEvent = {
+  [Name in AnalyticsEventName]: {
+    eventName: Name;
+    eventParams: AnalyticsEventMap[Name];
+  };
+}[AnalyticsEventName];
+
+export interface SerializedAnalyticsEvent {
+  name: AnalyticsEventName;
+  params: Record<string, string>;
+}
+
+const EVENT_NAMES = new Set<string>(ANALYTICS_EVENT_NAMES);
+const PARAMETER_NAMES = new Set(['service_page', 'source_page', 'button_location']);
+const FORBIDDEN_PARAMETER_NAMES = new Set([
+  'email',
+  'phone',
+  'name',
+  'message',
+  'email_address',
+  'phone_number',
+  'full_name',
+]);
+const EMAIL_VALUE = /\b[^\s@]+@[^\s@]+\.[^\s@]+\b/;
+const PHONE_VALUE = /(?:\+?\d[\s().-]*){7,}/;
+const SAFE_VALUE = /^[^\u0000-\u001f\u007f]*$/;
+const MAX_VALUE_LENGTH = 100;
+
+export function validateGoogleAnalyticsId(value: string | undefined): string | undefined {
+  if (!value || !/^G-[A-Z0-9]{4,}$/.test(value)) return undefined;
+  return value;
+}
+
+function sanitizeValue(value: unknown): string | undefined {
+  if (typeof value !== 'string' || value.length === 0 || value.length > MAX_VALUE_LENGTH)
+    return undefined;
+  if (value !== value.trim() || !SAFE_VALUE.test(value)) return undefined;
+  if (EMAIL_VALUE.test(value) || PHONE_VALUE.test(value)) return undefined;
+  return value;
+}
+
+export function serializeAnalyticsEvent(
+  name: unknown,
+  parameters: unknown,
+): SerializedAnalyticsEvent | undefined {
+  if (typeof name !== 'string' || !EVENT_NAMES.has(name)) return undefined;
+  if (!parameters || typeof parameters !== 'object' || Array.isArray(parameters)) return undefined;
+
+  const params: Record<string, string> = {};
+  for (const [key, value] of Object.entries(parameters)) {
+    const normalizedKey = key.toLowerCase();
+    if (FORBIDDEN_PARAMETER_NAMES.has(normalizedKey) || !PARAMETER_NAMES.has(key)) return undefined;
+    const sanitized = sanitizeValue(value);
+    if (!sanitized) return undefined;
+    params[key] = sanitized;
+  }
+
+  return { name: name as AnalyticsEventName, params };
+}
+
+type Gtag = (command: 'event', name: string, parameters?: Record<string, string>) => void;
+
+function browserGtag(): Gtag | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const candidate = (window as typeof window & { gtag?: unknown }).gtag;
+  return typeof candidate === 'function' ? (candidate as Gtag) : undefined;
+}
+
+export function trackEvent<Name extends AnalyticsEventName>(
+  name: Name,
+  parameters: AnalyticsEventMap[Name],
+): void;
+export function trackEvent(name: string, parameters: Record<string, unknown>): void;
+export function trackEvent(name: string, parameters: unknown): void {
+  const event = serializeAnalyticsEvent(name, parameters);
+  if (!event) return;
+  browserGtag()?.('event', event.name, event.params);
+}
+
+export function trackPageView(path: string): void {
+  if (!path.startsWith('/') || path.length > 2_048 || !SAFE_VALUE.test(path)) return;
+  browserGtag()?.('event', 'page_view', { page_path: path });
+}
