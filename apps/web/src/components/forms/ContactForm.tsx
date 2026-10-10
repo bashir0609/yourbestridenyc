@@ -96,8 +96,8 @@ export function ContactForm({ sourcePage }: { sourcePage: string }) {
   };
 
   return (
-    <Card className="contact-form">
-      <CardHeader>
+    <Card className="contact-form public-form-card">
+      <CardHeader className="public-form-header">
         <CardTitle>Get in Touch</CardTitle>
         <CardDescription>
           Have a question or need assistance? Send us a message and we&apos;ll respond as soon as
@@ -122,7 +122,12 @@ export function ContactForm({ sourcePage }: { sourcePage: string }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate aria-label="Contact form">
+      <form
+        className="public-form-body"
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Contact form"
+      >
         <div className="form-honeypot" aria-hidden="true">
           <label htmlFor="contact-website">Website</label>
           <input

@@ -104,8 +104,8 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
   };
 
   return (
-    <Card className="driver-application-form">
-      <CardHeader>
+    <Card className="driver-application-form public-form-card">
+      <CardHeader className="driver-application-header public-form-header">
         <CardTitle>Join Our Team</CardTitle>
         <CardDescription>
           Apply to become a driver with YourBestRide. Our team reviews all applications carefully.
@@ -132,7 +132,12 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate aria-label="Driver application form">
+      <form
+        className="driver-application-body public-form-body"
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Driver application form"
+      >
         <div className="form-honeypot" aria-hidden="true">
           <label htmlFor="driver-website">Website</label>
           <input

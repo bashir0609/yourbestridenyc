@@ -7,7 +7,7 @@ export function DriverCard({ driver }: { driver?: Driver }) {
   return (
     <Card className={`driver-card ${driver ? '' : 'empty-card'}`}>
       {driver?.image ? (
-        <CmsImage image={driver.image} />
+        <CmsImage image={driver.image} preserveAspectRatio />
       ) : (
         <div className="profile-art">
           <Icon name="user" width={44} height={44} />

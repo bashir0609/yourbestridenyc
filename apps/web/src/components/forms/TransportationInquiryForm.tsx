@@ -111,8 +111,8 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
   };
 
   return (
-    <Card className="transportation-inquiry-form">
-      <CardHeader>
+    <Card className="transportation-inquiry-form public-form-card">
+      <CardHeader className="public-form-header">
         <CardTitle>Request Transportation</CardTitle>
         <CardDescription>
           Fill out the form below and our team will get back to you shortly to discuss your
@@ -139,7 +139,12 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate aria-label="Transportation inquiry form">
+      <form
+        className="public-form-body"
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Transportation inquiry form"
+      >
         <div className="form-honeypot" aria-hidden="true">
           <label htmlFor="transportation-website">Website</label>
           <input

@@ -80,7 +80,7 @@ export default async function DriversPage() {
                 >
                   <div className="driver-card">
                     {driver.image ? (
-                      <CmsImage image={driver.image} />
+                      <CmsImage image={driver.image} preserveAspectRatio />
                     ) : (
                       <div className="profile-art">
                         <Icon name="user" width={44} height={44} />

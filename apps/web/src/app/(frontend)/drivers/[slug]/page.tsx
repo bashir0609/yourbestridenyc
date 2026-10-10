@@ -72,7 +72,7 @@ export default async function DriverDetailPage({ params }: { params: Promise<{ s
           <div className="interior-intro driver-hero">
             {page.image && (
               <div className="driver-portrait">
-                <CmsImage image={page.image} />
+                <CmsImage image={page.image} preserveAspectRatio />
               </div>
             )}
             <div className="driver-intro">
