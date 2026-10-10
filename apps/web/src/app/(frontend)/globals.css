@@ -312,8 +312,7 @@ section[id] {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(90% 130% at 50% 122%, #d9a4412e 0%, #d9a4410d 42%, transparent 68%);
+  background: radial-gradient(90% 130% at 50% 122%, #d9a4412e 0%, #d9a4410d 42%, transparent 68%);
   border-radius: 100% 100% 0 0;
 }
 .journey-strip {
@@ -2024,7 +2023,6 @@ section[id] {
 }
 
 @media (max-width: 640px) {
-
   .application-header {
     margin-bottom: 24px;
   }

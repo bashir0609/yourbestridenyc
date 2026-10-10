@@ -68,8 +68,8 @@ export default async function Home() {
               <span>EVERY TIME.</span>
             </h1>
             <p className="hero-description">
-              Reliable transportation for medical appointments, airport transfers,
-              corporate travel, and private rides across New York.
+              Reliable transportation for medical appointments, airport transfers, corporate travel,
+              and private rides across New York.
             </p>
             <div className="hero-actions">
               <TrackLink
