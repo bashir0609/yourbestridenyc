@@ -50,8 +50,8 @@ const PHONE_VALUE = /(?:\+?\d[\s().-]*){7,}/;
 const SAFE_VALUE = /^[^\u0000-\u001f\u007f]*$/;
 const MAX_VALUE_LENGTH = 100;
 
-export function validateGoogleAnalyticsId(value: string | undefined): string | undefined {
-  if (!value || !/^G-[A-Z0-9]{4,}$/.test(value)) return undefined;
+export function validateGoogleTagManagerId(value: string | undefined): string | undefined {
+  if (!value || !/^GTM-[A-Z0-9]{4,}$/.test(value)) return undefined;
   return value;
 }
 
@@ -82,12 +82,13 @@ export function serializeAnalyticsEvent(
   return { name: name as AnalyticsEventName, params };
 }
 
-type Gtag = (command: 'event', name: string, parameters?: Record<string, string>) => void;
+type DataLayer = Array<Record<string, string>>;
 
-function browserGtag(): Gtag | undefined {
+function browserDataLayer(): DataLayer | undefined {
   if (typeof window === 'undefined') return undefined;
-  const candidate = (window as typeof window & { gtag?: unknown }).gtag;
-  return typeof candidate === 'function' ? (candidate as Gtag) : undefined;
+  const target = window as typeof window & { dataLayer?: unknown };
+  if (target.dataLayer === undefined) target.dataLayer = [];
+  return Array.isArray(target.dataLayer) ? (target.dataLayer as DataLayer) : undefined;
 }
 
 export function trackEvent<Name extends AnalyticsEventName>(
@@ -98,10 +99,39 @@ export function trackEvent(name: string, parameters: Record<string, unknown>): v
 export function trackEvent(name: string, parameters: unknown): void {
   const event = serializeAnalyticsEvent(name, parameters);
   if (!event) return;
-  browserGtag()?.('event', event.name, event.params);
+  browserDataLayer()?.push({ event: event.name, ...event.params });
+}
+
+function safePagePath(path: unknown): path is string {
+  return (
+    typeof path === 'string' &&
+    path.startsWith('/') &&
+    !path.startsWith('//') &&
+    !path.includes('?') &&
+    !path.includes('#') &&
+    path.length <= 2_048 &&
+    SAFE_VALUE.test(path)
+  );
+}
+
+export function nextPageViewPath(
+  previousPath: string | undefined,
+  currentPath: unknown,
+): string | undefined {
+  if (!safePagePath(currentPath) || currentPath === previousPath) return undefined;
+  return currentPath;
 }
 
 export function trackPageView(path: string): void {
-  if (!path.startsWith('/') || path.length > 2_048 || !SAFE_VALUE.test(path)) return;
-  browserGtag()?.('event', 'page_view', { page_path: path });
+  if (!safePagePath(path) || typeof window === 'undefined') return;
+  const origin = window.location.origin;
+  if (!/^https?:\/\/[^/?#]+$/i.test(origin)) return;
+  const title = document.title.trim();
+  if (!title || title.length > 200 || !SAFE_VALUE.test(title)) return;
+  browserDataLayer()?.push({
+    event: 'page_view',
+    page_path: path,
+    page_location: `${origin}${path}`,
+    page_title: title,
+  });
 }

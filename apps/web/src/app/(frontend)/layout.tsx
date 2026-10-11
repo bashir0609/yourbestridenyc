@@ -2,7 +2,11 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Montserrat } from 'next/font/google';
 import { Navbar } from '@/components/navigation';
 import { Footer } from '@/components/footer';
-import { GoogleAnalytics } from '@/components/analytics';
+import {
+  AnalyticsPageViews,
+  GoogleTagManager,
+  GoogleTagManagerNoScript,
+} from '@/components/analytics';
 import { getPublicConfig } from '@/lib/config';
 import { localBusinessJsonLd, OFFICIAL_BUSINESS } from '@/lib/business-info';
 import { getSiteSettings } from '@/lib/cms/queries';
@@ -48,7 +52,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const jsonLd = JSON.stringify(localBusinessJsonLd(siteUrl)).replaceAll('<', '\\u003c');
   return (
     <html lang="en">
+      <head>
+        <GoogleTagManager />
+      </head>
       <body id="top" className={`${inter.variable} ${montserrat.variable}`}>
+        <GoogleTagManagerNoScript />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
         <a href="#main-content" className="skip-link">
           Skip to content
@@ -56,7 +64,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Navbar />
         {children}
         <Footer />
-        <GoogleAnalytics />
+        <AnalyticsPageViews />
       </body>
     </html>
   );

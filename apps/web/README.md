@@ -52,7 +52,7 @@ Cloudflare R2 stores public marketing images only. The Payload S3-compatible ada
 
 ## Analytics and booking
 
-`NEXT_PUBLIC_GA_ID` enables GA4 page views and allowlisted conversion events without personal form data. Booking links emit `booking_click` and hand users to the configured Limo Anywhere HTTPS URL. The application does not store reservations or implement dispatch, assignment, availability, or trip management.
+`NEXT_PUBLIC_GTM_ID` loads Google Tag Manager on public routes. The application pushes validated, allowlisted page-view and conversion events to `window.dataLayer` without personal form data; GA4 delivery must be configured in GTM. Booking links emit `booking_click` and hand users to the configured Limo Anywhere HTTPS URL. The application does not store reservations or implement dispatch, assignment, availability, or trip management.
 
 ## Validation
 
