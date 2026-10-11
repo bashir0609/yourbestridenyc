@@ -55,6 +55,11 @@ export function validateGoogleAnalyticsId(value: string | undefined): string | u
   return value;
 }
 
+export function validateGoogleTagManagerId(value: string | undefined): string | undefined {
+  if (!value || !/^GTM-[A-Z0-9]{4,}$/.test(value)) return undefined;
+  return value;
+}
+
 function sanitizeValue(value: unknown): string | undefined {
   if (typeof value !== 'string' || value.length === 0 || value.length > MAX_VALUE_LENGTH)
     return undefined;
