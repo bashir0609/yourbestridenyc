@@ -9,6 +9,8 @@ import { CmsImage, CmsEmptyState } from '@/components/cms-content';
 import { TransportationInquiryForm } from '@/components/forms/TransportationInquiryForm';
 import { TrackLink } from '@/components/analytics';
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   return [{ page: '1' }];
 }

@@ -16,7 +16,7 @@ import {
 const MAX_RESPONSE_BYTES = 262_144;
 const TIMEOUT_MS = 4000;
 const fields: Record<CmsResource, readonly string[]> = {
-  services: ['slug', 'title', 'summary', 'image', '_status'],
+  services: ['slug', 'title', 'developmentSeed', 'summary', 'image', '_status'],
   'fleet-vehicles': [
     'slug',
     'name',
@@ -28,7 +28,7 @@ const fields: Record<CmsResource, readonly string[]> = {
   ],
   drivers: ['slug', 'name', 'summary', 'photo', 'websiteApproved', '_status'],
   testimonials: ['slug', 'attribution', 'quote', 'websiteApproved', '_status'],
-  locations: ['slug', 'name', 'summary', '_status'],
+  locations: ['slug', 'name', 'developmentSeed', 'summary', '_status'],
   'site-settings': ['siteName', 'defaultSEO', 'bookingURL', 'publicEmail', 'publicPhone'],
 };
 
@@ -79,6 +79,7 @@ const sitemapFields = [
   'name',
   'summary',
   'websiteApproved',
+  'developmentSeed',
   '_status',
   'updatedAt',
 ];
@@ -183,6 +184,9 @@ export function createPayloadClient(
           url.searchParams.set('where[serviceAreas][contains]', String(locationId));
         url.searchParams.set('sort', '-featured,displayOrder,id');
         url.searchParams.set('where[_status][equals]', 'published');
+        if (resource === 'services' || resource === 'locations') {
+          url.searchParams.set('where[developmentSeed][not_equals]', 'true');
+        }
         if (resource === 'drivers' || resource === 'testimonials') {
           url.searchParams.set('where[websiteApproved][equals]', 'true');
         }
@@ -288,6 +292,9 @@ async function requestLocalPayload(
     }
 
     const conditions: Where[] = [{ _status: { equals: 'published' } }];
+    if (resource === 'services' || resource === 'locations') {
+      conditions.push({ developmentSeed: { not_equals: true } });
+    }
     if (mode === 'detail') conditions.push({ slug: { equals: slug } });
     if (locationId !== undefined) conditions.push({ serviceAreas: { contains: locationId } });
     if (resource === 'drivers' || resource === 'testimonials') {

@@ -8,6 +8,8 @@ import { getLocationPage, getLocationServices, getSitemapRecords } from '@/lib/c
 import { getPublicConfig } from '@/lib/config';
 import { TrackLink } from '@/components/analytics';
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   const records = await getSitemapRecords();
   const locationRecords = records.filter((r) => r.path.startsWith('/locations/'));

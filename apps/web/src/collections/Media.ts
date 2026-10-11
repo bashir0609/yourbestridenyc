@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { editorialWrite, publicRead } from '../access';
+import { mediaRevalidationHooks } from '../lib/cms/path-revalidation';
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -15,6 +16,7 @@ export const Media: CollectionConfig = {
     update: editorialWrite,
     delete: editorialWrite,
   },
+  hooks: mediaRevalidationHooks,
   upload: {
     disableLocalStorage: true,
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],

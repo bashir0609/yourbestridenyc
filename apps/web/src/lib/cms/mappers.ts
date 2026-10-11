@@ -88,7 +88,7 @@ export function mapEditorial(payload: unknown, mediaOrigin?: string): EditorialC
       const title = text(doc.title ?? doc.name, 90);
       const summary = text(doc.summary, 300);
       const image = mapImage(doc.image, mediaOrigin);
-      return published(doc) && id && title && summary
+      return published(doc) && doc.developmentSeed !== true && id && title && summary
         ? [{ slug: id, title, summary, ...(image ? { image } : {}) }]
         : [];
     }),

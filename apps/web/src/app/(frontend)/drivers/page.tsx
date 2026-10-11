@@ -9,6 +9,8 @@ import { CmsImage, CmsEmptyState } from '@/components/cms-content';
 import { DriverApplicationForm } from '@/components/forms/DriverApplicationForm';
 import { TrackLink } from '@/components/analytics';
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   return [{ page: '1' }];
 }

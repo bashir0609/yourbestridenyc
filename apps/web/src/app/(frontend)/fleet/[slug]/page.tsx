@@ -8,6 +8,8 @@ import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   const records = await getSitemapRecords();
   const fleetRecords = records.filter((r) => r.path.startsWith('/fleet/'));

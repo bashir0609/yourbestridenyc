@@ -10,6 +10,8 @@ import type { CoverageArea } from '@/lib/cms/types';
 import { TransportationInquiryForm } from '@/components/forms/TransportationInquiryForm';
 import { TrackLink } from '@/components/analytics';
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   return [{}];
 }

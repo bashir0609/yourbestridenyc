@@ -6,6 +6,8 @@ import { Icon } from '@/components/icon';
 import { getPublicConfig } from '@/lib/config';
 import { getServiceDirectory } from '@/lib/cms/page-queries';
 
+export const revalidate = 300;
+
 async function getPageData() {
   const result = await getServiceDirectory(1);
   if (result.status === 'invalid' || result.status === 'unavailable') {

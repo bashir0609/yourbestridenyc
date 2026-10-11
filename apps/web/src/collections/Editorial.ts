@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { createPublicRevalidationHooks } from '../lib/cms/path-revalidation';
 import {
   bookingCTAField,
   developmentSeedField,
@@ -37,6 +38,7 @@ export const Services: CollectionConfig = {
   },
   access: editorialAccess,
   versions: editorialVersions,
+  hooks: createPublicRevalidationHooks('services'),
   fields: [
     { name: 'title', type: 'text', required: true },
     slugField,
@@ -102,6 +104,7 @@ export const Drivers: CollectionConfig = {
   },
   access: editorialAccess,
   versions: editorialVersions,
+  hooks: createPublicRevalidationHooks('drivers'),
   fields: [
     {
       name: 'name',
@@ -190,6 +193,7 @@ export const FleetVehicles: CollectionConfig = {
   },
   access: editorialAccess,
   versions: editorialVersions,
+  hooks: createPublicRevalidationHooks('fleet-vehicles'),
   fields: [
     { name: 'name', type: 'text', required: true },
     slugField,
@@ -265,6 +269,7 @@ export const Testimonials: CollectionConfig = {
   },
   access: editorialAccess,
   versions: editorialVersions,
+  hooks: createPublicRevalidationHooks('testimonials'),
   fields: [
     { name: 'attribution', type: 'text', required: true },
     slugField,
@@ -291,6 +296,7 @@ export const Locations: CollectionConfig = {
   },
   access: editorialAccess,
   versions: editorialVersions,
+  hooks: createPublicRevalidationHooks('locations'),
   fields: [
     { name: 'name', type: 'text', required: true },
     slugField,
