@@ -3,7 +3,7 @@ import { Inter, Montserrat } from 'next/font/google';
 import { Navbar } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import {
-  GoogleAnalytics,
+  AnalyticsPageViews,
   GoogleTagManager,
   GoogleTagManagerNoScript,
 } from '@/components/analytics';
@@ -64,7 +64,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Navbar />
         {children}
         <Footer />
-        <GoogleAnalytics />
+        <AnalyticsPageViews />
       </body>
     </html>
   );
