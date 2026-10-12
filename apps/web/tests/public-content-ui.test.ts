@@ -12,6 +12,7 @@ const locations = read('../src/app/(frontend)/locations/page.tsx');
 const serviceDetail = read('../src/app/(frontend)/services/[slug]/page.tsx');
 const locationDetail = read('../src/app/(frontend)/locations/[slug]/page.tsx');
 const cards = read('../src/components/public-content/index.tsx');
+const styles = read('../src/app/(frontend)/globals.css');
 const payloadClient = read('../src/lib/cms/payload-client.ts');
 
 test('meaningful summaries suppress names and repeated-name sequences', () => {
@@ -56,6 +57,22 @@ test('all directories use shared heroes, cards, and honest empty states', () => 
   assert.match(fleet, /<FleetCard/);
   assert.match(services, /<ServiceCard/);
   assert.match(locations, /<LocationCard/);
+});
+
+test('empty directory contact actions target the existing homepage contact section', () => {
+  assert.match(homepage, /<section id="contact"/);
+  for (const source of [services, locations]) {
+    assert.match(source, /actionHref="\/#contact"/);
+    assert.doesNotMatch(source, /actionHref="\/contact"/);
+  }
+});
+
+test('public driver portraits retain a 4:5 frame with centered cover images', () => {
+  assert.match(styles, /\.driver-public-media \.cms-photo\s*\{[^}]*aspect-ratio: 4 \/ 5 !important;/);
+  assert.match(
+    styles,
+    /\.driver-public-media \.cms-photo img\s*\{\s*object-fit: cover;\s*object-position: center;\s*\}/,
+  );
 });
 
 test('service and location details preserve tracked booking and conditional CMS sections', () => {

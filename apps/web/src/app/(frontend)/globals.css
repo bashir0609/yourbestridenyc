@@ -1495,8 +1495,8 @@ section[id] {
   aspect-ratio: 4 / 5 !important;
 }
 .driver-public-media .cms-photo img {
-  object-fit: contain;
-  object-position: center top;
+  object-fit: cover;
+  object-position: center;
 }
 .fleet-public-media {
   padding: 18px;

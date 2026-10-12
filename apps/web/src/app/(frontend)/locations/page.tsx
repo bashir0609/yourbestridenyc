@@ -78,7 +78,7 @@ export default async function LocationsPage() {
             <ContentEmptyState
               label="service areas"
               status={status}
-              actionHref="/contact"
+              actionHref="/#contact"
               actionLabel="Ask About Your Route"
             />
           )}

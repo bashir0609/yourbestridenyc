@@ -71,7 +71,7 @@ export default async function ServicesPage() {
             <ContentEmptyState
               label="transportation services"
               status={directory.status}
-              actionHref="/contact"
+              actionHref="/#contact"
               actionLabel="Contact Your Best Ride"
             />
           )}
