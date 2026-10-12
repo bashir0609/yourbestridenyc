@@ -8,6 +8,8 @@ import { getDriverPage, getSitemapRecords } from '@/lib/cms/page-queries';
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
+import { DetailBreadcrumb } from '@/components/public-content';
+import { meaningfulSummary } from '@/lib/content-quality';
 
 export const revalidate = 300;
 
@@ -78,7 +80,7 @@ export default async function DriverDetailPage({ params }: { params: Promise<{ s
     notFound();
   }
 
-  const summary = distinctText(page.summary, [page.name]);
+  const summary = meaningfulSummary(page.summary, page.name);
   const experience = distinctText(page.experience, [page.name, page.summary]);
   const biography = page.biography.filter(
     (block, index, blocks) =>
@@ -92,11 +94,7 @@ export default async function DriverDetailPage({ params }: { params: Promise<{ s
     <main className="interior-page driver-detail" id="main-content">
       <section className="driver-detail-hero" aria-labelledby="driver-name">
         <Container>
-          <nav className="detail-breadcrumb" aria-label="Breadcrumb">
-            <Link href="/drivers">Our Drivers</Link>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{page.name}</span>
-          </nav>
+          <DetailBreadcrumb href="/drivers" label="Our Drivers" current={page.name} />
           <div className="driver-detail-hero-grid">
             {page.image && (
               <div className="driver-detail-media">

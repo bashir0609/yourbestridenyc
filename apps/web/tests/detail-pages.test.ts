@@ -26,7 +26,7 @@ test('driver detail remains CMS-driven and provides tracked booking and director
 });
 
 test('driver detail suppresses repeated CMS text without changing CMS records', () => {
-  assert.match(driverTemplate, /distinctText\(page\.summary, \[page\.name\]\)/);
+  assert.match(driverTemplate, /meaningfulSummary\(page\.summary, page\.name\)/);
   assert.match(driverTemplate, /distinctText\(page\.experience, \[page\.name, page\.summary\]\)/);
   assert.match(driverTemplate, /page\.biography\.filter/);
 });

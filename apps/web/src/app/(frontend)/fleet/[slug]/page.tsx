@@ -8,6 +8,7 @@ import { getFleetPage, getSitemapRecords } from '@/lib/cms/page-queries';
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
+import { DetailBreadcrumb } from '@/components/public-content';
 
 export const revalidate = 300;
 
@@ -76,11 +77,7 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
     <main className="interior-page fleet-detail" id="main-content">
       <section className="fleet-detail-hero" aria-labelledby="vehicle-title">
         <Container>
-          <nav className="detail-breadcrumb" aria-label="Breadcrumb">
-            <Link href="/fleet">Our Fleet</Link>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{page.title}</span>
-          </nav>
+          <DetailBreadcrumb href="/fleet" label="Our Fleet" current={page.title} />
           <div
             className={`fleet-detail-hero-grid${primaryImage ? '' : ' fleet-detail-hero-grid-text-only'}`}
           >

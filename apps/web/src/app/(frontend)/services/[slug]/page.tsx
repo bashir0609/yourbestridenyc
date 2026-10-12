@@ -2,27 +2,25 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
-import Link from 'next/link';
 import { getServicePage, getSitemapRecords } from '@/lib/cms/page-queries';
-
 import { getPublicConfig } from '@/lib/config';
-import type { ServicePage } from '@/lib/cms/types';
+import { CmsImage } from '@/components/cms-content';
+import type { ServicePage as PublicServicePage } from '@/lib/cms/types';
 import { TransportationInquiryForm } from '@/components/forms/TransportationInquiryForm';
 import { TrackLink } from '@/components/analytics';
+import { DetailBreadcrumb, LocationCard, SectionHeading } from '@/components/public-content';
 
 export const revalidate = 300;
 
 export async function generateStaticParams() {
   const records = await getSitemapRecords();
-  const serviceRecords = records.filter((r) => r.path.startsWith('/services/'));
-  return serviceRecords.map((r) => ({ slug: r.path.replace('/services/', '') }));
+  const serviceRecords = records.filter((record) => record.path.startsWith('/services/'));
+  return serviceRecords.map((record) => ({ slug: record.path.replace('/services/', '') }));
 }
 
 async function getPageData(slug: string) {
   const result = await getServicePage(slug);
-  if (!result.ok) {
-    throw new Error(`CMS request failed: ${result.reason}`);
-  }
+  if (!result.ok) throw new Error(`CMS request failed: ${result.reason}`);
   return result.data;
 }
 
@@ -34,13 +32,8 @@ export async function generateMetadata({
   const { slug } = await params;
   const { siteUrl } = getPublicConfig();
   const page = await getPageData(slug);
-
-  if (!page) {
-    return { title: 'Service Not Found' };
-  }
-
+  if (!page) return { title: 'Service Not Found' };
   const canonical = siteUrl ? `${siteUrl}/services/${slug}` : undefined;
-
   return {
     title: page.seo?.title ?? page.title,
     description: page.seo?.description ?? page.summary,
@@ -64,125 +57,132 @@ export async function generateMetadata({
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = await getPageData(slug);
-
-  if (!page) {
-    notFound();
-  }
+  if (!page) notFound();
 
   return (
-    <main className="interior-page" id="main-content">
-      <section className="hero interior-hero" aria-labelledby="service-title">
+    <main className="interior-page content-detail service-detail" id="main-content">
+      <section className="content-detail-hero" aria-labelledby="service-title">
         <Container>
-          <div className="interior-intro">
-            <p className="eyebrow">
-              <span>Premium Transportation</span>
-            </p>
-            <h1 id="service-title">{page.title}</h1>
-            <p className="hero-description">{page.summary}</p>
+          <DetailBreadcrumb href="/services" label="Our Services" current={page.title} />
+          <div
+            className={`content-detail-hero-grid${page.image ? '' : ' content-detail-text-only'}`}
+          >
+            <div className="content-detail-intro">
+              <p className="eyebrow">THOUGHTFUL TRANSPORTATION</p>
+              <h1 id="service-title">{page.title}</h1>
+              <p className="content-detail-summary">{page.summary}</p>
+              <div className="detail-primary-actions">
+                <TrackLink
+                  href="/book"
+                  className="button button-gold"
+                  eventName="booking_click"
+                  eventParams={{
+                    source_page: `/services/${page.slug}`,
+                    button_location: 'service_hero',
+                    service_page: `/services/${page.slug}`,
+                  }}
+                >
+                  {page.bookingCTA?.label ?? 'Book a Ride'} <Icon name="arrow" width={16} />
+                </TrackLink>
+                <a href="#service-inquiry" className="button detail-secondary-action">
+                  Request Information
+                </a>
+              </div>
+            </div>
+            {page.image && (
+              <div className="content-detail-media">
+                <CmsImage
+                  image={page.image}
+                  preserveAspectRatio
+                  className="content-detail-photo"
+                  sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1100px) 48vw, 600px"
+                  priority
+                />
+              </div>
+            )}
           </div>
         </Container>
       </section>
 
-      <section className="section" aria-labelledby="overview-heading">
-        <Container>
-          <div className="interior-intro">
-            <h2 id="overview-heading" className="section-heading">
-              Service Overview
-            </h2>
-            <div className="rich-text">
-              {page.overview.map((block, index) => (
-                <RichBlock key={index} block={block} />
-              ))}
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {page.benefits.length > 0 && (
-        <section className="section" aria-labelledby="benefits-heading">
-          <Container>
-            <h2 id="benefits-heading" className="section-heading">
-              Why Choose This Service
-            </h2>
-            <div className="service-grid">
-              {page.benefits.map((benefit, index) => (
-                <div key={index} className="service-card benefit-card">
-                  <div className="card-body">
-                    <h3>{benefit.title}</h3>
-                    {benefit.description && <p>{benefit.description}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
+      {(page.overview.length > 0 || page.features.length > 0) && (
+        <section className="section content-detail-main" aria-labelledby="overview-heading">
+          <Container className="content-detail-grid">
+            {page.overview.length > 0 && (
+              <div className="content-detail-copy">
+                <p className="eyebrow">THE SERVICE</p>
+                <h2 id="overview-heading">Service overview</h2>
+                <RichContent blocks={page.overview} />
+              </div>
+            )}
+            {page.features.length > 0 && (
+              <aside className="content-detail-panel" aria-labelledby="features-heading">
+                <h2 id="features-heading">Service features</h2>
+                <ul className="detail-check-list">
+                  {page.features.map((feature) => (
+                    <li key={feature}>
+                      <Icon name="check" width={19} height={19} />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            )}
           </Container>
         </section>
       )}
 
-      {page.features.length > 0 && (
-        <section className="section" aria-labelledby="features-heading">
+      {page.benefits.length > 0 && (
+        <section className="section detail-supporting-section" aria-labelledby="benefits-heading">
           <Container>
-            <h2 id="features-heading" className="section-heading">
-              Service Features
-            </h2>
-            <ul className="features-list">
-              {page.features.map((feature, index) => (
-                <li key={index}>
-                  <Icon name="check" width={20} height={20} />
-                  <span>{feature}</span>
-                </li>
+            <SectionHeading
+              eyebrow="WHY THIS JOURNEY"
+              title="Service benefits"
+              description="Only benefits published for this service are shown."
+            />
+            <div className="detail-feature-grid">
+              {page.benefits.map((benefit) => (
+                <article key={benefit.title} className="detail-feature-card">
+                  <span aria-hidden="true">
+                    <Icon name="check" width={20} height={20} />
+                  </span>
+                  <h3>{benefit.title}</h3>
+                  {benefit.description && <p>{benefit.description}</p>}
+                </article>
               ))}
-            </ul>
+            </div>
           </Container>
         </section>
       )}
 
       {page.locations.length > 0 && (
-        <section className="section" aria-labelledby="locations-heading">
+        <section className="section service-detail-locations" aria-labelledby="locations-heading">
           <Container>
-            <h2 id="locations-heading" className="section-heading">
-              Service Areas
-            </h2>
-            <ul className="location-list">
+            <SectionHeading
+              eyebrow="WHERE WE TRAVEL"
+              title="Published service areas"
+              description="Select an area to review its published transportation information."
+            />
+            <div className="public-card-grid public-location-grid">
               {page.locations.map((location) => (
-                <li key={location.slug}>
-                  <Icon name="mapPin" width={20} height={20} />
-                  <Link href={`/locations/${location.slug}`}>
-                    <h3>{location.title}</h3>
-                    <p>{location.summary}</p>
-                  </Link>
-                </li>
+                <LocationCard key={location.slug} location={location} />
               ))}
-            </ul>
+            </div>
           </Container>
         </section>
       )}
 
-      {page.faqs.length > 0 && (
-        <section className="section" aria-labelledby="faqs-heading">
-          <Container>
-            <h2 id="faqs-heading" className="section-heading">
-              Frequently Asked Questions
-            </h2>
-            <dl className="faq-list">
-              {page.faqs.map((faq, index) => (
-                <div key={index} className="faq-item">
-                  <dt>{faq.question}</dt>
-                  <dd>{faq.answer}</dd>
-                </div>
-              ))}
-            </dl>
-          </Container>
-        </section>
-      )}
+      {page.faqs.length > 0 && <FaqSection faqs={page.faqs} />}
 
-      <section className="section inquiry-section" aria-labelledby="inquiry-heading">
+      <section
+        id="service-inquiry"
+        className="section inquiry-section"
+        aria-labelledby="inquiry-heading"
+      >
         <Container>
           <div className="inquiry-header">
-            <p className="eyebrow">REQUEST A QUOTE</p>
-            <h2 id="inquiry-heading" className="section-heading">
-              Get a Personalized Quote
-            </h2>
-            <p>Tell us about your trip and we&apos;ll get back to you with options and pricing.</p>
+            <p className="eyebrow">REQUEST INFORMATION</p>
+            <h2 id="inquiry-heading">Tell us about your journey</h2>
+            <p>Share your trip details and we&apos;ll follow up with available options.</p>
           </div>
           <TransportationInquiryForm sourcePage={`/services/${page.slug}`} />
         </Container>
@@ -191,27 +191,35 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <section className="cta-section" aria-labelledby="cta-heading">
         <Container>
           <div>
-            <p className="eyebrow">Ready to Book?</p>
+            <p className="eyebrow">READY TO RIDE?</p>
             <h2 id="cta-heading">Plan Your Journey Today</h2>
-            <p>
-              Reserve your ride through our trusted booking partner or contact us for assistance.
-            </p>
-            <TrackLink
-              href="/book"
-              className="button nav-book"
-              eventName="booking_click"
-              eventParams={{
-                source_page: `/services/${page.slug}`,
-                button_location: 'footer_cta',
-                service_page: `/services/${page.slug}`,
-              }}
-            >
-              {page.bookingCTA?.label ?? 'Book Now'} <Icon name="arrow" width={16} />
-            </TrackLink>
+            <p>Arrange your ride through our trusted booking experience.</p>
           </div>
+          <TrackLink
+            href="/book"
+            className="button nav-book"
+            eventName="booking_click"
+            eventParams={{
+              source_page: `/services/${page.slug}`,
+              button_location: 'footer_cta',
+              service_page: `/services/${page.slug}`,
+            }}
+          >
+            {page.bookingCTA?.label ?? 'Book a Ride'} <Icon name="arrow" width={16} />
+          </TrackLink>
         </Container>
       </section>
     </main>
+  );
+}
+
+function RichContent({ blocks }: { blocks: PublicServicePage['overview'] }) {
+  return (
+    <div className="rich-text">
+      {blocks.map((block, index) => (
+        <RichBlock key={`${block.kind}-${index}`} block={block} />
+      ))}
+    </div>
   );
 }
 
@@ -224,8 +232,27 @@ function RichBlock({ block }: { block: { kind: string; text: string } }) {
         : block.kind === 'list-item'
           ? 'li'
           : 'p';
-  if (block.kind === 'list-item') {
-    return <li>{block.text}</li>;
-  }
+  if (block.kind === 'list-item') return <li>{block.text}</li>;
   return <Tag>{block.text}</Tag>;
+}
+
+function FaqSection({ faqs }: { faqs: PublicServicePage['faqs'] }) {
+  return (
+    <section className="section detail-faq-section" aria-labelledby="faqs-heading">
+      <Container className="content-detail-grid">
+        <div>
+          <p className="eyebrow">GOOD TO KNOW</p>
+          <h2 id="faqs-heading">Frequently asked questions</h2>
+        </div>
+        <dl className="faq-list">
+          {faqs.map((faq) => (
+            <div key={faq.question} className="faq-item">
+              <dt>{faq.question}</dt>
+              <dd>{faq.answer}</dd>
+            </div>
+          ))}
+        </dl>
+      </Container>
+    </section>
+  );
 }
