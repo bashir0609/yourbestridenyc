@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Card, Container } from '@/ui';
-import { CmsEmptyState, CmsImage } from '@/components/cms-content';
-import { Icon } from '@/components/icon';
+import { Container } from '@/ui';
 import { getPublicConfig } from '@/lib/config';
 import { getServiceDirectory } from '@/lib/cms/page-queries';
+import {
+  ContentEmptyState,
+  DirectoryHero,
+  SectionHeading,
+  ServiceCard,
+} from '@/components/public-content';
 
 export const revalidate = 300;
 
@@ -44,48 +47,33 @@ export default async function ServicesPage() {
   const directory = await getPageData();
 
   return (
-    <main className="interior-page" id="main-content">
-      <section className="hero interior-hero" aria-labelledby="services-page-title">
-        <Container>
-          <div className="interior-intro">
-            <p className="eyebrow">
-              <span>Premium Transportation</span>
-            </p>
-            <h1 id="services-page-title">Transportation Services</h1>
-            <p className="hero-description">
-              Explore our published transportation services and choose the journey that matches your
-              plans.
-            </p>
-          </div>
-        </Container>
-      </section>
+    <main className="interior-page content-directory" id="main-content">
+      <DirectoryHero
+        eyebrow="MADE FOR YOUR PLANS"
+        title="Transportation Services"
+        description="Explore published transportation services and choose the journey that matches your plans."
+      />
 
       <section className="section services-section" aria-labelledby="services-grid-heading">
         <Container>
-          <h2 id="services-grid-heading" className="section-heading">
-            Explore Our Services
-          </h2>
+          <SectionHeading
+            eyebrow="THOUGHTFUL TRANSPORTATION"
+            title="Explore our services"
+            description="Each published service includes approved details to help you plan with confidence."
+          />
           {directory.items.length > 0 ? (
-            <div className="service-grid">
-              {directory.items.map((service, index) => (
-                <Card key={service.slug} className="service-card">
-                  {service.image && <CmsImage image={service.image} />}
-                  <div className="service-card-top">
-                    <span className="icon-tile" aria-hidden="true">
-                      <Icon name="private" width={25} height={25} />
-                    </span>
-                    <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
-                  </div>
-                  <h3>{service.title}</h3>
-                  <p>{service.summary}</p>
-                  <Link href={`/services/${service.slug}`} className="text-link">
-                    View service <Icon name="arrow" width={18} />
-                  </Link>
-                </Card>
+            <div className="public-card-grid public-service-grid">
+              {directory.items.map((service) => (
+                <ServiceCard key={service.slug} service={service} />
               ))}
             </div>
           ) : (
-            <CmsEmptyState label="services" status={directory.status} />
+            <ContentEmptyState
+              label="transportation services"
+              status={directory.status}
+              actionHref="/#contact"
+              actionLabel="Contact Your Best Ride"
+            />
           )}
         </Container>
       </section>

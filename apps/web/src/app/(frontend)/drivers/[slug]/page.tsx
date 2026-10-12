@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
@@ -7,6 +8,8 @@ import { getDriverPage, getSitemapRecords } from '@/lib/cms/page-queries';
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
+import { DetailBreadcrumb } from '@/components/public-content';
+import { meaningfulSummary } from '@/lib/content-quality';
 
 export const revalidate = 300;
 
@@ -59,6 +62,16 @@ export async function generateMetadata({
   };
 }
 
+function comparable(value: string): string {
+  return value.replace(/\s+/g, ' ').trim().toLocaleLowerCase();
+}
+
+function distinctText(value: string | undefined, excluded: string[]): string | undefined {
+  if (!value) return;
+  const normalized = comparable(value);
+  return excluded.some((item) => comparable(item) === normalized) ? undefined : value;
+}
+
 export default async function DriverDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = await getPageData(slug);
@@ -67,104 +80,122 @@ export default async function DriverDetailPage({ params }: { params: Promise<{ s
     notFound();
   }
 
+  const summary = meaningfulSummary(page.summary, page.name);
+  const experience = distinctText(page.experience, [page.name, page.summary]);
+  const biography = page.biography.filter(
+    (block, index, blocks) =>
+      ![page.name, page.summary].some((item) => comparable(item) === comparable(block.text)) &&
+      blocks.findIndex((candidate) => comparable(candidate.text) === comparable(block.text)) ===
+        index,
+  );
+  const hasFacts = Boolean(experience) || page.languages.length > 0 || page.specialties.length > 0;
+
   return (
-    <main className="interior-page" id="main-content">
-      <section className="hero interior-hero" aria-labelledby="driver-name">
+    <main className="interior-page driver-detail" id="main-content">
+      <section className="driver-detail-hero" aria-labelledby="driver-name">
         <Container>
-          <div className="interior-intro driver-hero">
+          <DetailBreadcrumb href="/drivers" label="Our Drivers" current={page.name} />
+          <div className="driver-detail-hero-grid">
             {page.image && (
-              <div className="driver-portrait">
-                <CmsImage image={page.image} preserveAspectRatio />
+              <div className="driver-detail-media">
+                <CmsImage
+                  image={page.image}
+                  preserveAspectRatio
+                  className="driver-detail-photo"
+                  sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1100px) 46vw, 520px"
+                  priority
+                />
               </div>
             )}
-            <div className="driver-intro">
-              <p className="eyebrow">
-                <span>Our People</span>
-              </p>
+            <div className="driver-detail-intro">
+              <p className="eyebrow">OUR PEOPLE</p>
+              <p className="driver-detail-role">Your Best Ride Driver</p>
               <h1 id="driver-name">{page.name}</h1>
-              <p className="hero-description">{page.summary}</p>
+              {summary && <p className="driver-detail-summary">{summary}</p>}
               {page.experienceYears !== undefined && (
-                <p className="driver-experience">
-                  <Icon name="award" width={18} height={18} />
-                  <span>{page.experienceYears} years experience</span>
-                </p>
+                <dl className="driver-detail-highlight">
+                  <div>
+                    <dt>Experience</dt>
+                    <dd>{page.experienceYears} years</dd>
+                  </div>
+                </dl>
               )}
-              {page.experience && (
-                <p className="driver-experience">
-                  <Icon name="award" width={18} height={18} />
-                  <span>{page.experience}</span>
-                </p>
-              )}
+              <div className="detail-primary-actions">
+                <TrackLink
+                  href="/book"
+                  className="button button-gold"
+                  eventName="booking_click"
+                  eventParams={{
+                    source_page: `/drivers/${page.slug}`,
+                    button_location: 'profile_hero',
+                  }}
+                >
+                  Book a Ride <Icon name="arrow" width={16} />
+                </TrackLink>
+                <Link href="/drivers" className="button detail-secondary-action">
+                  Back to Our Drivers
+                </Link>
+              </div>
             </div>
           </div>
         </Container>
       </section>
 
-      <section className="section" aria-labelledby="biography-heading">
-        <Container>
-          <div className="interior-intro">
-            <h2 id="biography-heading" className="section-heading">
-              Biography
-            </h2>
-            <div className="rich-text">
-              {page.biography.map((block, index) => (
-                <RichBlock key={index} block={block} />
-              ))}
-            </div>
-          </div>
-        </Container>
-      </section>
+      {(biography.length > 0 || hasFacts) && (
+        <section className="section driver-detail-content" aria-labelledby="biography-heading">
+          <Container className="driver-detail-content-grid">
+            {biography.length > 0 && (
+              <div className="driver-detail-biography">
+                <p className="eyebrow">PROFILE</p>
+                <h2 id="biography-heading">About {page.name}</h2>
+                <div className="rich-text">
+                  {biography.map((block, index) => (
+                    <RichBlock key={index} block={block} />
+                  ))}
+                </div>
+              </div>
+            )}
 
-      {(page.languages.length > 0 || page.specialties.length > 0) && (
-        <section className="section" aria-labelledby="details-heading">
-          <Container>
-            <h2 id="details-heading" className="section-heading">
-              Qualifications
-            </h2>
-            <div className="driver-qualifications">
-              {page.languages.length > 0 && (
-                <div className="qualification-group">
-                  <h3>
-                    <Icon name="globe" width={20} height={20} />
-                    Languages
-                  </h3>
-                  <ul className="qualification-list">
-                    {page.languages.map((lang, index) => (
-                      <li key={index}>
-                        <Icon name="check" width={18} height={18} />
-                        <span>{lang}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {page.specialties.length > 0 && (
-                <div className="qualification-group">
-                  <h3>
-                    <Icon name="star" width={20} height={20} />
-                    Specialties
-                  </h3>
-                  <ul className="qualification-list">
-                    {page.specialties.map((spec, index) => (
-                      <li key={index}>
-                        <Icon name="check" width={18} height={18} />
-                        <span>{spec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+            {hasFacts && (
+              <aside className="driver-profile-facts" aria-label={`${page.name} profile details`}>
+                <h2>Profile details</h2>
+                {experience && (
+                  <div className="driver-profile-fact">
+                    <span>Experience summary</span>
+                    <p>{experience}</p>
+                  </div>
+                )}
+                {page.languages.length > 0 && (
+                  <div className="driver-profile-fact">
+                    <span>Languages</span>
+                    <ul>
+                      {page.languages.map((language) => (
+                        <li key={language}>{language}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {page.specialties.length > 0 && (
+                  <div className="driver-profile-fact">
+                    <span>Specialties</span>
+                    <ul>
+                      {page.specialties.map((specialty) => (
+                        <li key={specialty}>{specialty}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </aside>
+            )}
           </Container>
         </section>
       )}
 
       {page.serviceAreas.length > 0 && (
-        <section className="section" aria-labelledby="service-areas-heading">
+        <section className="section driver-detail-areas" aria-labelledby="service-areas-heading">
           <Container>
-            <h2 id="service-areas-heading" className="section-heading">
-              Service Areas
-            </h2>
+            <p className="eyebrow">SERVICE AREAS</p>
+            <h2 id="service-areas-heading">Areas served</h2>
             <ul className="location-list">
               {page.serviceAreas.map((area) => (
                 <li key={area.slug}>
@@ -184,21 +215,21 @@ export default async function DriverDetailPage({ params }: { params: Promise<{ s
       <section className="cta-section" aria-labelledby="cta-heading">
         <Container>
           <div>
-            <p className="eyebrow">Ready to Book?</p>
+            <p className="eyebrow">READY TO RIDE?</p>
             <h2 id="cta-heading">Plan Your Journey Today</h2>
-            <p>Continue to our booking partner to arrange your ride.</p>
-            <TrackLink
-              href="/book"
-              className="button nav-book"
-              eventName="booking_click"
-              eventParams={{
-                source_page: `/drivers/${page.slug}`,
-                button_location: 'footer_cta',
-              }}
-            >
-              Book Now <Icon name="arrow" width={16} />
-            </TrackLink>
+            <p>Share your itinerary and arrange your ride with Your Best Ride.</p>
           </div>
+          <TrackLink
+            href="/book"
+            className="button nav-book"
+            eventName="booking_click"
+            eventParams={{
+              source_page: `/drivers/${page.slug}`,
+              button_location: 'footer_cta',
+            }}
+          >
+            Book a Ride <Icon name="arrow" width={16} />
+          </TrackLink>
         </Container>
       </section>
     </main>

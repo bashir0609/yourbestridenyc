@@ -1,11 +1,15 @@
 import type { Metadata } from 'next';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
-import Link from 'next/link';
 import { getDriverDirectory } from '@/lib/cms/page-queries';
 
 import { getPublicConfig } from '@/lib/config';
-import { CmsImage, CmsEmptyState } from '@/components/cms-content';
+import {
+  ContentEmptyState,
+  DirectoryHero,
+  DriverCard,
+  SectionHeading,
+} from '@/components/public-content';
 import { DriverApplicationForm } from '@/components/forms/DriverApplicationForm';
 import { TrackLink } from '@/components/analytics';
 
@@ -51,57 +55,33 @@ export default async function DriversPage() {
   const directory = await getPageData(1);
 
   return (
-    <main className="interior-page" id="main-content">
-      <section className="hero interior-hero" aria-labelledby="drivers-title">
-        <Container>
-          <div className="interior-intro">
-            <p className="eyebrow">
-              <span>Our People</span>
-            </p>
-            <h1 id="drivers-title">Our Drivers</h1>
-            <p className="hero-description">
-              Every driver on our team is carefully vetted, professionally trained, and committed to
-              providing the highest standard of service. Get to know the people behind the wheel.
-            </p>
-          </div>
-        </Container>
-      </section>
+    <main className="interior-page content-directory" id="main-content">
+      <DirectoryHero
+        eyebrow="OUR PEOPLE"
+        title="Our Drivers"
+        description="Meet the approved professional profiles published by Your Best Ride and get to know the people behind the journey."
+      />
 
       <section className="section people-section" aria-labelledby="drivers-grid-heading">
         <Container>
-          <h2 id="drivers-grid-heading" className="section-heading">
-            Meet the Team
-          </h2>
+          <SectionHeading
+            eyebrow="THE PEOPLE BEHIND THE JOURNEY"
+            title="Meet the team"
+            description="Only published, website-approved driver profiles appear here."
+          />
           {directory.items.length > 0 ? (
-            <div className="driver-grid">
+            <div className="public-card-grid public-driver-grid">
               {directory.items.map((driver) => (
-                <Link
-                  key={driver.slug}
-                  href={`/drivers/${driver.slug}`}
-                  className="driver-card-link"
-                >
-                  <div className="driver-card">
-                    {driver.image ? (
-                      <CmsImage image={driver.image} preserveAspectRatio />
-                    ) : (
-                      <div className="profile-art">
-                        <Icon name="user" width={44} height={44} />
-                        <span>TEAM PROFILE · PHOTO NOT PROVIDED</span>
-                      </div>
-                    )}
-                    <div className="card-body">
-                      <h3>{driver.name}</h3>
-                      <p>{driver.summary}</p>
-                      <div className="text-link">
-                        View profile <Icon name="arrow" width={16} height={16} />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <DriverCard key={driver.slug} driver={driver} />
               ))}
             </div>
           ) : (
-            <CmsEmptyState label="driver profiles" status={directory.status} />
+            <ContentEmptyState
+              label="driver profiles"
+              status={directory.status}
+              actionHref="/book"
+              actionLabel="Plan Your Ride"
+            />
           )}
         </Container>
       </section>

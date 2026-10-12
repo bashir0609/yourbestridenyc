@@ -1,12 +1,19 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import type { Metadata, ResolvingMetadata } from 'next';
-import { Button, Card, Container } from '@/ui';
-import { Icon, type IconName } from '@/components/icon';
-import { DriverCard, TestimonialCard, VehicleArt } from '@/components/content-cards';
+import { Button, Container } from '@/ui';
+import { Icon } from '@/components/icon';
+import { TestimonialCard } from '@/components/content-cards';
 import { Reveal } from '@/components/reveal';
 import { getHomeContent, getBusinessConfig } from '@/lib/cms/queries';
-import { CmsEmptyState, CmsImage } from '@/components/cms-content';
+import { CmsEmptyState } from '@/components/cms-content';
+import {
+  ContentEmptyState,
+  DriverCard,
+  FleetCard,
+  LocationCard,
+  SectionHeading,
+  ServiceCard,
+} from '@/components/public-content';
 import { getPublicConfig } from '@/lib/config';
 import { ContactForm } from '@/components/forms/ContactForm';
 import { TrackLink } from '@/components/analytics';
@@ -25,12 +32,6 @@ export async function generateMetadata(
       }
     : {};
 }
-const serviceIcons: Record<string, IconName> = {
-  medical: 'medical',
-  airport: 'airport',
-  corporate: 'corporate',
-  private: 'private',
-};
 
 export default async function Home() {
   const content = await getHomeContent();
@@ -114,42 +115,32 @@ export default async function Home() {
       <section id="services" className="section services-section" aria-labelledby="services-title">
         <Container>
           <Reveal>
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">MADE FOR YOUR PLANS</p>
-                <h2 id="services-title">
-                  Different destinations.
-                  <br />
+            <SectionHeading
+              eyebrow="MADE FOR YOUR PLANS"
+              title={
+                <>
+                  Different destinations.{' '}
                   <span className="muted-heading">One thoughtful approach.</span>
-                </h2>
+                </>
+              }
+              description="Start with the journey you have in mind and explore the details before you make a plan."
+              actionHref="/services"
+              actionLabel="Explore Services"
+            />
+            {services.length ? (
+              <div className="public-card-grid public-service-grid">
+                {services.slice(0, 8).map((service) => (
+                  <ServiceCard key={service.slug} service={service} />
+                ))}
               </div>
-              <p>
-                Start with the journey you have in mind.
-                <br />
-                Explore the details before you make a plan.
-              </p>
-            </div>
-            {!content.services.length && (
-              <CmsEmptyState label="services" status={content.status.services} />
+            ) : (
+              <ContentEmptyState
+                label="transportation services"
+                status={content.status.services}
+                actionHref="#contact"
+                actionLabel="Discuss Your Journey"
+              />
             )}
-            <div className="service-grid">
-              {services.slice(0, 8).map((service, index) => (
-                <Card key={service.slug} className="service-card">
-                  {service.image && <CmsImage image={service.image} />}
-                  <div className="service-card-top">
-                    <span className="icon-tile">
-                      <Icon name={serviceIcons[service.slug] ?? 'private'} width={25} height={25} />
-                    </span>
-                    <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
-                  </div>
-                  <h3>{service.title}</h3>
-                  <p>{service.summary}</p>
-                  <Link href="#contact" className="text-link">
-                    Ask about this journey <Icon name="arrow" width={18} />
-                  </Link>
-                </Card>
-              ))}
-            </div>
           </Reveal>
         </Container>
       </section>
@@ -221,49 +212,27 @@ export default async function Home() {
       <section id="fleet" className="section fleet-section" aria-labelledby="fleet-title">
         <Container>
           <Reveal>
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">ROOM FOR YOUR JOURNEY</p>
-                <h2 id="fleet-title">Find your kind of ride.</h2>
+            <SectionHeading
+              eyebrow="ROOM FOR YOUR JOURNEY"
+              title="Find your kind of ride."
+              description="Different plans call for different spaces. Review verified vehicle details before arranging your trip."
+              actionHref="/fleet"
+              actionLabel="View All Fleet"
+            />
+            {fleet.length ? (
+              <div className="public-card-grid public-fleet-grid">
+                {fleet.slice(0, 6).map((vehicle) => (
+                  <FleetCard key={vehicle.slug} vehicle={vehicle} />
+                ))}
               </div>
-              <p>
-                Different plans call for different spaces.
-                <br />
-                Confirm your vehicle when arranging your trip.
-              </p>
-            </div>
-            {!fleet.length && (
-              <CmsEmptyState label="fleet vehicles" status={content.status['fleet-vehicles']} />
+            ) : (
+              <ContentEmptyState
+                label="fleet vehicles"
+                status={content.status['fleet-vehicles']}
+                actionHref="/book"
+                actionLabel="Ask About Vehicle Options"
+              />
             )}
-            <div className="fleet-grid">
-              {fleet.slice(0, 6).map((vehicle, index) => (
-                <Card key={vehicle.slug} className="fleet-card">
-                  {vehicle.image ? (
-                    <CmsImage image={vehicle.image} />
-                  ) : (
-                    <div className="fleet-art">
-                      <span className="fleet-type">CONCEPT ART · PHOTO NOT PROVIDED</span>
-                      <VehicleArt type={(['sedan', 'suv', 'van'] as const)[index % 3]} />
-                    </div>
-                  )}
-                  <div className="card-body">
-                    <h3>{vehicle.title}</h3>
-                    <p>{vehicle.summary}</p>
-                    {vehicle.passengerCapacity !== undefined && (
-                      <p>
-                        Up to {vehicle.passengerCapacity} passengers
-                        {vehicle.luggageCapacity !== undefined
-                          ? ` · ${vehicle.luggageCapacity} luggage capacity`
-                          : ''}
-                      </p>
-                    )}
-                    <Link href="#contact" className="text-link">
-                      Discuss vehicle options <Icon name="arrow" width={18} />
-                    </Link>
-                  </div>
-                </Card>
-              ))}
-            </div>
           </Reveal>
         </Container>
       </section>
@@ -271,45 +240,27 @@ export default async function Home() {
       <section id="drivers" className="section people-section" aria-labelledby="drivers-title">
         <Container>
           <Reveal>
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">THE PEOPLE BEHIND THE JOURNEY</p>
-                <h2 id="drivers-title">A personal introduction.</h2>
+            <SectionHeading
+              eyebrow="THE PEOPLE BEHIND THE JOURNEY"
+              title="A personal introduction."
+              description="Meet the approved professional profiles published by Your Best Ride."
+              actionHref="/drivers"
+              actionLabel="View All Drivers"
+            />
+            {content.drivers.length ? (
+              <div className="public-card-grid public-driver-grid">
+                {content.drivers.slice(0, 6).map((driver) => (
+                  <DriverCard key={driver.slug} driver={driver} />
+                ))}
               </div>
-              <p>
-                Get to know the people behind YourBestRide.
-                <br />
-                Only approved profiles are published here.
-              </p>
-            </div>
-            <div className={content.drivers.length ? 'driver-grid' : 'empty-driver-grid'}>
-              {content.drivers.length ? (
-                content.drivers
-                  .slice(0, 6)
-                  .map((driver) => <DriverCard key={driver.slug} driver={driver} />)
-              ) : (
-                <>
-                  <div>
-                    <DriverCard />
-                    <CmsEmptyState label="driver profiles" status={content.status.drivers} />
-                  </div>
-                  <div className="people-note">
-                    <span className="small-line" />
-                    <h3>
-                      A name. A face.
-                      <br />A real introduction.
-                    </h3>
-                    <p>
-                      We’re keeping this space honest. Team stories belong here when they’re ready
-                      to be shared—not before.
-                    </p>
-                    <Link href="#contact" className="text-link">
-                      Get in touch <Icon name="arrow" width={18} />
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>
+            ) : (
+              <ContentEmptyState
+                label="driver profiles"
+                status={content.status.drivers}
+                actionHref="#contact"
+                actionLabel="Contact Your Best Ride"
+              />
+            )}
           </Reveal>
         </Container>
       </section>
@@ -345,78 +296,30 @@ export default async function Home() {
       </section>
 
       <section id="coverage" className="section coverage-section" aria-labelledby="coverage-title">
-        <Container className="coverage-grid">
+        <Container>
           <Reveal>
-            <p className="eyebrow">FROM HERE TO WHAT’S NEXT</p>
-            <h2 id="coverage-title">
-              Transportation
-              <br />
-              coverage areas.
-            </h2>
-            <p className="coverage-description">
-              Every itinerary starts with a place. Check your pickup and destination before making a
-              reservation.
-            </p>
+            <SectionHeading
+              eyebrow="FROM HERE TO WHAT’S NEXT"
+              title="Transportation coverage areas."
+              description="Every itinerary starts with a place. Explore published service areas or ask whether your route is available."
+              actionHref="/locations"
+              actionLabel="Explore Locations"
+            />
             {content.locations.length ? (
-              <ul className="location-list">
-                {content.locations.slice(0, 12).map((location) => (
-                  <li key={location.slug}>
-                    <Icon name="pin" />
-                    <div>
-                      <h3>{location.title}</h3>
-                      <p>{location.summary}</p>
-                    </div>
-                  </li>
+              <div className="public-card-grid public-location-grid">
+                {content.locations.slice(0, 6).map((location) => (
+                  <LocationCard key={location.slug} location={location} />
                 ))}
-              </ul>
-            ) : (
-              <div className="coverage-empty">
-                <Icon name="pin" />
-                <div>
-                  <h3>Ask about your route.</h3>
-                  <CmsEmptyState label="coverage areas" status={content.status.locations} />
-                </div>
               </div>
-            )}
-            <Button href="#contact" variant="dark">
-              Ask about your route <Icon name="arrow" width={18} />
-            </Button>
-          </Reveal>
-          <div
-            className="coverage-map"
-            role="img"
-            aria-label="Decorative route illustration, not a map of actual service coverage"
-          >
-            <svg viewBox="0 0 540 460" fill="none" aria-hidden="true">
-              <defs>
-                <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M40 0H0v40" stroke="#dfdfd9" strokeWidth=".7" />
-                </pattern>
-              </defs>
-              <path fill="url(#map-grid)" d="M0 0h540v460H0z" />
-              <g stroke="#deded6" strokeWidth="14">
-                <path d="m-30 280 260-140 160-170M-10 430l290-155L560 88M110-20l120 160 50 135 90 210M410-20l-40 215 190 195" />
-              </g>
-              <g stroke="#fdfdf9" strokeWidth="9">
-                <path d="m-30 280 260-140 160-170M-10 430l290-155L560 88M110-20l120 160 50 135 90 210M410-20l-40 215 190 195" />
-              </g>
-              <path
-                d="m129 335 151-80 63-38 24-130"
-                stroke="#bd8c32"
-                strokeWidth="3"
-                strokeDasharray="7 6"
+            ) : (
+              <ContentEmptyState
+                label="service areas"
+                status={content.status.locations}
+                actionHref="#contact"
+                actionLabel="Ask About Your Route"
               />
-              <circle cx="129" cy="335" r="26" fill="#d9a441" opacity=".15" />
-              <circle cx="129" cy="335" r="8" fill="#bd8c32" stroke="white" strokeWidth="3" />
-              <circle cx="367" cy="87" r="26" fill="#d9a441" opacity=".15" />
-              <circle cx="367" cy="87" r="8" fill="#bd8c32" stroke="white" strokeWidth="3" />
-            </svg>
-            <div className="map-label">
-              <Icon name="pin" width={18} />
-              <span>Your route starts a conversation</span>
-            </div>
-            <span className="map-disclaimer">DECORATIVE ILLUSTRATION · NOT ACTUAL COVERAGE</span>
-          </div>
+            )}
+          </Reveal>
         </Container>
       </section>
 

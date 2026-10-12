@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
@@ -7,6 +8,7 @@ import { getFleetPage, getSitemapRecords } from '@/lib/cms/page-queries';
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
+import { DetailBreadcrumb } from '@/components/public-content';
 
 export const revalidate = 300;
 
@@ -67,92 +69,130 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
     notFound();
   }
 
+  const primaryImage = page.gallery[0];
+  const additionalImages = page.gallery.slice(1);
+  const hasDetails = page.description.length > 0;
+
   return (
-    <main className="interior-page" id="main-content">
-      <section className="hero interior-hero" aria-labelledby="vehicle-title">
+    <main className="interior-page fleet-detail" id="main-content">
+      <section className="fleet-detail-hero" aria-labelledby="vehicle-title">
         <Container>
-          <div className="interior-intro">
-            <p className="eyebrow">
-              <span>Premium Transportation</span>
-            </p>
-            <h1 id="vehicle-title">{page.title}</h1>
-            <p className="hero-description">{page.summary}</p>
-            <div className="fleet-type">
-              {page.category && <span>{page.category}</span>}
-              {page.passengerCapacity && (
-                <span className="capacity">
-                  <Icon name="users" width={16} height={16} />
-                  {page.passengerCapacity} passengers
-                </span>
+          <DetailBreadcrumb href="/fleet" label="Our Fleet" current={page.title} />
+          <div
+            className={`fleet-detail-hero-grid${primaryImage ? '' : ' fleet-detail-hero-grid-text-only'}`}
+          >
+            <div className="fleet-detail-intro">
+              <p className="eyebrow">PREMIUM TRANSPORTATION</p>
+              {page.category && <p className="fleet-detail-category">{page.category}</p>}
+              <h1 id="vehicle-title">{page.title}</h1>
+              {page.summary && <p className="fleet-detail-summary">{page.summary}</p>}
+              {(page.passengerCapacity || page.luggageCapacity) && (
+                <dl className="fleet-detail-specs">
+                  {page.passengerCapacity && (
+                    <div className="fleet-detail-spec">
+                      <Icon name="users" width={21} height={21} />
+                      <dt>Passengers</dt>
+                      <dd>{page.passengerCapacity}</dd>
+                    </div>
+                  )}
+                  {page.luggageCapacity && (
+                    <div className="fleet-detail-spec">
+                      <Icon name="luggage" width={21} height={21} />
+                      <dt>Luggage</dt>
+                      <dd>{page.luggageCapacity}</dd>
+                    </div>
+                  )}
+                </dl>
               )}
-              {page.luggageCapacity && (
-                <span className="capacity">
-                  <Icon name="luggage" width={16} height={16} />
-                  {page.luggageCapacity} luggage
-                </span>
-              )}
+              <div className="detail-primary-actions">
+                <TrackLink
+                  href="/book"
+                  className="button button-gold"
+                  eventName="booking_click"
+                  eventParams={{
+                    source_page: `/fleet/${page.slug}`,
+                    button_location: 'vehicle_hero',
+                  }}
+                >
+                  Reserve Your Ride <Icon name="arrow" width={16} />
+                </TrackLink>
+                <Link href="/fleet" className="button detail-secondary-action">
+                  Back to Our Fleet
+                </Link>
+              </div>
             </div>
+            {primaryImage && (
+              <div className="fleet-detail-media">
+                <CmsImage
+                  image={primaryImage}
+                  preserveAspectRatio
+                  className="fleet-detail-photo"
+                  sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1100px) 52vw, 650px"
+                  priority
+                />
+              </div>
+            )}
           </div>
         </Container>
       </section>
 
-      {page.gallery.length > 0 && (
-        <section className="section" aria-labelledby="gallery-heading">
-          <Container>
-            <h2 id="gallery-heading" className="section-heading">
-              Gallery
-            </h2>
-            <div className="gallery-grid">
-              {page.gallery.map((image, index) => (
-                <div key={index} className="gallery-item">
-                  <CmsImage image={image} />
+      {(hasDetails || page.amenities.length > 0 || page.accessibilityInformation) && (
+        <section className="section fleet-detail-content" aria-labelledby="description-heading">
+          <Container className="fleet-detail-content-grid">
+            {hasDetails && (
+              <div>
+                <p className="eyebrow">THE VEHICLE</p>
+                <h2 id="description-heading">Vehicle details</h2>
+                <div className="rich-text">
+                  {page.description.map((block, index) => (
+                    <RichBlock key={index} block={block} />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+            {(page.amenities.length > 0 || page.accessibilityInformation) && (
+              <aside className="fleet-detail-features" aria-label={`${page.title} features`}>
+                {page.amenities.length > 0 && (
+                  <div>
+                    <h2>Amenities</h2>
+                    <ul className="features-list">
+                      {page.amenities.map((amenity) => (
+                        <li key={amenity}>
+                          <Icon name="check" width={20} height={20} />
+                          <span>{amenity}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {page.accessibilityInformation && (
+                  <div>
+                    <h2>Accessibility</h2>
+                    <p>{page.accessibilityInformation}</p>
+                  </div>
+                )}
+              </aside>
+            )}
           </Container>
         </section>
       )}
 
-      <section className="section" aria-labelledby="description-heading">
-        <Container>
-          <div className="interior-intro">
-            <h2 id="description-heading" className="section-heading">
-              Vehicle Details
-            </h2>
-            <div className="rich-text">
-              {page.description.map((block, index) => (
-                <RichBlock key={index} block={block} />
+      {additionalImages.length > 0 && (
+        <section className="section fleet-detail-gallery" aria-labelledby="gallery-heading">
+          <Container>
+            <p className="eyebrow">A CLOSER LOOK</p>
+            <h2 id="gallery-heading">Gallery</h2>
+            <div className="fleet-detail-gallery-grid">
+              {additionalImages.map((image, index) => (
+                <CmsImage
+                  key={`${image.url}-${index}`}
+                  image={image}
+                  preserveAspectRatio
+                  className="fleet-detail-gallery-item"
+                  sizes="(max-width: 767px) calc(100vw - 40px), 50vw"
+                />
               ))}
             </div>
-          </div>
-        </Container>
-      </section>
-
-      {page.amenities.length > 0 && (
-        <section className="section" aria-labelledby="amenities-heading">
-          <Container>
-            <h2 id="amenities-heading" className="section-heading">
-              Amenities
-            </h2>
-            <ul className="features-list">
-              {page.amenities.map((amenity, index) => (
-                <li key={index}>
-                  <Icon name="check" width={20} height={20} />
-                  <span>{amenity}</span>
-                </li>
-              ))}
-            </ul>
-          </Container>
-        </section>
-      )}
-
-      {page.accessibilityInformation && (
-        <section className="section" aria-labelledby="accessibility-heading">
-          <Container>
-            <h2 id="accessibility-heading" className="section-heading">
-              Accessibility Information
-            </h2>
-            <p>{page.accessibilityInformation}</p>
           </Container>
         </section>
       )}
@@ -160,18 +200,18 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
       <section className="cta-section" aria-labelledby="cta-heading">
         <Container>
           <div>
-            <p className="eyebrow">Ready to Book?</p>
-            <h2 id="cta-heading">Reserve This Vehicle</h2>
-            <p>Select this vehicle when booking through our partner.</p>
-            <TrackLink
-              href="/book"
-              className="button nav-book"
-              eventName="booking_click"
-              eventParams={{ source_page: `/fleet/${page.slug}`, button_location: 'footer_cta' }}
-            >
-              Book Now <Icon name="arrow" width={16} />
-            </TrackLink>
+            <p className="eyebrow">READY TO RIDE?</p>
+            <h2 id="cta-heading">Reserve Your Ride</h2>
+            <p>Share your itinerary and arrange your ride with Your Best Ride.</p>
           </div>
+          <TrackLink
+            href="/book"
+            className="button nav-book"
+            eventName="booking_click"
+            eventParams={{ source_page: `/fleet/${page.slug}`, button_location: 'footer_cta' }}
+          >
+            Book a Ride <Icon name="arrow" width={16} />
+          </TrackLink>
         </Container>
       </section>
     </main>

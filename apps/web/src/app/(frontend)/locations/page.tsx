@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
-import Link from 'next/link';
-
 import { getPublicConfig } from '@/lib/config';
 import { getLocations } from '@/lib/cms/queries';
-import { CmsEmptyState } from '@/components/cms-content';
-import type { CoverageArea } from '@/lib/cms/types';
+import {
+  ContentEmptyState,
+  DirectoryHero,
+  LocationCard,
+  SectionHeading,
+} from '@/components/public-content';
 import { TransportationInquiryForm } from '@/components/forms/TransportationInquiryForm';
 import { TrackLink } from '@/components/analytics';
 
@@ -31,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Service Areas',
     description:
-      'We provide premium transportation services across New York City and the surrounding areas. View our coverage map and service details by location.',
+      'We provide premium transportation services across New York City and the surrounding areas. View our coverage and service details by location.',
     ...(canonical ? { alternates: { canonical } } : {}),
     openGraph: {
       type: 'website',
@@ -52,63 +54,34 @@ export default async function LocationsPage() {
   const { items: locations, status } = await getPageData();
 
   return (
-    <main className="interior-page" id="main-content">
-      <section className="hero interior-hero" aria-labelledby="locations-title">
-        <Container>
-          <div className="interior-intro">
-            <p className="eyebrow">
-              <span>Coverage Areas</span>
-            </p>
-            <h1 id="locations-title">Service Areas</h1>
-            <p className="hero-description">
-              We proudly serve clients throughout New York City and the greater metropolitan area.
-              Select a location to learn more about our services in your area.
-            </p>
-          </div>
-        </Container>
-      </section>
+    <main className="interior-page content-directory" id="main-content">
+      <DirectoryHero
+        eyebrow="FROM HERE TO WHAT’S NEXT"
+        title="Service Areas"
+        description="Explore published service areas and review the transportation options associated with each location."
+      />
 
-      <section className="section" aria-labelledby="coverage-heading">
+      <section className="section locations-directory-section" aria-labelledby="coverage-heading">
         <Container>
-          <h2 id="coverage-heading" className="section-heading">
-            Our Coverage
-          </h2>
-          <div className="coverage-grid">
-            {locations.length > 0 ? (
-              locations.map((location: CoverageArea) => (
-                <Link
-                  key={location.slug}
-                  href={`/locations/${location.slug}`}
-                  className="coverage-card"
-                >
-                  <div className="coverage-map">
-                    <svg viewBox="0 0 200 200" aria-hidden="true">
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="90"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        opacity="0.3"
-                      />
-                      <circle cx="100" cy="100" r="60" fill="currentColor" opacity="0.15" />
-                      <circle cx="100" cy="100" r="8" fill="currentColor" />
-                    </svg>
-                  </div>
-                  <div className="coverage-info">
-                    <h3>{location.title}</h3>
-                    <p>{location.summary}</p>
-                    <div className="text-link">
-                      View details <Icon name="arrow" width={16} height={16} />
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <CmsEmptyState label="coverage areas" status={status} />
-            )}
-          </div>
+          <SectionHeading
+            eyebrow="YOUR ROUTE STARTS HERE"
+            title="Explore our coverage"
+            description="Select a published area to learn more. Contact us if your route is not listed."
+          />
+          {locations.length > 0 ? (
+            <div className="public-card-grid public-location-grid">
+              {locations.map((location) => (
+                <LocationCard key={location.slug} location={location} />
+              ))}
+            </div>
+          ) : (
+            <ContentEmptyState
+              label="service areas"
+              status={status}
+              actionHref="/#contact"
+              actionLabel="Ask About Your Route"
+            />
+          )}
         </Container>
       </section>
 
@@ -116,13 +89,8 @@ export default async function LocationsPage() {
         <Container>
           <div className="inquiry-header">
             <p className="eyebrow">REQUEST A QUOTE</p>
-            <h2 id="inquiry-heading" className="section-heading">
-              Get a Personalized Quote
-            </h2>
-            <p>
-              Tell us about your route and travel needs. We&apos;ll get back to you with
-              availability and pricing.
-            </p>
+            <h2 id="inquiry-heading">Tell us where you&apos;re going</h2>
+            <p>Share your route and travel needs. We&apos;ll follow up with available options.</p>
           </div>
           <TransportationInquiryForm sourcePage="/locations" />
         </Container>
@@ -131,18 +99,18 @@ export default async function LocationsPage() {
       <section className="cta-section" aria-labelledby="cta-heading">
         <Container>
           <div>
-            <p className="eyebrow">Ready to Book?</p>
-            <h2 id="cta-heading">Check Availability in Your Area</h2>
-            <p>Our team is ready to serve you wherever you are in the NYC metro area.</p>
-            <TrackLink
-              href="/book"
-              className="button nav-book"
-              eventName="booking_click"
-              eventParams={{ source_page: '/locations', button_location: 'footer_cta' }}
-            >
-              Book Now <Icon name="arrow" width={16} />
-            </TrackLink>
+            <p className="eyebrow">READY TO RIDE?</p>
+            <h2 id="cta-heading">Check Availability for Your Route</h2>
+            <p>Arrange your journey through our trusted booking experience.</p>
           </div>
+          <TrackLink
+            href="/book"
+            className="button nav-book"
+            eventName="booking_click"
+            eventParams={{ source_page: '/locations', button_location: 'footer_cta' }}
+          >
+            Book a Ride <Icon name="arrow" width={16} />
+          </TrackLink>
         </Container>
       </section>
     </main>
