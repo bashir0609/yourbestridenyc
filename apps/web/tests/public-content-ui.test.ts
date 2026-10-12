@@ -68,7 +68,10 @@ test('empty directory contact actions target the existing homepage contact secti
 });
 
 test('public driver portraits retain a 4:5 frame with centered cover images', () => {
-  assert.match(styles, /\.driver-public-media \.cms-photo\s*\{[^}]*aspect-ratio: 4 \/ 5 !important;/);
+  assert.match(
+    styles,
+    /\.driver-public-media \.cms-photo\s*\{[^}]*aspect-ratio: 4 \/ 5 !important;/,
+  );
   assert.match(
     styles,
     /\.driver-public-media \.cms-photo img\s*\{\s*object-fit: cover;\s*object-position: center;\s*\}/,
