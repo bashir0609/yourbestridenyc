@@ -1499,12 +1499,16 @@ section[id] {
   object-position: center;
 }
 .fleet-public-media {
-  padding: 18px;
+  padding: 8px;
   background: linear-gradient(145deg, #252825, #101210);
 }
 .fleet-public-media .cms-photo {
-  aspect-ratio: 4 / 3 !important;
   background: transparent;
+}
+@media (min-width: 641px) {
+  .fleet-public-media .cms-photo {
+    aspect-ratio: 1 / 1 !important;
+  }
 }
 .fleet-public-media .cms-photo img {
   object-fit: contain;
