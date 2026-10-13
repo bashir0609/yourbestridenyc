@@ -165,13 +165,15 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.fullName}
               onChange={handleChange}
               className={errors.fullName ? 'error' : ''}
+              aria-invalid={errors.fullName ? true : undefined}
+              aria-describedby={errors.fullName ? 'driver-application-fullName-error' : undefined}
               placeholder="John Doe"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="name"
             />
             {errors.fullName && (
-              <span className="field-error" role="alert">
+              <span id="driver-application-fullName-error" className="field-error" role="alert">
                 {errors.fullName}
               </span>
             )}
@@ -191,13 +193,15 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.email}
               onChange={handleChange}
               className={errors.email ? 'error' : ''}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={errors.email ? 'driver-application-email-error' : undefined}
               placeholder="john@example.com"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="email"
             />
             {errors.email && (
-              <span className="field-error" role="alert">
+              <span id="driver-application-email-error" className="field-error" role="alert">
                 {errors.email}
               </span>
             )}
@@ -217,13 +221,15 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.phone}
               onChange={handleChange}
               className={errors.phone ? 'error' : ''}
+              aria-invalid={errors.phone ? true : undefined}
+              aria-describedby={errors.phone ? 'driver-application-phone-error' : undefined}
               placeholder="+1 (555) 123-4567"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="tel"
             />
             {errors.phone && (
-              <span className="field-error" role="alert">
+              <span id="driver-application-phone-error" className="field-error" role="alert">
                 {errors.phone}
               </span>
             )}
@@ -243,13 +249,15 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.location}
               onChange={handleChange}
               className={errors.location ? 'error' : ''}
+              aria-invalid={errors.location ? true : undefined}
+              aria-describedby={errors.location ? 'driver-application-location-error' : undefined}
               placeholder="City, State"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="address-line1"
             />
             {errors.location && (
-              <span className="field-error" role="alert">
+              <span id="driver-application-location-error" className="field-error" role="alert">
                 {errors.location}
               </span>
             )}
@@ -268,13 +276,21 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.drivingExperience}
               onChange={handleChange}
               className={errors.drivingExperience ? 'error' : ''}
+              aria-invalid={errors.drivingExperience ? true : undefined}
+              aria-describedby={
+                errors.drivingExperience ? 'driver-application-drivingExperience-error' : undefined
+              }
               placeholder="Describe your professional driving experience, years, types of vehicles, etc."
               rows={4}
               disabled={status === 'submitting' || status === 'success'}
               required
             />
             {errors.drivingExperience && (
-              <span className="field-error" role="alert">
+              <span
+                id="driver-application-drivingExperience-error"
+                className="field-error"
+                role="alert"
+              >
                 {errors.drivingExperience}
               </span>
             )}
@@ -293,6 +309,10 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.licenseClass}
               onChange={handleChange}
               className={errors.licenseClass ? 'error' : ''}
+              aria-invalid={errors.licenseClass ? true : undefined}
+              aria-describedby={
+                errors.licenseClass ? 'driver-application-licenseClass-error' : undefined
+              }
               disabled={status === 'submitting' || status === 'success'}
               required
             >
@@ -304,7 +324,7 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               <option value="other">Other</option>
             </select>
             {errors.licenseClass && (
-              <span className="field-error" role="alert">
+              <span id="driver-application-licenseClass-error" className="field-error" role="alert">
                 {errors.licenseClass}
               </span>
             )}
@@ -324,12 +344,16 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.availability}
               onChange={handleChange}
               className={errors.availability ? 'error' : ''}
+              aria-invalid={errors.availability ? true : undefined}
+              aria-describedby={
+                errors.availability ? 'driver-application-availability-error' : undefined
+              }
               placeholder="e.g., Mon-Fri 7am-5pm, Weekends available"
               disabled={status === 'submitting' || status === 'success'}
               required
             />
             {errors.availability && (
-              <span className="field-error" role="alert">
+              <span id="driver-application-availability-error" className="field-error" role="alert">
                 {errors.availability}
               </span>
             )}
@@ -348,13 +372,15 @@ export function DriverApplicationForm({ sourcePage }: { sourcePage: string }) {
               value={formData.message}
               onChange={handleChange}
               className={errors.message ? 'error' : ''}
+              aria-invalid={errors.message ? true : undefined}
+              aria-describedby={errors.message ? 'driver-application-message-error' : undefined}
               placeholder="Any additional information you'd like to share (certifications, languages, special training, etc.)"
               rows={4}
               disabled={status === 'submitting' || status === 'success'}
               required
             />
             {errors.message && (
-              <span className="field-error" role="alert">
+              <span id="driver-application-message-error" className="field-error" role="alert">
                 {errors.message}
               </span>
             )}

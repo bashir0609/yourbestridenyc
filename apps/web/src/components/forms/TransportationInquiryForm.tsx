@@ -172,13 +172,17 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.fullName}
               onChange={handleChange}
               className={errors.fullName ? 'error' : ''}
+              aria-invalid={errors.fullName ? true : undefined}
+              aria-describedby={
+                errors.fullName ? 'transportation-inquiry-fullName-error' : undefined
+              }
               placeholder="John Doe"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="name"
             />
             {errors.fullName && (
-              <span className="field-error" role="alert">
+              <span id="transportation-inquiry-fullName-error" className="field-error" role="alert">
                 {errors.fullName}
               </span>
             )}
@@ -198,13 +202,15 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.email}
               onChange={handleChange}
               className={errors.email ? 'error' : ''}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={errors.email ? 'transportation-inquiry-email-error' : undefined}
               placeholder="john@example.com"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="email"
             />
             {errors.email && (
-              <span className="field-error" role="alert">
+              <span id="transportation-inquiry-email-error" className="field-error" role="alert">
                 {errors.email}
               </span>
             )}
@@ -224,13 +230,15 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.phone}
               onChange={handleChange}
               className={errors.phone ? 'error' : ''}
+              aria-invalid={errors.phone ? true : undefined}
+              aria-describedby={errors.phone ? 'transportation-inquiry-phone-error' : undefined}
               placeholder="+1 (555) 123-4567"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="tel"
             />
             {errors.phone && (
-              <span className="field-error" role="alert">
+              <span id="transportation-inquiry-phone-error" className="field-error" role="alert">
                 {errors.phone}
               </span>
             )}
@@ -249,6 +257,10 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.serviceType}
               onChange={handleChange}
               className={errors.serviceType ? 'error' : ''}
+              aria-invalid={errors.serviceType ? true : undefined}
+              aria-describedby={
+                errors.serviceType ? 'transportation-inquiry-serviceType-error' : undefined
+              }
               disabled={status === 'submitting' || status === 'success'}
               required
             >
@@ -260,7 +272,11 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               <option value="other">Other</option>
             </select>
             {errors.serviceType && (
-              <span className="field-error" role="alert">
+              <span
+                id="transportation-inquiry-serviceType-error"
+                className="field-error"
+                role="alert"
+              >
                 {errors.serviceType}
               </span>
             )}
@@ -280,13 +296,21 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.pickupArea}
               onChange={handleChange}
               className={errors.pickupArea ? 'error' : ''}
+              aria-invalid={errors.pickupArea ? true : undefined}
+              aria-describedby={
+                errors.pickupArea ? 'transportation-inquiry-pickupArea-error' : undefined
+              }
               placeholder="e.g., Manhattan, NY"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="address-line1"
             />
             {errors.pickupArea && (
-              <span className="field-error" role="alert">
+              <span
+                id="transportation-inquiry-pickupArea-error"
+                className="field-error"
+                role="alert"
+              >
                 {errors.pickupArea}
               </span>
             )}
@@ -306,13 +330,21 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.dropoffArea}
               onChange={handleChange}
               className={errors.dropoffArea ? 'error' : ''}
+              aria-invalid={errors.dropoffArea ? true : undefined}
+              aria-describedby={
+                errors.dropoffArea ? 'transportation-inquiry-dropoffArea-error' : undefined
+              }
               placeholder="e.g., JFK Airport, NY"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="address-line2"
             />
             {errors.dropoffArea && (
-              <span className="field-error" role="alert">
+              <span
+                id="transportation-inquiry-dropoffArea-error"
+                className="field-error"
+                role="alert"
+              >
                 {errors.dropoffArea}
               </span>
             )}
@@ -327,11 +359,19 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.preferredDate}
               onChange={handleChange}
               className={errors.preferredDate ? 'error' : ''}
+              aria-invalid={errors.preferredDate ? true : undefined}
+              aria-describedby={
+                errors.preferredDate ? 'transportation-inquiry-preferredDate-error' : undefined
+              }
               disabled={status === 'submitting' || status === 'success'}
               min={new Date().toISOString().split('T')[0]}
             />
             {errors.preferredDate && (
-              <span className="field-error" role="alert">
+              <span
+                id="transportation-inquiry-preferredDate-error"
+                className="field-error"
+                role="alert"
+              >
                 {errors.preferredDate}
               </span>
             )}
@@ -346,10 +386,18 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.preferredTime}
               onChange={handleChange}
               className={errors.preferredTime ? 'error' : ''}
+              aria-invalid={errors.preferredTime ? true : undefined}
+              aria-describedby={
+                errors.preferredTime ? 'transportation-inquiry-preferredTime-error' : undefined
+              }
               disabled={status === 'submitting' || status === 'success'}
             />
             {errors.preferredTime && (
-              <span className="field-error" role="alert">
+              <span
+                id="transportation-inquiry-preferredTime-error"
+                className="field-error"
+                role="alert"
+              >
                 {errors.preferredTime}
               </span>
             )}
@@ -368,13 +416,15 @@ export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }
               value={formData.message}
               onChange={handleChange}
               className={errors.message ? 'error' : ''}
+              aria-invalid={errors.message ? true : undefined}
+              aria-describedby={errors.message ? 'transportation-inquiry-message-error' : undefined}
               placeholder="Please describe your transportation needs, any special requirements, or questions..."
               rows={5}
               disabled={status === 'submitting' || status === 'success'}
               required
             />
             {errors.message && (
-              <span className="field-error" role="alert">
+              <span id="transportation-inquiry-message-error" className="field-error" role="alert">
                 {errors.message}
               </span>
             )}

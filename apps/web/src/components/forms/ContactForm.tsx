@@ -155,13 +155,15 @@ export function ContactForm({ sourcePage }: { sourcePage: string }) {
               value={formData.name}
               onChange={handleChange}
               className={errors.name ? 'error' : ''}
+              aria-invalid={errors.name ? true : undefined}
+              aria-describedby={errors.name ? 'contact-name-error' : undefined}
               placeholder="John Doe"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="name"
             />
             {errors.name && (
-              <span className="field-error" role="alert">
+              <span id="contact-name-error" className="field-error" role="alert">
                 {errors.name}
               </span>
             )}
@@ -181,13 +183,15 @@ export function ContactForm({ sourcePage }: { sourcePage: string }) {
               value={formData.email}
               onChange={handleChange}
               className={errors.email ? 'error' : ''}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={errors.email ? 'contact-email-error' : undefined}
               placeholder="john@example.com"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="email"
             />
             {errors.email && (
-              <span className="field-error" role="alert">
+              <span id="contact-email-error" className="field-error" role="alert">
                 {errors.email}
               </span>
             )}
@@ -207,13 +211,15 @@ export function ContactForm({ sourcePage }: { sourcePage: string }) {
               value={formData.phone}
               onChange={handleChange}
               className={errors.phone ? 'error' : ''}
+              aria-invalid={errors.phone ? true : undefined}
+              aria-describedby={errors.phone ? 'contact-phone-error' : undefined}
               placeholder="+1 (555) 123-4567"
               disabled={status === 'submitting' || status === 'success'}
               required
               autoComplete="tel"
             />
             {errors.phone && (
-              <span className="field-error" role="alert">
+              <span id="contact-phone-error" className="field-error" role="alert">
                 {errors.phone}
               </span>
             )}
@@ -232,13 +238,15 @@ export function ContactForm({ sourcePage }: { sourcePage: string }) {
               value={formData.message}
               onChange={handleChange}
               className={errors.message ? 'error' : ''}
+              aria-invalid={errors.message ? true : undefined}
+              aria-describedby={errors.message ? 'contact-message-error' : undefined}
               placeholder="How can we help you?"
               rows={5}
               disabled={status === 'submitting' || status === 'success'}
               required
             />
             {errors.message && (
-              <span className="field-error" role="alert">
+              <span id="contact-message-error" className="field-error" role="alert">
                 {errors.message}
               </span>
             )}

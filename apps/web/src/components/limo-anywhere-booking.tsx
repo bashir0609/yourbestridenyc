@@ -48,6 +48,7 @@ export function LimoAnywhereBooking({ bookingUrl }: LimoAnywhereBookingProps) {
     const markReady = () => {
       const iframe = container.querySelector<HTMLIFrameElement>('.ores4iframe');
       if (iframe) {
+        if (!iframe.title.trim()) iframe.title = 'Your Best Ride secure reservation form';
         const window_ = window as typeof window & { [LOADER_RAN_FLAG]?: boolean };
         window_[LOADER_RAN_FLAG] = true;
         setStatus('ready');
