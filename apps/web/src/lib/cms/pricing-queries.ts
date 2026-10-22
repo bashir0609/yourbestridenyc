@@ -1,14 +1,15 @@
 import 'server-only';
 import { cache } from 'react';
 import type { Where } from 'payload';
-import type { RateCard, VehicleClass } from '@/payload-types';
+import type { RateCard } from '@/payload-types';
 import { mapImage, record, text } from './mappers';
-import { computeStartingPrice } from './pricing-rules';
+import {
+  computeStartingPrice,
+  isRateCardEligible,
+  mapEligibleRateCardsToContent,
+  type RateCardCandidate,
+} from './pricing-rules';
 import type {
-  FeeRuleEntry,
-  FixedRouteEntry,
-  HourlyCharterEntry,
-  MileagePolicyEntry,
   PricingSettingsView,
   RatesAndOptionsContent,
   ServicePricingInfo,
@@ -114,7 +115,7 @@ export const getActiveRateCards = cache(async (serviceSlug?: string): Promise<Ra
 
     const whereConditions: Where[] = [
       { _status: { equals: 'published' } },
-      { reconciliationStatus: { equals: 'active' } },
+      { 'reconciliation.status': { equals: 'published' } },
     ];
 
     const res = await payload.find({
@@ -125,24 +126,9 @@ export const getActiveRateCards = cache(async (serviceSlug?: string): Promise<Ra
       overrideAccess: false,
     });
 
-    // Date window check in memory to guarantee no future or expired rates
-    return res.docs.filter((card: RateCard) => {
-      if (card.effectiveFrom && new Date(card.effectiveFrom) > now) return false;
-      if (card.effectiveTo && new Date(card.effectiveTo) < now) return false;
-
-      if (serviceSlug) {
-        if (card.serviceScope === 'service_specific') {
-          const serviceMatch =
-            Array.isArray(card.services) &&
-            card.services.some(
-              (s) => typeof s === 'object' && s !== null && 'slug' in s && s.slug === serviceSlug,
-            );
-          if (!serviceMatch) return false;
-        }
-      }
-
-      return true;
-    });
+    return res.docs.filter((card: RateCard) =>
+      isRateCardEligible(card as unknown as RateCardCandidate, now, serviceSlug),
+    );
   } catch {
     return [];
   }
@@ -156,158 +142,11 @@ export const getRatesAndOptionsContent = cache(async (): Promise<RatesAndOptions
       getPricingSettings(),
     ]);
 
-    const fixedRoutes: FixedRouteEntry[] = [];
-    const hourlyCharters: HourlyCharterEntry[] = [];
-    const mileagePolicies: MileagePolicyEntry[] = [];
-    const feeMap = new Map<string, FeeRuleEntry>();
-
-    for (const card of rateCards) {
-      const vClass =
-        typeof card.vehicleClass === 'object' && card.vehicleClass !== null
-          ? (card.vehicleClass as VehicleClass)
-          : null;
-      const className = vClass?.name ? String(vClass.name) : 'Vehicle Class';
-      const classSlug = vClass?.slug ? String(vClass.slug) : '';
-
-      // 1. Fixed routes
-      if (card.pricingModel === 'fixed' && Array.isArray(card.routes)) {
-        for (const route of card.routes) {
-          if (route.flatRate !== undefined && route.flatRate !== null) {
-            fixedRoutes.push({
-              id: route.id || `${card.id}-${fixedRoutes.length}`,
-              routeLabel:
-                route.routeLabel ||
-                `${route.originZone || 'Origin'} to ${route.destinationZone || 'Destination'}`,
-              originZone: route.originZone || 'Origin',
-              destinationZone: route.destinationZone || 'Destination',
-              flatRate: Number(route.flatRate),
-              additionalStopFee:
-                typeof route.additionalStopFee === 'number' ? route.additionalStopFee : undefined,
-              notes: route.notes || undefined,
-              vehicleClassName: className,
-              vehicleClassSlug: classSlug,
-            });
-          }
-        }
-      }
-
-      // 2. Hourly charters
-      if (card.pricingModel === 'hourly' && card.hourly?.hourlyRate) {
-        const hourlyRate = Number(card.hourly.hourlyRate);
-        const minimumHours = Number(card.hourly.minimumHours) || 2;
-        const minimumSubtotal = hourlyRate * minimumHours;
-
-        hourlyCharters.push({
-          id: card.id,
-          title: card.title || `${className} Hourly Charter`,
-          vehicleClassName: className,
-          vehicleClassSlug: classSlug,
-          hourlyRate,
-          minimumHours,
-          minimumSubtotal,
-          additionalHourRate:
-            typeof card.hourly.additionalHourRate === 'number'
-              ? card.hourly.additionalHourRate
-              : undefined,
-          overtimeIncrementMinutes:
-            typeof card.hourly.overtimeIncrementMinutes === 'number'
-              ? card.hourly.overtimeIncrementMinutes
-              : 15,
-          overtimeRate:
-            typeof card.hourly.overtimeRate === 'number' ? card.hourly.overtimeRate : undefined,
-          curbsideGraceMinutes:
-            typeof card.commercialPolicies?.curbsideGraceMinutes === 'number'
-              ? card.commercialPolicies.curbsideGraceMinutes
-              : settings.defaultCurbsideGraceMinutes,
-          domesticAirportGraceMinutes:
-            typeof card.commercialPolicies?.domesticAirportGraceMinutes === 'number'
-              ? card.commercialPolicies.domesticAirportGraceMinutes
-              : settings.defaultDomesticAirportGraceMinutes,
-          internationalAirportGraceMinutes:
-            typeof card.commercialPolicies?.internationalAirportGraceMinutes === 'number'
-              ? card.commercialPolicies.internationalAirportGraceMinutes
-              : settings.defaultInternationalAirportGraceMinutes,
-          waitingHourlyRate:
-            typeof card.commercialPolicies?.waitingHourlyRate === 'number'
-              ? card.commercialPolicies.waitingHourlyRate
-              : undefined,
-          lateNightSurcharge:
-            typeof card.commercialPolicies?.lateNightSurcharge === 'number'
-              ? card.commercialPolicies.lateNightSurcharge
-              : undefined,
-          lateNightWindowStart:
-            card.commercialPolicies?.lateNightWindowStart || settings.defaultLateNightWindowStart,
-          lateNightWindowEnd:
-            card.commercialPolicies?.lateNightWindowEnd || settings.defaultLateNightWindowEnd,
-        });
-      }
-
-      // 3. Mileage policies
-      if (card.pricingModel === 'mileage') {
-        mileagePolicies.push({
-          id: card.id,
-          title: card.title || `${className} Mileage Rate`,
-          vehicleClassName: className,
-          vehicleClassSlug: classSlug,
-          baseFare:
-            typeof card.mileage?.baseFare === 'number' ? card.mileage.baseFare : undefined,
-          perMileRate:
-            typeof card.mileage?.perMileRate === 'number' ? card.mileage.perMileRate : undefined,
-          minimumFare:
-            typeof card.mileage?.minimumFare === 'number' ? card.mileage.minimumFare : undefined,
-          perMinuteRate:
-            typeof card.mileage?.perMinuteRate === 'number' ? card.mileage.perMinuteRate : undefined,
-          deadheadThresholdMiles:
-            typeof card.mileage?.deadheadThresholdMiles === 'number'
-              ? card.mileage.deadheadThresholdMiles
-              : undefined,
-          deadheadRatePerMile:
-            typeof card.mileage?.deadheadRatePerMile === 'number'
-              ? card.mileage.deadheadRatePerMile
-              : undefined,
-          complimentaryWaitMinutes:
-            typeof card.mileage?.complimentaryWaitMinutes === 'number'
-              ? card.mileage.complimentaryWaitMinutes
-              : undefined,
-          waitingRatePerHour:
-            typeof card.mileage?.waitingRatePerHour === 'number'
-              ? card.mileage.waitingRatePerHour
-              : undefined,
-          deadheadPolicyNote: card.commercialPolicies?.deadheadPolicyNote || undefined,
-        });
-      }
-
-      // Collect fee rules deduplicated by feeIdentifier
-      if (Array.isArray(card.applicableFees)) {
-        for (const fee of card.applicableFees) {
-          const key = fee.feeIdentifier || fee.feeName;
-          if (key && !feeMap.has(key)) {
-            feeMap.set(key, {
-              id: fee.id || key,
-              feeIdentifier: fee.feeIdentifier || 'custom_surcharge',
-              feeName: fee.feeName || 'Standard Surcharge',
-              feeCategory: fee.feeCategory || 'company_policy',
-              triggerCondition: fee.triggerCondition || 'always_mandatory',
-              billingType: fee.billingType || 'flat',
-              amount: typeof fee.amount === 'number' ? fee.amount : undefined,
-              customerDisclosure: fee.customerDisclosure || undefined,
-            });
-          }
-        }
-      }
-    }
-
-    const hasContent = fixedRoutes.length > 0 || hourlyCharters.length > 0 || mileagePolicies.length > 0;
-
-    return {
-      vehicleClasses: classes,
-      fixedRoutes,
-      hourlyCharters,
-      mileagePolicies,
-      applicableFees: Array.from(feeMap.values()),
+    return mapEligibleRateCardsToContent(
+      classes,
+      rateCards as unknown as RateCardCandidate[],
       settings,
-      status: hasContent || classes.length > 0 ? 'ready' : 'empty',
-    };
+    );
   } catch {
     return {
       vehicleClasses: [],

@@ -9,6 +9,7 @@ import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
 import { DetailBreadcrumb } from '@/components/public-content';
+import { TransportationInquiryForm } from '@/components/forms/TransportationInquiryForm';
 
 export const revalidate = 300;
 
@@ -87,11 +88,11 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
                 {page.category && <p className="fleet-detail-category">{page.category}</p>}
                 {page.vehicleClass && (
                   <Link
-                    href="/rates-and-options"
+                    href={`/rates-and-options?tab=hourly&vehicleClass=${encodeURIComponent(page.vehicleClass.name)}`}
                     className="fleet-detail-class-badge"
                     title={`View tariff rates for ${page.vehicleClass.name}`}
                   >
-                    Pricing Class: {page.vehicleClass.name}
+                    Pricing Class: {page.vehicleClass.name} &rarr;
                   </Link>
                 )}
               </div>
@@ -125,8 +126,19 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
                     button_location: 'vehicle_hero',
                   }}
                 >
-                  Reserve Your Ride <Icon name="arrow" width={16} />
+                  Check Availability & Book <Icon name="arrow" width={16} />
                 </TrackLink>
+                <a href="#vehicle-inquiry" className="button detail-secondary-action">
+                  Request This Vehicle
+                </a>
+                {page.vehicleClass && (
+                  <Link
+                    href={`/rates-and-options?tab=hourly&vehicleClass=${encodeURIComponent(page.vehicleClass.name)}`}
+                    className="button button-outline"
+                  >
+                    View Class Rates
+                  </Link>
+                )}
                 <Link href="/fleet" className="button detail-secondary-action">
                   Back to Our Fleet
                 </Link>
@@ -207,6 +219,24 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
           </Container>
         </section>
       )}
+
+      <section id="vehicle-inquiry" className="section inquiry-section" aria-labelledby="inquiry-heading">
+        <Container>
+          <div className="inquiry-header">
+            <p className="eyebrow">REQUEST THIS VEHICLE</p>
+            <h2 id="inquiry-heading">Request a Custom Quote for {page.title}</h2>
+            <p>
+              Share your trip details and requirements. Final fare confirmed during booking.
+            </p>
+          </div>
+          <TransportationInquiryForm
+            sourcePage={`/fleet/${page.slug}`}
+            initialVehicle={page.title}
+            initialVehicleClass={page.vehicleClass?.name}
+            initialMessage={`I would like to request a quote for the ${page.title}${page.vehicleClass?.name ? ` (${page.vehicleClass.name})` : ''} for my upcoming journey.`}
+          />
+        </Container>
+      </section>
 
       <section className="cta-section" aria-labelledby="cta-heading">
         <Container>

@@ -5,6 +5,7 @@ import type { CmsStatus, CoverageArea, Driver, FleetVehicle, Service } from '@/l
 import { CmsImage } from '@/components/cms-content';
 import { Icon, type IconName } from '@/components/icon';
 import { meaningfulSummary } from '@/lib/content-quality';
+import { TrackLink } from '@/components/analytics';
 
 const serviceIcons: Record<string, IconName> = {
   'medical-transportation': 'medical',
@@ -202,10 +203,34 @@ export function FleetCard({ vehicle }: { vehicle: FleetVehicle }) {
           )}
           {summary && <p>{summary}</p>}
           <span className="public-card-action">
-            View Vehicle <Icon name="arrow" width={17} />
+            View Details <Icon name="arrow" width={17} />
           </span>
         </div>
       </Link>
+      <div className="fleet-card-actions">
+        <TrackLink
+          href="/book"
+          className="button button-small button-gold"
+          eventName="booking_click"
+          eventParams={{ source_page: '/fleet', button_location: 'fleet_card' }}
+        >
+          Check Availability & Book
+        </TrackLink>
+        <a
+          href={`/fleet?vehicle=${encodeURIComponent(vehicle.title)}${vehicle.vehicleClass ? `&vehicleClass=${encodeURIComponent(vehicle.vehicleClass.name)}` : ''}#fleet-inquiry`}
+          className="button button-small button-secondary"
+        >
+          Request This Vehicle
+        </a>
+        {vehicle.vehicleClass && (
+          <Link
+            href={`/rates-and-options?tab=hourly&vehicleClass=${encodeURIComponent(vehicle.vehicleClass.name)}`}
+            className="button button-small button-outline"
+          >
+            View Class Rates
+          </Link>
+        )}
+      </div>
     </article>
   );
 }

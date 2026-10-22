@@ -3237,6 +3237,14 @@ section[id] {
   border-bottom: none;
 }
 
+.rates-comparison-table tr.highlighted-rate-row td {
+  background: rgba(217, 164, 65, 0.07);
+}
+
+.rates-comparison-table tr.highlighted-rate-row td:first-child {
+  border-left: 3px solid #d9a441;
+}
+
 .route-name {
   font-weight: 600;
   color: #121212;
@@ -3497,5 +3505,96 @@ section[id] {
   .service-pricing-inquiry-link {
     margin-left: 0;
     text-align: center;
+  }
+}
+
+/* Pricing CTA Navigation Extensions */
+.fleet-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 20px 20px;
+  margin-top: auto;
+  border-top: 1px solid #eae6dc;
+  background: #ffffff;
+}
+
+.rates-header-actions-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.table-actions-cell {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.custom-card-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.vehicle-class-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.vehicle-class-fleet-link {
+  margin-left: 6px;
+  font-size: 0.8125rem;
+}
+
+.service-footer-cta-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .fleet-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fleet-card-actions .button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .rates-header-actions-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .rates-header-actions-group .button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .table-actions-cell {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .service-footer-cta-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
   }
 }

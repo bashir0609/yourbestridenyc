@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, type FormEvent } from 'react';
+import { useState, useCallback, useEffect, type FormEvent } from 'react';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@yourbestride/ui';
 import { transportationInquirySchema, type TransportationInquiryInput } from '@yourbestride/types';
 import { Icon } from '@/components/icon';
@@ -8,18 +8,157 @@ import { trackEvent } from '@/lib/analytics';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
-export function TransportationInquiryForm({ sourcePage }: { sourcePage: string }) {
+export interface TransportationInquiryFormProps {
+  sourcePage: string;
+  initialServiceType?: string;
+  initialVehicle?: string;
+  initialVehicleClass?: string;
+  initialPickupArea?: string;
+  initialDropoffArea?: string;
+  initialMessage?: string;
+}
+
+function formatVehicleClassName(raw?: string): string {
+  if (!raw) return '';
+  const lower = raw.toLowerCase().trim();
+  if (lower === 'standard-suv' || lower === 'standard suv') return 'Standard SUV';
+  if (lower === 'premium-crossover-suv' || lower === 'premium crossover suv') return 'Premium Crossover SUV';
+  return raw.trim();
+}
+
+function normalizeServiceType(raw?: string): string {
+  if (!raw) return '';
+  const lower = raw.toLowerCase().trim();
+  if (lower === 'medical' || lower.includes('medical') || lower.includes('healthcare')) return 'medical';
+  if (lower === 'airport' || lower.includes('airport') || lower.includes('flight')) return 'airport';
+  if (lower === 'corporate' || lower.includes('corporate') || lower.includes('business') || lower === 'roadshow') return 'corporate';
+  if (lower === 'private' || lower.includes('private') || lower.includes('chauffeur') || lower.includes('hourly') || lower === 'wedding' || lower === 'mileage') return 'private';
+  if (lower === 'other') return 'other';
+  return '';
+}
+
+function buildInitialMessage(opts: {
+  customMessage?: string;
+  vehicle?: string;
+  vehicleClass?: string;
+  route?: string;
+  pricingModel?: string;
+  packageType?: string;
+}): string {
+  if (opts.customMessage) return opts.customMessage;
+
+  const vClass = formatVehicleClassName(opts.vehicleClass);
+
+  if (opts.vehicle) {
+    return `I would like to request a custom quote for the ${opts.vehicle}${vClass ? ` (${vClass})` : ''} for my upcoming journey.`;
+  }
+  if (opts.packageType === 'roadshow' || opts.packageType === 'corporate') {
+    return 'I would like to request a custom quote for corporate roadshow transportation.';
+  }
+  if (opts.packageType === 'wedding') {
+    return 'I would like to request a custom quote for wedding and celebration transportation.';
+  }
+  if (opts.packageType === 'meet-greet') {
+    return 'I would like to request a custom quote for airport meet & greet transportation service.';
+  }
+  if (opts.route) {
+    return `I am requesting a custom quote for ${opts.route}${vClass ? ` (${vClass})` : ''}.`;
+  }
+  if (opts.pricingModel === 'hourly') {
+    return `I am requesting an hourly charter quote${vClass ? ` for the ${vClass} vehicle class` : ''} (3 hours minimum).`;
+  }
+  if (opts.pricingModel === 'mileage') {
+    return 'I would like to request a custom distance / mileage quote for my planned itinerary.';
+  }
+  return '';
+}
+
+export function TransportationInquiryForm({
+  sourcePage,
+  initialServiceType = '',
+  initialVehicle = '',
+  initialVehicleClass = '',
+  initialPickupArea = '',
+  initialDropoffArea = '',
+  initialMessage = '',
+}: TransportationInquiryFormProps) {
   const [formData, setFormData] = useState<TransportationInquiryInput>({
     fullName: '',
     email: '',
     phone: '',
-    serviceType: '',
-    pickupArea: '',
-    dropoffArea: '',
-    message: '',
+    serviceType: normalizeServiceType(initialServiceType),
+    pickupArea: initialPickupArea,
+    dropoffArea: initialDropoffArea,
+    message: buildInitialMessage({
+      customMessage: initialMessage,
+      vehicle: initialVehicle,
+      vehicleClass: initialVehicleClass,
+    }),
     preferredDate: '',
     preferredTime: '',
   });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const applyUrlParams = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (window.location.hash && window.location.hash.includes('?')) {
+        const hashQuery = window.location.hash.split('?')[1];
+        if (hashQuery) {
+          new URLSearchParams(hashQuery).forEach((val, key) => {
+            params.set(key, val);
+          });
+        }
+      }
+
+      const urlService = params.get('service') || params.get('serviceType');
+      const urlVehicle = params.get('vehicle');
+      const urlClass = params.get('vehicleClass') || params.get('class');
+      const urlPickup = params.get('pickup') || params.get('pickupArea');
+      const urlDropoff = params.get('dropoff') || params.get('dropoffArea');
+      const urlRoute = params.get('route');
+      const urlPricingModel = params.get('pricingModel') || params.get('model');
+      const urlPackage = params.get('package');
+      const urlMessage = params.get('message');
+
+      setFormData((prev) => {
+        const normalizedService = urlService ? normalizeServiceType(urlService) : prev.serviceType;
+        const newPickup = urlPickup || prev.pickupArea;
+        const newDropoff = urlDropoff || prev.dropoffArea;
+
+        const hasAutoMessage =
+          !prev.message ||
+          prev.message.startsWith('I would like to request') ||
+          prev.message.startsWith('I am requesting');
+
+        let newMessage = prev.message;
+        if (hasAutoMessage || urlMessage) {
+          const generated = buildInitialMessage({
+            customMessage: urlMessage || undefined,
+            vehicle: urlVehicle || initialVehicle || undefined,
+            vehicleClass: urlClass || initialVehicleClass || undefined,
+            route: urlRoute || undefined,
+            pricingModel: urlPricingModel || undefined,
+            packageType: urlPackage || undefined,
+          });
+          if (generated) newMessage = generated;
+        }
+
+        return {
+          ...prev,
+          serviceType: normalizedService || prev.serviceType,
+          pickupArea: newPickup,
+          dropoffArea: newDropoff,
+          message: newMessage,
+        };
+      });
+    };
+
+    applyUrlParams();
+    window.addEventListener('hashchange', applyUrlParams);
+    return () => window.removeEventListener('hashchange', applyUrlParams);
+  }, [initialVehicle, initialVehicleClass]);
   const [website, setWebsite] = useState('');
   const [errors, setErrors] = useState<Partial<Record<keyof TransportationInquiryInput, string>>>(
     {},

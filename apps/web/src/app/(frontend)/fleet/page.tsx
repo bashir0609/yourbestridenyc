@@ -84,7 +84,7 @@ export default async function FleetPage() {
         </Container>
       </section>
 
-      <section className="section inquiry-section" aria-labelledby="inquiry-heading">
+      <section className="section inquiry-section" id="fleet-inquiry" aria-labelledby="inquiry-heading">
         <Container>
           <div className="inquiry-header">
             <p className="eyebrow">REQUEST A QUOTE</p>

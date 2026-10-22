@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Icon } from '@/components/icon';
 import { TrackLink } from '@/components/analytics';
@@ -24,6 +24,25 @@ interface RatesAndOptionsTabsProps {
   settings: PricingSettingsView;
 }
 
+function getInitialTab(): TabKey {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if (tabParam === 'fixed' || tabParam === 'hourly' || tabParam === 'mileage' || tabParam === 'custom') {
+      return tabParam;
+    }
+  }
+  return 'fixed';
+}
+
+function getInitialVehicleClass(): string | null {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('vehicleClass');
+  }
+  return null;
+}
+
 export function RatesAndOptionsTabs({
   vehicleClasses,
   fixedRoutes,
@@ -32,7 +51,30 @@ export function RatesAndOptionsTabs({
   applicableFees,
   settings,
 }: RatesAndOptionsTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>('fixed');
+  const [activeTab, setActiveTab] = useState<TabKey>(getInitialTab);
+  const [highlightedClass, setHighlightedClass] = useState<string | null>(getInitialVehicleClass);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'fixed' || tabParam === 'hourly' || tabParam === 'mileage' || tabParam === 'custom') {
+        setActiveTab(tabParam);
+      }
+      setHighlightedClass(params.get('vehicleClass'));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handleTabChange = (key: TabKey) => {
+    setActiveTab(key);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', key);
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
 
   const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
     { key: 'fixed', label: 'Airport & Fixed Routes', icon: 'airport' },
@@ -55,7 +97,7 @@ export function RatesAndOptionsTabs({
               aria-selected={isSelected}
               aria-controls={`panel-${tab.key}`}
               tabIndex={isSelected ? 0 : -1}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabChange(tab.key)}
               className={`rates-tab-btn ${isSelected ? 'active' : ''}`}
             >
               <span>{tab.label}</span>
@@ -82,14 +124,17 @@ export function RatesAndOptionsTabs({
                   (JFK, LGA, EWR) and regional transfer corridors.
                 </p>
               </div>
-              <div className="rates-header-action">
+              <div className="rates-header-action rates-header-actions-group">
+                <a href="/rates-and-options?service=airport#rates-inquiry" className="button button-secondary">
+                  Request a Custom Quote
+                </a>
                 <TrackLink
                   href="/book"
                   className="button button-gold"
                   eventName="booking_click"
                   eventParams={{ source_page: '/rates-and-options', button_location: 'fixed_header' }}
                 >
-                  Book Instant Transfer <Icon name="arrow" width={16} />
+                  Check Availability & Book <Icon name="arrow" width={16} />
                 </TrackLink>
               </div>
             </div>
@@ -107,9 +152,15 @@ export function RatesAndOptionsTabs({
                     </tr>
                   </thead>
                   <tbody>
-                    {fixedRoutes.map((route) => (
-                      <tr key={route.id}>
-                        <td className="font-semibold">
+                    {fixedRoutes.map((route) => {
+                      const isHighlighted = Boolean(
+                        highlightedClass &&
+                        (route.vehicleClassName.toLowerCase() === highlightedClass.toLowerCase() ||
+                         route.vehicleClassSlug?.toLowerCase() === highlightedClass.toLowerCase()),
+                      );
+                      return (
+                        <tr key={route.id} className={isHighlighted ? 'highlighted-rate-row' : undefined}>
+                          <td className="font-semibold">
                           <div className="route-name">{route.routeLabel}</div>
                           <div className="route-endpoints text-muted">
                             {route.originZone} ↔ {route.destinationZone}
@@ -130,20 +181,29 @@ export function RatesAndOptionsTabs({
                           {route.notes || 'Includes flight tracking & standard grace period.'}
                         </td>
                         <td className="text-right">
-                          <TrackLink
-                            href="/book"
-                            className="button button-small"
-                            eventName="booking_click"
-                            eventParams={{
-                              source_page: '/rates-and-options',
-                              button_location: 'fixed_route_row',
-                            }}
-                          >
-                            Reserve
-                          </TrackLink>
+                          <div className="table-actions-cell">
+                            <TrackLink
+                              href="/book"
+                              className="button button-small button-gold"
+                              eventName="booking_click"
+                              eventParams={{
+                                source_page: '/rates-and-options',
+                                button_location: 'fixed_route_row',
+                              }}
+                            >
+                              Book Now
+                            </TrackLink>
+                            <a
+                              href={`/rates-and-options?service=airport&route=${encodeURIComponent(route.routeLabel)}&vehicleClass=${encodeURIComponent(route.vehicleClassName)}&pickup=${encodeURIComponent(route.originZone)}&dropoff=${encodeURIComponent(route.destinationZone)}#rates-inquiry`}
+                              className="button button-small button-secondary"
+                            >
+                              Request a Custom Quote
+                            </a>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                    );
+                  })}
                   </tbody>
                 </table>
               </div>
@@ -155,21 +215,21 @@ export function RatesAndOptionsTabs({
                 <h3>Standard Fixed Airport Tariffs</h3>
                 <p>
                   Our fixed-rate airport transfers between JFK, LGA, EWR and New York destinations are
-                  managed dynamically by vehicle class. Because pricing varies with vehicle availability and
-                  scheduled flight windows, instant binding fares are calculated via our reservation system.
+                  managed dynamically by vehicle class. Final fare confirmed during booking. For customized routes
+                  or corporate accounts, request a custom quote below.
                 </p>
                 <div className="rates-empty-actions">
+                  <a href="/rates-and-options?service=airport#rates-inquiry" className="button button-gold">
+                    Request a Custom Quote <Icon name="arrow" width={16} />
+                  </a>
                   <TrackLink
                     href="/book"
-                    className="button button-gold"
+                    className="button button-secondary"
                     eventName="booking_click"
                     eventParams={{ source_page: '/rates-and-options', button_location: 'fixed_empty_cta' }}
                   >
-                    Calculate Airport Fare in ORES <Icon name="arrow" width={16} />
+                    Check Availability & Book <Icon name="arrow" width={16} />
                   </TrackLink>
-                  <a href="#rates-inquiry" className="button button-secondary">
-                    Request Route Quote
-                  </a>
                 </div>
               </div>
             )}
@@ -192,14 +252,17 @@ export function RatesAndOptionsTabs({
                   and special events. Dedicated chauffeur at your disposal.
                 </p>
               </div>
-              <div className="rates-header-action">
+              <div className="rates-header-action rates-header-actions-group">
+                <a href="/rates-and-options?service=corporate&pricingModel=hourly#rates-inquiry" className="button button-secondary">
+                  Request a Custom Quote
+                </a>
                 <TrackLink
                   href="/book"
                   className="button button-gold"
                   eventName="booking_click"
                   eventParams={{ source_page: '/rates-and-options', button_location: 'hourly_header' }}
                 >
-                  Book As-Directed Ride <Icon name="arrow" width={16} />
+                  Check Availability & Book <Icon name="arrow" width={16} />
                 </TrackLink>
               </div>
             </div>
@@ -223,9 +286,14 @@ export function RatesAndOptionsTabs({
                         typeof charter.minimumSubtotal === 'number'
                           ? charter.minimumSubtotal
                           : charter.hourlyRate * charter.minimumHours;
+                      const isHighlighted = Boolean(
+                        highlightedClass &&
+                        (charter.vehicleClassName.toLowerCase() === highlightedClass.toLowerCase() ||
+                         charter.vehicleClassSlug?.toLowerCase() === highlightedClass.toLowerCase()),
+                      );
 
                       return (
-                        <tr key={charter.id}>
+                        <tr key={charter.id} className={isHighlighted ? 'highlighted-rate-row' : undefined}>
                           <td className="font-semibold">
                             <span className="vehicle-class-pill">{charter.vehicleClassName}</span>
                           </td>
@@ -244,17 +312,25 @@ export function RatesAndOptionsTabs({
                               : `Billed in ${charter.overtimeIncrementMinutes}m increments at base hourly rate.`}
                           </td>
                           <td className="text-right">
-                            <TrackLink
-                              href="/book"
-                              className="button button-small"
-                              eventName="booking_click"
-                              eventParams={{
-                                source_page: '/rates-and-options',
-                                button_location: 'hourly_charter_row',
-                              }}
-                            >
-                              Reserve
-                            </TrackLink>
+                            <div className="table-actions-cell">
+                              <TrackLink
+                                href="/book"
+                                className="button button-small button-gold"
+                                eventName="booking_click"
+                                eventParams={{
+                                  source_page: '/rates-and-options',
+                                  button_location: 'hourly_charter_row',
+                                }}
+                              >
+                                Book Now
+                              </TrackLink>
+                              <a
+                                href={`/rates-and-options?service=corporate&pricingModel=hourly&vehicleClass=${encodeURIComponent(charter.vehicleClassName)}#rates-inquiry`}
+                                className="button button-small button-secondary"
+                              >
+                                Request Quote
+                              </a>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -270,21 +346,21 @@ export function RatesAndOptionsTabs({
                 <h3>Dedicated Chauffeur Hourly Charters</h3>
                 <p>
                   As-directed hourly charters include dedicated chauffeur service, in-city travel, and
-                  complimentary amenities. Standard charter minimums begin at 2 to 3 hours depending on the
-                  selected vehicle class.
+                  complimentary amenities. Final fare confirmed during booking. For customized itineraries,
+                  request a custom quote below.
                 </p>
                 <div className="rates-empty-actions">
+                  <a href="/rates-and-options?service=corporate&pricingModel=hourly#rates-inquiry" className="button button-gold">
+                    Request a Custom Quote <Icon name="arrow" width={16} />
+                  </a>
                   <TrackLink
                     href="/book"
-                    className="button button-gold"
+                    className="button button-secondary"
                     eventName="booking_click"
                     eventParams={{ source_page: '/rates-and-options', button_location: 'hourly_empty_cta' }}
                   >
-                    Check Hourly Availability <Icon name="arrow" width={16} />
+                    Check Availability & Book <Icon name="arrow" width={16} />
                   </TrackLink>
-                  <a href="#rates-inquiry" className="button button-secondary">
-                    Request Custom Charter
-                  </a>
                 </div>
               </div>
             )}
@@ -360,24 +436,24 @@ export function RatesAndOptionsTabs({
               </div>
 
               <div className="mileage-quote-card">
-                <p className="eyebrow">OBTAIN A GUARANTEED QUOTE</p>
-                <h3>Request an Exact Mileage Quote</h3>
+                <p className="eyebrow">CUSTOM FARE ESTIMATION</p>
+                <h3>Request a Custom Mileage Quote</h3>
                 <p>
-                  Because route traffic, bridge crossings, and staging conditions vary, we deliver binding quotes
-                  through our online booking system or via custom inquiry.
+                  Because route traffic, bridge crossings, and staging conditions vary, final fares are confirmed
+                  during booking or via custom inquiry.
                 </p>
                 <div className="mileage-card-actions">
+                  <a href="/rates-and-options?service=private&pricingModel=mileage#rates-inquiry" className="button button-gold">
+                    Request a Custom Quote <Icon name="arrow" width={16} />
+                  </a>
                   <TrackLink
                     href="/book"
-                    className="button button-gold"
+                    className="button button-secondary"
                     eventName="booking_click"
                     eventParams={{ source_page: '/rates-and-options', button_location: 'mileage_cta' }}
                   >
-                    Enter Itinerary in ORES <Icon name="arrow" width={16} />
+                    Check Availability & Book <Icon name="arrow" width={16} />
                   </TrackLink>
-                  <a href="#rates-inquiry" className="button button-secondary">
-                    Contact Dispatch Team
-                  </a>
                 </div>
               </div>
             </div>
@@ -409,8 +485,8 @@ export function RatesAndOptionsTabs({
                   Multi-stop Manhattan and tri-state financial itineraries. Real-time coordinator updates,
                   discrete executive service, and continuous chauffeur availability.
                 </p>
-                <a href="#rates-inquiry" className="text-link">
-                  Discuss corporate requirements <Icon name="arrow" width={16} />
+                <a href="/rates-and-options?service=corporate&package=roadshow#rates-inquiry" className="button button-secondary button-small">
+                  Request a Custom Quote <Icon name="arrow" width={14} />
                 </a>
               </article>
 
@@ -420,8 +496,8 @@ export function RatesAndOptionsTabs({
                   Impeccably detailed luxury crossovers and executive SUVs for bridal parties, VIP guests, and
                   seamless venue shuttles throughout New York and Long Island.
                 </p>
-                <a href="#rates-inquiry" className="text-link">
-                  Inquire about wedding packages <Icon name="arrow" width={16} />
+                <a href="/rates-and-options?service=private&package=wedding#rates-inquiry" className="button button-secondary button-small">
+                  Request a Custom Quote <Icon name="arrow" width={14} />
                 </a>
               </article>
 
@@ -431,14 +507,19 @@ export function RatesAndOptionsTabs({
                   VIP baggage claim reception, luggage assistance, and escort to vehicle staging at JFK, LGA,
                   EWR, and Westchester County Airport.
                 </p>
-                <TrackLink
-                  href="/book"
-                  className="text-link"
-                  eventName="booking_click"
-                  eventParams={{ source_page: '/rates-and-options', button_location: 'custom_vip_link' }}
-                >
-                  Book with VIP Meet & Greet <Icon name="arrow" width={16} />
-                </TrackLink>
+                <div className="custom-card-actions">
+                  <a href="/rates-and-options?service=airport&package=meet-greet#rates-inquiry" className="button button-secondary button-small">
+                    Request a Custom Quote <Icon name="arrow" width={14} />
+                  </a>
+                  <TrackLink
+                    href="/book"
+                    className="text-link"
+                    eventName="booking_click"
+                    eventParams={{ source_page: '/rates-and-options', button_location: 'custom_vip_link' }}
+                  >
+                    Check Availability & Book <Icon name="arrow" width={14} />
+                  </TrackLink>
+                </div>
               </article>
             </div>
           </div>
@@ -467,9 +548,24 @@ export function RatesAndOptionsTabs({
                   )}
                 </div>
                 {vClass.summary && <p className="class-summary">{vClass.summary}</p>}
-                <Link href="/fleet" className="text-link">
-                  View fleet vehicles <Icon name="arrow" width={14} />
-                </Link>
+                <div className="vehicle-class-card-actions">
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange('hourly')}
+                    className="button button-outline button-small"
+                  >
+                    View Hourly Rates
+                  </button>
+                  <a
+                    href={`/rates-and-options?vehicleClass=${encodeURIComponent(vClass.name)}#rates-inquiry`}
+                    className="button button-secondary button-small"
+                  >
+                    Request Quote
+                  </a>
+                  <Link href="/fleet" className="text-link vehicle-class-fleet-link">
+                    View vehicles <Icon name="arrow" width={14} />
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

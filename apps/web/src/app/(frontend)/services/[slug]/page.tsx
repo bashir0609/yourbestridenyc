@@ -56,11 +56,19 @@ export async function generateMetadata({
   };
 }
 
+function getServiceRouting(slug: string): { tab: 'fixed' | 'hourly' | 'mileage' | 'custom'; serviceType: string } {
+  if (slug.includes('airport')) return { tab: 'fixed', serviceType: 'airport' };
+  if (slug.includes('corporate')) return { tab: 'hourly', serviceType: 'corporate' };
+  if (slug.includes('medical')) return { tab: 'hourly', serviceType: 'medical' };
+  return { tab: 'hourly', serviceType: 'private' };
+}
+
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = await getPageData(slug);
   if (!page) notFound();
   const servicePricing = await getServicePricing(page);
+  const { tab: serviceTab, serviceType: serviceInquiryType } = getServiceRouting(page.slug);
 
   return (
     <main className="interior-page content-detail service-detail" id="main-content">
@@ -85,10 +93,10 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                     service_page: `/services/${page.slug}`,
                   }}
                 >
-                  {page.bookingCTA?.label ?? 'Book a Ride'} <Icon name="arrow" width={16} />
+                  {page.bookingCTA?.label ?? 'Check Availability & Book'} <Icon name="arrow" width={16} />
                 </TrackLink>
                 <a href="#service-inquiry" className="button detail-secondary-action">
-                  Request Information
+                  Request a Custom Quote
                 </a>
               </div>
             </div>
@@ -170,23 +178,47 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               )}
 
               <div className="service-pricing-actions">
-                <TrackLink
-                  href="/book"
-                  className="button button-gold"
-                  eventName="booking_click"
-                  eventParams={{
-                    source_page: `/services/${page.slug}`,
-                    button_location: 'service_pricing_section',
-                  }}
-                >
-                  Reserve This Service <Icon name="arrow" width={16} />
-                </TrackLink>
-                <Link href="/rates-and-options" className="button button-secondary">
-                  View Rates & Options <Icon name="arrow" width={16} />
-                </Link>
-                <a href="#service-inquiry" className="service-pricing-inquiry-link">
-                  Request Custom Quote
-                </a>
+                {servicePricing.hasPublishedRate ? (
+                  <>
+                    <TrackLink
+                      href="/book"
+                      className="button button-gold"
+                      eventName="booking_click"
+                      eventParams={{
+                        source_page: `/services/${page.slug}`,
+                        button_location: 'service_pricing_section',
+                      }}
+                    >
+                      Book Now <Icon name="arrow" width={16} />
+                    </TrackLink>
+                    <Link href={`/rates-and-options?tab=${serviceTab}`} className="button button-secondary">
+                      View Rates & Options <Icon name="arrow" width={16} />
+                    </Link>
+                    <a href="#service-inquiry" className="service-pricing-inquiry-link">
+                      Request Custom Quote
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <a href="#service-inquiry" className="button button-gold">
+                      Request a Custom Quote <Icon name="arrow" width={16} />
+                    </a>
+                    <Link href={`/rates-and-options?tab=${serviceTab}`} className="button button-secondary">
+                      View Rates & Options <Icon name="arrow" width={16} />
+                    </Link>
+                    <TrackLink
+                      href="/book"
+                      className="service-pricing-inquiry-link"
+                      eventName="booking_click"
+                      eventParams={{
+                        source_page: `/services/${page.slug}`,
+                        button_location: 'service_pricing_section',
+                      }}
+                    >
+                      Check Availability & Book
+                    </TrackLink>
+                  </>
+                )}
               </div>
             </div>
           </Container>
@@ -246,7 +278,11 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <h2 id="inquiry-heading">Tell us about your journey</h2>
             <p>Share your trip details and we&apos;ll follow up with available options.</p>
           </div>
-          <TransportationInquiryForm sourcePage={`/services/${page.slug}`} />
+          <TransportationInquiryForm
+            sourcePage={`/services/${page.slug}`}
+            initialServiceType={serviceInquiryType}
+            initialMessage={`I would like to request a custom quote for ${page.title}.`}
+          />
         </Container>
       </section>
 
@@ -257,18 +293,23 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <h2 id="cta-heading">Plan Your Journey Today</h2>
             <p>Arrange your ride through our trusted booking experience.</p>
           </div>
-          <TrackLink
-            href="/book"
-            className="button nav-book"
-            eventName="booking_click"
-            eventParams={{
-              source_page: `/services/${page.slug}`,
-              button_location: 'footer_cta',
-              service_page: `/services/${page.slug}`,
-            }}
-          >
-            {page.bookingCTA?.label ?? 'Book a Ride'} <Icon name="arrow" width={16} />
-          </TrackLink>
+          <div className="service-footer-cta-group">
+            <TrackLink
+              href="/book"
+              className="button nav-book"
+              eventName="booking_click"
+              eventParams={{
+                source_page: `/services/${page.slug}`,
+                button_location: 'footer_cta',
+                service_page: `/services/${page.slug}`,
+              }}
+            >
+              {page.bookingCTA?.label ?? 'Check Availability & Book'} <Icon name="arrow" width={16} />
+            </TrackLink>
+            <a href="#service-inquiry" className="button button-secondary">
+              Request a Custom Quote
+            </a>
+          </div>
         </Container>
       </section>
     </main>
