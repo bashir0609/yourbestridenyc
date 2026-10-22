@@ -2944,3 +2944,558 @@ section[id] {
     gap: 30px;
   }
 }
+
+
+/* ==========================================================================
+   Rates & Options and Pricing Architecture Styles
+   ========================================================================== */
+
+/* Fleet Vehicle Class Badges */
+.public-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.public-card-class-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #bd8c32;
+  background: rgba(189, 140, 50, 0.1);
+  border: 1px solid rgba(189, 140, 50, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.fleet-detail-category-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.fleet-detail-class-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #bd8c32;
+  background: rgba(189, 140, 50, 0.12);
+  border: 1px solid rgba(189, 140, 50, 0.3);
+  padding: 4px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.fleet-detail-class-badge:hover {
+  background: rgba(189, 140, 50, 0.2);
+  border-color: #bd8c32;
+}
+
+/* Service Detail Pricing Section */
+.service-pricing-section {
+  background: #fdfdf9;
+  border-top: 1px solid #e7e5de;
+  border-bottom: 1px solid #e7e5de;
+  padding: 60px 0;
+}
+
+.service-pricing-card {
+  background: #ffffff;
+  border: 1px solid #e2dfd5;
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.service-pricing-header {
+  margin-bottom: 28px;
+}
+
+.service-pricing-header h2 {
+  font-size: 1.875rem;
+  margin: 6px 0 10px;
+  color: #121212;
+}
+
+.service-pricing-lead {
+  font-size: 1.0625rem;
+  color: #555550;
+  max-width: 680px;
+}
+
+.service-pricing-highlight {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #fbfaf6;
+  border: 1px solid #eae6dc;
+  border-left: 4px solid #bd8c32;
+  padding: 20px 24px;
+  border-radius: 6px;
+  margin-bottom: 32px;
+}
+
+.service-price-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #777770;
+}
+
+.service-price-amount {
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #121212;
+}
+
+.service-price-note {
+  font-size: 0.9375rem;
+  color: #666660;
+  margin-left: auto;
+}
+
+.service-pricing-quotation-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #fbfaf6;
+  border: 1px solid #eae6dc;
+  padding: 24px;
+  border-radius: 6px;
+  margin-bottom: 32px;
+}
+
+.service-pricing-quotation-notice svg {
+  color: #bd8c32;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.service-pricing-quotation-notice h3 {
+  font-size: 1.125rem;
+  margin-bottom: 4px;
+  color: #121212;
+}
+
+.service-pricing-quotation-notice p {
+  color: #555550;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.service-pricing-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.service-pricing-inquiry-link {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #555550;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  margin-left: auto;
+  transition: color 0.2s;
+}
+
+.service-pricing-inquiry-link:hover {
+  color: #121212;
+}
+
+/* Rates & Options Page Layout */
+.rates-and-options-page .rates-section {
+  padding: 40px 0 80px;
+}
+
+.rates-tabs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.rates-tab-nav {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid #eae6dc;
+  padding-bottom: 2px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.rates-tab-btn {
+  background: none;
+  border: none;
+  padding: 14px 22px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666660;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.2s ease;
+}
+
+.rates-tab-btn:hover {
+  color: #121212;
+  background: #f7f6f2;
+}
+
+.rates-tab-btn.active {
+  color: #bd8c32;
+  background: #ffffff;
+}
+
+.rates-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #bd8c32;
+  border-radius: 3px 3px 0 0;
+}
+
+.rates-tab-panel {
+  background: #ffffff;
+  border: 1px solid #e2dfd5;
+  border-radius: 8px;
+  padding: 36px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.rates-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.rates-panel-header h2 {
+  font-size: 1.625rem;
+  margin: 0 0 8px;
+  color: #121212;
+}
+
+.rates-panel-header p {
+  color: #555550;
+  max-width: 640px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Comparison Tables */
+.rates-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #eae6dc;
+  border-radius: 6px;
+}
+
+.rates-comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.rates-comparison-table th {
+  background: #fbfaf6;
+  padding: 14px 18px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #555550;
+  border-bottom: 1px solid #eae6dc;
+}
+
+.rates-comparison-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f2efea;
+  font-size: 0.9375rem;
+  color: #222220;
+}
+
+.rates-comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.route-name {
+  font-weight: 600;
+  color: #121212;
+}
+
+.route-endpoints {
+  font-size: 0.8125rem;
+  margin-top: 2px;
+}
+
+.vehicle-class-pill {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: #f4f2eb;
+  color: #333330;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #e5e2d8;
+}
+
+.rate-amount {
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  color: #121212;
+}
+
+.rate-unit {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #666660;
+  margin-left: 2px;
+}
+
+.rate-addon-note {
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.rate-notes {
+  font-size: 0.875rem;
+  color: #666660;
+  line-height: 1.4;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Empty State Card */
+.rates-empty-card {
+  text-align: center;
+  padding: 48px 24px;
+  background: #fbfaf6;
+  border: 1px dashed #dcd8ce;
+  border-radius: 8px;
+}
+
+.rates-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(189, 140, 50, 0.12);
+  color: #bd8c32;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.rates-empty-card h3 {
+  font-size: 1.25rem;
+  margin: 0 0 10px;
+  color: #121212;
+}
+
+.rates-empty-card p {
+  max-width: 540px;
+  margin: 0 auto 24px;
+  color: #555550;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.rates-empty-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Mileage & Custom Grids */
+.mileage-info-grid,
+.custom-packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.mileage-policy-card,
+.mileage-quote-card,
+.custom-package-card {
+  background: #fbfaf6;
+  border: 1px solid #eae6dc;
+  border-radius: 6px;
+  padding: 28px;
+}
+
+.mileage-policy-card h3,
+.mileage-quote-card h3,
+.custom-package-card h3 {
+  font-size: 1.1875rem;
+  margin: 0 0 14px;
+  color: #121212;
+}
+
+.mileage-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 0.9375rem;
+  color: #444440;
+}
+
+.mileage-steps-list li strong {
+  color: #121212;
+}
+
+.mileage-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Vehicle Classes Overview Strip */
+.rates-vehicle-classes-strip {
+  background: #ffffff;
+  border: 1px solid #e2dfd5;
+  border-radius: 8px;
+  padding: 36px;
+}
+
+.strip-heading {
+  margin-bottom: 24px;
+}
+
+.strip-heading h3 {
+  font-size: 1.375rem;
+  margin: 4px 0 0;
+  color: #121212;
+}
+
+.vehicle-classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.vehicle-class-summary-card {
+  background: #fbfaf6;
+  border: 1px solid #eae6dc;
+  border-radius: 6px;
+  padding: 24px;
+}
+
+.vehicle-class-summary-card h4 {
+  font-size: 1.125rem;
+  margin: 0 0 10px;
+  color: #121212;
+}
+
+.class-capacity-indicators {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #555550;
+  margin-bottom: 12px;
+}
+
+.class-capacity-indicators span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.class-summary {
+  font-size: 0.875rem;
+  color: #666660;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+/* Disclosures Section */
+.rates-disclosures-section {
+  background: #fbfaf6;
+  border: 1px solid #eae6dc;
+  border-radius: 8px;
+  padding: 36px;
+}
+
+.rates-disclosures-section h3 {
+  font-size: 1.25rem;
+  margin: 0 0 20px;
+  color: #121212;
+}
+
+.disclosures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.disclosure-item h4 {
+  font-size: 0.9375rem;
+  margin: 0 0 6px;
+  color: #121212;
+}
+
+.disclosure-item p {
+  font-size: 0.875rem;
+  color: #555550;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .rates-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rates-tab-panel {
+    padding: 24px 16px;
+  }
+
+  .service-pricing-card {
+    padding: 24px;
+  }
+
+  .service-price-note {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .service-pricing-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .service-pricing-inquiry-link {
+    margin-left: 0;
+    text-align: center;
+  }
+}

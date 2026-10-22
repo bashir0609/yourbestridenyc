@@ -76,32 +76,44 @@ export function evaluateTripFees(
 ): EvaluatedFee[] {
   const appliedIdentifiers = new Set<string>();
   const results: EvaluatedFee[] = [];
+  const configuredMap = new Map<string, NonNullable<typeof configuredFees>[number]>();
+  if (configuredFees) {
+    for (const f of configuredFees) {
+      if (f.feeIdentifier) configuredMap.set(f.feeIdentifier, f);
+    }
+  }
 
   // 1. Statutory NYS Congestion Surcharge
   if (qualifiesForNYSCongestionSurcharge(context) && !appliedIdentifiers.has('nys_congestion_surcharge')) {
     appliedIdentifiers.add('nys_congestion_surcharge');
+    const override = configuredMap.get('nys_congestion_surcharge');
     results.push({
       feeIdentifier: 'nys_congestion_surcharge',
-      feeName: 'NYS Congestion Surcharge',
+      feeName: override?.feeName || 'NYS Congestion Surcharge',
       category: 'statutory_mandate',
-      amount: 2.75,
-      billingType: 'flat',
+      amount: override?.amount !== undefined ? override.amount : 2.75,
+      billingType: override?.billingType || 'flat',
       applied: true,
-      reason: 'Mandatory statutory charge (NY Tax Law § 1281) for for-hire transportation touching Manhattan south of 96th St.',
+      reason:
+        override?.customerDisclosure ||
+        'Mandatory statutory charge (NY Tax Law § 1281) for for-hire transportation touching Manhattan south of 96th St.',
     });
   }
 
   // 2. MTA Central Business District Tolling (Separate and non-mutually-exclusive)
   if (qualifiesForMTACBDCharge(context) && !appliedIdentifiers.has('mta_cbd_tolling')) {
     appliedIdentifiers.add('mta_cbd_tolling');
+    const override = configuredMap.get('mta_cbd_tolling');
     results.push({
       feeIdentifier: 'mta_cbd_tolling',
-      feeName: 'MTA CBD Tolling Charge',
+      feeName: override?.feeName || 'MTA CBD Tolling Charge',
       category: 'statutory_mandate',
-      amount: 1.50,
-      billingType: 'flat',
+      amount: override?.amount !== undefined ? override.amount : 1.50,
+      billingType: override?.billingType || 'flat',
       applied: true,
-      reason: 'MTA Congestion Relief Zone entry toll (Manhattan south of 60th St) for for-hire vehicles.',
+      reason:
+        override?.customerDisclosure ||
+        'MTA Congestion Relief Zone entry toll (Manhattan south of 60th St) for for-hire vehicles.',
     });
   }
 
@@ -109,16 +121,22 @@ export function evaluateTripFees(
   const isAirport = (zone: GeographicZone) =>
     zone === 'nyc_airport_jfk' || zone === 'nyc_airport_lga' || zone === 'nyc_airport_ewr';
 
-  if ((isAirport(context.originZone) || isAirport(context.destinationZone)) && !appliedIdentifiers.has('panynj_airport_access')) {
+  if (
+    (isAirport(context.originZone) || isAirport(context.destinationZone)) &&
+    !appliedIdentifiers.has('panynj_airport_access')
+  ) {
     appliedIdentifiers.add('panynj_airport_access');
+    const override = configuredMap.get('panynj_airport_access');
     results.push({
       feeIdentifier: 'panynj_airport_access',
-      feeName: 'Port Authority Airport Access Fee',
+      feeName: override?.feeName || 'Port Authority Airport Access Fee',
       category: 'airport_authority',
-      amount: 3.50,
-      billingType: 'flat',
+      amount: override?.amount !== undefined ? override.amount : 3.50,
+      billingType: override?.billingType || 'flat',
       applied: true,
-      reason: 'Port Authority of NY & NJ commercial ground transportation facility access fee.',
+      reason:
+        override?.customerDisclosure ||
+        'Port Authority of NY & NJ commercial ground transportation facility access fee.',
     });
   }
 
@@ -223,9 +241,10 @@ export function computeStartingPrice(
     } else if (card.pricingModel === 'hourly' && card.hourly?.hourlyRate) {
       const rate = card.hourly.hourlyRate;
       const minHours = card.hourly.minimumHours || 1;
+      const minSubtotal = rate * minHours;
       if (rate < lowestPrice) {
         lowestPrice = rate;
-        selectedBasis = `${vcName} (Hourly, ${minHours}-hr minimum)`;
+        selectedBasis = `${vcName} ($${rate}/hr, ${minHours}-hr minimum, $${minSubtotal} min subtotal)`;
         selectedModel = 'hourly';
       }
     } else if (card.pricingModel === 'mileage' && (card.mileage?.minimumFare || card.mileage?.baseFare)) {

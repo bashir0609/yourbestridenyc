@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import { getServicePage, getSitemapRecords } from '@/lib/cms/page-queries';
+import { getServicePricing } from '@/lib/cms/pricing-queries';
+import Link from 'next/link';
 import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import type { ServicePage as PublicServicePage } from '@/lib/cms/types';
@@ -58,6 +60,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const page = await getPageData(slug);
   if (!page) notFound();
+  const servicePricing = await getServicePricing(page);
 
   return (
     <main className="interior-page content-detail service-detail" id="main-content">
@@ -127,6 +130,65 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 </ul>
               </aside>
             )}
+          </Container>
+        </section>
+      )}
+
+      {servicePricing.showPricing && (
+        <section className="section service-pricing-section" aria-labelledby="pricing-heading">
+          <Container>
+            <div className="service-pricing-card">
+              <div className="service-pricing-header">
+                <p className="eyebrow">TRANSPARENT TARIFFS</p>
+                <h2 id="pricing-heading">{servicePricing.pricingHeadline || 'Pricing & Rates'}</h2>
+                <p className="service-pricing-lead">
+                  {servicePricing.hasPublishedRate
+                    ? 'Published rates and baseline commercial tariffs for this service.'
+                    : 'Personalized chauffeured transportation tailored to your schedule, passengers, and destination.'}
+                </p>
+              </div>
+
+              {servicePricing.hasPublishedRate && servicePricing.startingPrice ? (
+                <div className="service-pricing-highlight">
+                  <span className="service-price-label">Starting From</span>
+                  <span className="service-price-amount">{servicePricing.startingPrice}</span>
+                  {servicePricing.startingPriceNote && (
+                    <span className="service-price-note">{servicePricing.startingPriceNote}</span>
+                  )}
+                </div>
+              ) : (
+                <div className="service-pricing-quotation-notice">
+                  <Icon name="private" width={24} height={24} />
+                  <div>
+                    <h3>Custom Itinerary Quotation</h3>
+                    <p>
+                      {servicePricing.startingPriceNote ||
+                        'Because route distances and staging requirements vary, final rates are provided upon reservation or custom quote.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="service-pricing-actions">
+                <TrackLink
+                  href="/book"
+                  className="button button-gold"
+                  eventName="booking_click"
+                  eventParams={{
+                    source_page: `/services/${page.slug}`,
+                    button_location: 'service_pricing_section',
+                  }}
+                >
+                  Reserve This Service <Icon name="arrow" width={16} />
+                </TrackLink>
+                <Link href="/rates-and-options" className="button button-secondary">
+                  View Rates & Options <Icon name="arrow" width={16} />
+                </Link>
+                <a href="#service-inquiry" className="service-pricing-inquiry-link">
+                  Request Custom Quote
+                </a>
+              </div>
+            </div>
           </Container>
         </section>
       )}

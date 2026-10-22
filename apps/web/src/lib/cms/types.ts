@@ -16,7 +16,11 @@ export type CmsSection<T> = { items: T[]; status: CmsStatus };
 export type PublicImage = { url: string; alt: string; width: number; height: number };
 export type EditorialCard = { slug: string; title: string; summary: string; image?: PublicImage };
 export type Service = EditorialCard;
-export type FleetVehicle = EditorialCard & { passengerCapacity?: number; luggageCapacity?: number };
+export type FleetVehicle = EditorialCard & {
+  passengerCapacity?: number;
+  luggageCapacity?: number;
+  vehicleClass?: { id?: number; name: string; slug: string; tier?: string };
+};
 export type Driver = { slug: string; name: string; summary: string; image?: PublicImage };
 export type Testimonial = { slug: string; name: string; quote: string };
 export type CoverageArea = EditorialCard;
@@ -56,6 +60,13 @@ export type ServicePage = Service & {
   locations: CoverageArea[];
   faqs: Faq[];
   seo: PublicSeo;
+  pricingDisplay?: {
+    showPricingOnPage?: boolean;
+    pricingHeadline?: string;
+    eligiblePricingModel?: 'fixed' | 'hourly' | 'mileage' | 'contact_only';
+    showStartingFrom?: boolean;
+    startingFromNote?: string;
+  };
 };
 export type FleetPage = FleetVehicle & {
   category?: string;
@@ -64,6 +75,15 @@ export type FleetPage = FleetVehicle & {
   amenities: string[];
   accessibilityInformation?: string;
   seo: PublicSeo;
+  vehicleClass?: {
+    id?: number;
+    name: string;
+    slug: string;
+    tier?: string;
+    passengerCapacity?: number;
+    luggageCapacity?: number;
+    summary?: string;
+  };
 };
 export type DriverPage = Driver & {
   biography: RichBlock[];

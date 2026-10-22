@@ -146,10 +146,21 @@ export function mapFleet(payload: unknown, mediaOrigin?: string): FleetVehicle[]
         .find(Boolean);
       const capacity = doc.passengerCapacity;
       const luggage = doc.luggageCapacity;
+      const vClass = record(doc.vehicleClass);
+      const vehicleClass =
+        vClass && vClass.name && vClass.slug
+          ? {
+              id: typeof vClass.id === 'number' ? vClass.id : undefined,
+              name: text(vClass.name, 90) ?? '',
+              slug: text(vClass.slug, 90) ?? '',
+              tier: text(vClass.tier, 50),
+            }
+          : undefined;
       return [
         {
           ...base,
           ...(image ? { image } : {}),
+          ...(vehicleClass ? { vehicleClass } : {}),
           ...(typeof capacity === 'number' &&
           Number.isInteger(capacity) &&
           capacity >= 1 &&

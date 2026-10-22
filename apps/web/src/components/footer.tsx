@@ -22,10 +22,11 @@ export async function Footer() {
           </div>
           <div>
             <h2>Explore</h2>
-            <Link href="/#services">Our services</Link>
-            <Link href="/#fleet">Fleet & vehicle options</Link>
-            <Link href="/#drivers">Our people</Link>
-            <Link href="/#coverage">Coverage areas</Link>
+            <Link href="/services">Our services</Link>
+            <Link href="/fleet">Fleet & vehicle options</Link>
+            <Link href="/rates-and-options">Rates & options</Link>
+            <Link href="/drivers">Our people</Link>
+            <Link href="/locations">Coverage areas</Link>
           </div>
           <div>
             <h2>Your journey</h2>

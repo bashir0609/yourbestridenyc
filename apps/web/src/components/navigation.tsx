@@ -10,6 +10,7 @@ import { TrackLink } from './analytics';
 const links = [
   ['Services', '/services'],
   ['Our Fleet', '/fleet'],
+  ['Rates & Options', '/rates-and-options'],
   ['Our Drivers', '/drivers'],
   ['Service Areas', '/locations'],
 ] as const;

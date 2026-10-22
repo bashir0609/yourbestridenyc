@@ -175,7 +175,12 @@ export function FleetCard({ vehicle }: { vehicle: FleetVehicle }) {
           )}
         </div>
         <div className="public-card-body">
-          <p className="public-card-kicker">Premium Fleet</p>
+          <div className="public-card-meta">
+            <p className="public-card-kicker">Premium Fleet</p>
+            {vehicle.vehicleClass && (
+              <span className="public-card-class-pill">{vehicle.vehicleClass.name}</span>
+            )}
+          </div>
           <h3>{vehicle.title}</h3>
           {(vehicle.passengerCapacity !== undefined || vehicle.luggageCapacity !== undefined) && (
             <dl className="public-card-specs">

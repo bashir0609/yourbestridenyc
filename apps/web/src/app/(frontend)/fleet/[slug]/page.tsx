@@ -83,7 +83,18 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
           >
             <div className="fleet-detail-intro">
               <p className="eyebrow">PREMIUM TRANSPORTATION</p>
-              {page.category && <p className="fleet-detail-category">{page.category}</p>}
+              <div className="fleet-detail-category-row">
+                {page.category && <p className="fleet-detail-category">{page.category}</p>}
+                {page.vehicleClass && (
+                  <Link
+                    href="/rates-and-options"
+                    className="fleet-detail-class-badge"
+                    title={`View tariff rates for ${page.vehicleClass.name}`}
+                  >
+                    Pricing Class: {page.vehicleClass.name}
+                  </Link>
+                )}
+              </div>
               <h1 id="vehicle-title">{page.title}</h1>
               {page.summary && <p className="fleet-detail-summary">{page.summary}</p>}
               {(page.passengerCapacity || page.luggageCapacity) && (

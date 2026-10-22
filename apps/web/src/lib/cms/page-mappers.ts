@@ -128,6 +128,20 @@ export function mapServicePage(value: unknown, mediaOrigin?: string): ServicePag
     locations: locations(doc.serviceAreas),
     faqs: faqs(doc.faqs),
     seo: seo(doc.seo, mediaOrigin),
+    pricingDisplay: record(doc.pricingDisplay)
+      ? {
+          showPricingOnPage: Boolean(record(doc.pricingDisplay)?.showPricingOnPage),
+          pricingHeadline: text(record(doc.pricingDisplay)?.pricingHeadline, 120),
+          eligiblePricingModel: (() => {
+            const raw = text(record(doc.pricingDisplay)?.eligiblePricingModel, 50);
+            return raw === 'fixed' || raw === 'hourly' || raw === 'mileage' || raw === 'contact_only'
+              ? raw
+              : undefined;
+          })(),
+          showStartingFrom: record(doc.pricingDisplay)?.showStartingFrom !== false,
+          startingFromNote: text(record(doc.pricingDisplay)?.startingFromNote, 200),
+        }
+      : undefined,
   };
 }
 export function mapFleetPage(value: unknown, mediaOrigin?: string): FleetPage | undefined {
@@ -155,6 +169,17 @@ export function mapFleetPage(value: unknown, mediaOrigin?: string): FleetPage | 
     amenities: textItems(doc.amenities, 'amenity'),
     accessibilityInformation: text(doc.accessibilityInformation, 2000),
     seo: seo(doc.seo, mediaOrigin),
+    vehicleClass: record(doc.vehicleClass) && record(doc.vehicleClass)?.name && record(doc.vehicleClass)?.slug
+      ? {
+          id: typeof record(doc.vehicleClass)?.id === 'number' ? Number(record(doc.vehicleClass)?.id) : undefined,
+          name: text(record(doc.vehicleClass)?.name, 90) ?? '',
+          slug: text(record(doc.vehicleClass)?.slug, 90) ?? '',
+          tier: text(record(doc.vehicleClass)?.tier, 50),
+          passengerCapacity: typeof record(doc.vehicleClass)?.passengerCapacity === 'number' ? Number(record(doc.vehicleClass)?.passengerCapacity) : undefined,
+          luggageCapacity: typeof record(doc.vehicleClass)?.luggageCapacity === 'number' ? Number(record(doc.vehicleClass)?.luggageCapacity) : undefined,
+          summary: text(record(doc.vehicleClass)?.summary, 300),
+        }
+      : undefined,
   };
 }
 export function mapDriverPage(value: unknown, mediaOrigin?: string): DriverPage | undefined {
