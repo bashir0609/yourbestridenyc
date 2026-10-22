@@ -1,7 +1,14 @@
 import { revalidatePath } from 'next/cache';
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload';
 
-type PublicCollection = 'services' | 'fleet-vehicles' | 'drivers' | 'testimonials' | 'locations';
+type PublicCollection =
+  | 'services'
+  | 'fleet-vehicles'
+  | 'drivers'
+  | 'testimonials'
+  | 'locations'
+  | 'vehicle-classes'
+  | 'rate-cards';
 
 type PublicDocument = Record<string, unknown> | null | undefined;
 type Revalidate = (path: string, type?: 'page' | 'layout') => void;
@@ -12,6 +19,8 @@ const routeFamilies: Record<PublicCollection, readonly string[]> = {
   drivers: ['/', '/drivers', '/drivers/[slug]'],
   testimonials: ['/'],
   locations: ['/', '/locations', '/locations/[slug]', '/services/[slug]', '/drivers/[slug]'],
+  'vehicle-classes': ['/', '/fleet', '/fleet/[slug]', '/rates-and-options'],
+  'rate-cards': ['/rates-and-options', '/services', '/services/[slug]'],
 };
 
 export const allCmsPaths = [
@@ -24,6 +33,7 @@ export const allCmsPaths = [
   '/services/[slug]',
   '/locations',
   '/locations/[slug]',
+  '/rates-and-options',
 ] as const;
 
 function validSlug(value: unknown): value is string {
@@ -32,6 +42,10 @@ function validSlug(value: unknown): value is string {
 
 function isPublic(collection: PublicCollection, doc: PublicDocument): boolean {
   if (!doc || doc._status !== 'published') return false;
+  if (collection === 'rate-cards') {
+    const rec = doc.reconciliation as Record<string, unknown> | undefined;
+    return rec?.status === 'published';
+  }
   if ((collection === 'services' || collection === 'locations') && doc.developmentSeed === true)
     return false;
   if (collection === 'drivers' || collection === 'testimonials')
@@ -40,8 +54,8 @@ function isPublic(collection: PublicCollection, doc: PublicDocument): boolean {
 }
 
 function detailBase(collection: PublicCollection): string | undefined {
-  if (collection === 'fleet-vehicles') return '/fleet';
-  if (collection === 'testimonials') return;
+  if (collection === 'fleet-vehicles' || collection === 'vehicle-classes') return '/fleet';
+  if (collection === 'testimonials' || collection === 'rate-cards') return;
   return `/${collection}`;
 }
 

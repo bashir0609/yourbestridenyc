@@ -76,6 +76,8 @@ export interface Config {
     testimonials: Testimonial;
     locations: Location;
     'blog-posts': BlogPost;
+    'vehicle-classes': VehicleClass;
+    'rate-cards': RateCard;
     'transportation-leads': TransportationLead;
     'driver-applications': DriverApplication;
     'public-intake-rate-limits': PublicIntakeRateLimit;
@@ -95,6 +97,8 @@ export interface Config {
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
+    'vehicle-classes': VehicleClassesSelect<false> | VehicleClassesSelect<true>;
+    'rate-cards': RateCardsSelect<false> | RateCardsSelect<true>;
     'transportation-leads': TransportationLeadsSelect<false> | TransportationLeadsSelect<true>;
     'driver-applications': DriverApplicationsSelect<false> | DriverApplicationsSelect<true>;
     'public-intake-rate-limits': PublicIntakeRateLimitsSelect<false> | PublicIntakeRateLimitsSelect<true>;
@@ -111,11 +115,13 @@ export interface Config {
     'site-settings': SiteSetting;
     navigation: Navigation;
     footer: Footer;
+    'pricing-settings': PricingSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'pricing-settings': PricingSettingsSelect<false> | PricingSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -331,6 +337,31 @@ export interface Service {
      * Leave blank to use the default booking button text.
      */
     label?: string | null;
+  };
+  /**
+   * Controls how pricing appears on this service detail page. Numerical starting prices are derived automatically from eligible published rate cards.
+   */
+  pricingDisplay?: {
+    /**
+     * Enable to display an eligible pricing section on this public service page.
+     */
+    showPricingOnPage?: boolean | null;
+    /**
+     * Custom headline (e.g. "Airport Transfer Rates"). Leave blank for default.
+     */
+    pricingHeadline?: string | null;
+    /**
+     * Specifies which pricing model is comparable and eligible for deriving starting rates.
+     */
+    eligiblePricingModel?: ('fixed' | 'hourly' | 'mileage' | 'contact_only') | null;
+    /**
+     * Calculated automatically from eligible published rate cards. No manual price override.
+     */
+    showStartingFrom?: boolean | null;
+    /**
+     * Clear basis note (e.g., "Starting rate applies to Executive Sedan JFK Airport Transfer").
+     */
+    startingFromNote?: string | null;
   };
   /**
    * Eligible for featured website placements; does not publish a draft.
@@ -595,6 +626,10 @@ export interface FleetVehicle {
       }[]
     | null;
   /**
+   * Pricing class for this vehicle. Links this fleet model to published rate cards.
+   */
+  vehicleClass?: (number | null) | VehicleClass;
+  /**
    * Eligible for featured website placements; does not publish a draft.
    */
   featured?: boolean | null;
@@ -616,6 +651,54 @@ export interface FleetVehicle {
     description?: string | null;
     image?: (number | null) | Media;
   };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Fleet pricing tiers and vehicle classes. Fleet vehicles link to a class to inherit published rate cards.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vehicle-classes".
+ */
+export interface VehicleClass {
+  id: number;
+  /**
+   * Commercial class name (e.g. "Executive Sedan", "Luxury SUV", "Executive Jet Sprinter").
+   */
+  name: string;
+  /**
+   * Stable public URL identifier. Coordinate redirects before changing it.
+   */
+  slug: string;
+  /**
+   * Standardized fleet tier for tariff grouping.
+   */
+  tier: 'executive_sedan' | 'luxury_sedan' | 'fullsize_suv' | 'executive_sprinter' | 'minibus_coach' | 'other';
+  /**
+   * Standard comfortable passenger seating capacity.
+   */
+  passengerCapacity: number;
+  /**
+   * Standard airline luggage capacity (pieces).
+   */
+  luggageCapacity?: number | null;
+  /**
+   * Brief commercial description displayed on public rate comparison tables.
+   */
+  summary?: string | null;
+  /**
+   * High-resolution marketing image representing this vehicle class.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Sort order hint for comparison tables (lowest number first).
+   */
+  displayOrder?: number | null;
+  /**
+   * Highlight this class as a recommended choice.
+   */
+  featured?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -709,6 +792,215 @@ export interface BlogPost {
      */
     description?: string | null;
     image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Commercial tariffs and rate cards. Rate cards must be reconciled against Limo Anywhere before publishing.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rate-cards".
+ */
+export interface RateCard {
+  id: number;
+  /**
+   * Internal descriptive title (e.g. "2026 Executive Sedan Airport Transfer Tariff").
+   */
+  title: string;
+  /**
+   * The vehicle pricing class this rate applies to.
+   */
+  vehicleClass: number | VehicleClass;
+  /**
+   * Global tariffs serve as general fallbacks; service-specific tariffs take priority.
+   */
+  serviceScope: 'global' | 'service_specific';
+  /**
+   * Select services where this specific rate card applies and shadows the global tariff.
+   */
+  services?: (number | Service)[] | null;
+  /**
+   * Select the commercial pricing structure for this card.
+   */
+  pricingModel: 'fixed' | 'hourly' | 'mileage' | 'custom';
+  /**
+   * Tariff goes live publicly on or after this timestamp. Leave blank for immediate upon publish.
+   */
+  effectiveFrom?: string | null;
+  /**
+   * Tariff ceases to display publicly after this timestamp. Leave blank for indefinite.
+   */
+  effectiveTo?: string | null;
+  /**
+   * ISO-4217 three-letter currency code (e.g. USD).
+   */
+  currency?: string | null;
+  /**
+   * Pre-set point-to-point and airport transfer rates.
+   */
+  routes?:
+    | {
+        /**
+         * e.g. "JFK Airport to Manhattan (All Zones)"
+         */
+        routeLabel: string;
+        /**
+         * e.g. "JFK Airport", "LaGuardia", "Manhattan Midtown"
+         */
+        originZone: string;
+        /**
+         * e.g. "Manhattan (South of 96th)", "Brooklyn Downtown"
+         */
+        destinationZone: string;
+        originLocation?: (number | null) | Location;
+        destinationLocation?: (number | null) | Location;
+        /**
+         * Standard point-to-point flat fare in USD.
+         */
+        flatRate: number;
+        /**
+         * Charge per en-route passenger stop.
+         */
+        additionalStopFee?: number | null;
+        notes?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  hourly?: {
+    hourlyRate: number;
+    minimumHours: number;
+    /**
+     * Rate for hours beyond minimum. Defaults to base hourly rate if blank.
+     */
+    additionalHourRate?: number | null;
+    overtimeIncrementMinutes?: number | null;
+    overtimeRate?: number | null;
+  };
+  /**
+   * Core parameters for informational formula breakdowns and quote calculations.
+   */
+  mileage?: {
+    /**
+     * Initial vehicle dispatch fee.
+     */
+    baseFare: number;
+    /**
+     * Exact billable rate per route mile.
+     */
+    perMileRate: number;
+    /**
+     * Absolute trip minimum floor.
+     */
+    minimumFare: number;
+    /**
+     * Minute rate for elapsed metropolitan traffic transit.
+     */
+    perMinuteRate?: number | null;
+    /**
+     * Company policy: Free miles before empty return billing starts.
+     */
+    deadheadThresholdMiles?: number | null;
+    /**
+     * Repositioning rate charged per mile beyond threshold.
+     */
+    deadheadRatePerMile?: number | null;
+    complimentaryWaitMinutes?: number | null;
+    waitingRatePerHour?: number | null;
+  };
+  /**
+   * Editable company operational policies (not statutory TLC mandates). Adjust as commercial conditions require.
+   */
+  commercialPolicies?: {
+    /**
+     * Complimentary wait time for standard residential/hotel pickups.
+     */
+    curbsideGraceMinutes?: number | null;
+    /**
+     * Complimentary wait time tracked from airline wheels-down.
+     */
+    domesticAirportGraceMinutes?: number | null;
+    /**
+     * Complimentary customs and baggage allowance from wheels-down.
+     */
+    internationalAirportGraceMinutes?: number | null;
+    /**
+     * Hourly rate charged when grace period is exceeded.
+     */
+    waitingHourlyRate?: number | null;
+    waitingIncrementMinutes?: number | null;
+    /**
+     * Nighttime operational surcharge.
+     */
+    lateNightSurcharge?: number | null;
+    lateNightWindowStart?: string | null;
+    lateNightWindowEnd?: string | null;
+    /**
+     * e.g. "Trips originating >35 miles outside NYC incur repositioning fees."
+     */
+    deadheadPolicyNote?: string | null;
+  };
+  /**
+   * Itemized statutory and commercial fees with explicit applicability rules.
+   */
+  applicableFees?:
+    | {
+        feeIdentifier:
+          | 'nys_congestion_surcharge'
+          | 'mta_cbd_tolling'
+          | 'panynj_airport_access'
+          | 'commercial_tolls'
+          | 'additional_stop'
+          | 'child_safety_seat'
+          | 'vip_meet_and_greet'
+          | 'custom_surcharge';
+        feeName: string;
+        feeCategory:
+          | 'statutory_mandate'
+          | 'airport_authority'
+          | 'toll_pass_through'
+          | 'company_policy'
+          | 'passenger_option';
+        triggerCondition:
+          | 'nyc_manhattan_south_96'
+          | 'mta_cbd_entry_south_60'
+          | 'airport_origin_or_destination'
+          | 'crossing_tolls_actual'
+          | 'late_night_window'
+          | 'always_mandatory'
+          | 'on_demand_request';
+        billingType: 'flat' | 'percentage' | 'pass_through_actual';
+        amount?: number | null;
+        customerDisclosure: string;
+        id?: string | null;
+      }[]
+    | null;
+  fareInclusions?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Mandatory reconciliation gate before public activation.
+   */
+  reconciliation: {
+    status: 'draft' | 'internal_review' | 'la_pending_verification' | 'la_verified' | 'published' | 'archived';
+    /**
+     * Rate Matrix ID, Fixed Rate Table Code, or Verification Quote #.
+     */
+    laReferenceCode?: string | null;
+    /**
+     * Audit log detailing the test reservation quote executed in LA.
+     */
+    reconciliationNotes?: string | null;
+    /**
+     * Optional screenshot or PDF export of the verified Limo Anywhere test quote.
+     */
+    verificationScreenshot?: (number | null) | Media;
+    verifiedBy?: (number | null) | User;
+    verifiedAt?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -865,6 +1157,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'blog-posts';
         value: number | BlogPost;
+      } | null)
+    | ({
+        relationTo: 'vehicle-classes';
+        value: number | VehicleClass;
+      } | null)
+    | ({
+        relationTo: 'rate-cards';
+        value: number | RateCard;
       } | null)
     | ({
         relationTo: 'transportation-leads';
@@ -1038,6 +1338,15 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         label?: T;
       };
+  pricingDisplay?:
+    | T
+    | {
+        showPricingOnPage?: T;
+        pricingHeadline?: T;
+        eligiblePricingModel?: T;
+        showStartingFrom?: T;
+        startingFromNote?: T;
+      };
   featured?: T;
   displayOrder?: T;
   seo?:
@@ -1115,6 +1424,7 @@ export interface FleetVehiclesSelect<T extends boolean = true> {
         amenity?: T;
         id?: T;
       };
+  vehicleClass?: T;
   featured?: T;
   displayOrder?: T;
   seo?:
@@ -1212,6 +1522,116 @@ export interface BlogPostsSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vehicle-classes_select".
+ */
+export interface VehicleClassesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  tier?: T;
+  passengerCapacity?: T;
+  luggageCapacity?: T;
+  summary?: T;
+  image?: T;
+  displayOrder?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rate-cards_select".
+ */
+export interface RateCardsSelect<T extends boolean = true> {
+  title?: T;
+  vehicleClass?: T;
+  serviceScope?: T;
+  services?: T;
+  pricingModel?: T;
+  effectiveFrom?: T;
+  effectiveTo?: T;
+  currency?: T;
+  routes?:
+    | T
+    | {
+        routeLabel?: T;
+        originZone?: T;
+        destinationZone?: T;
+        originLocation?: T;
+        destinationLocation?: T;
+        flatRate?: T;
+        additionalStopFee?: T;
+        notes?: T;
+        id?: T;
+      };
+  hourly?:
+    | T
+    | {
+        hourlyRate?: T;
+        minimumHours?: T;
+        additionalHourRate?: T;
+        overtimeIncrementMinutes?: T;
+        overtimeRate?: T;
+      };
+  mileage?:
+    | T
+    | {
+        baseFare?: T;
+        perMileRate?: T;
+        minimumFare?: T;
+        perMinuteRate?: T;
+        deadheadThresholdMiles?: T;
+        deadheadRatePerMile?: T;
+        complimentaryWaitMinutes?: T;
+        waitingRatePerHour?: T;
+      };
+  commercialPolicies?:
+    | T
+    | {
+        curbsideGraceMinutes?: T;
+        domesticAirportGraceMinutes?: T;
+        internationalAirportGraceMinutes?: T;
+        waitingHourlyRate?: T;
+        waitingIncrementMinutes?: T;
+        lateNightSurcharge?: T;
+        lateNightWindowStart?: T;
+        lateNightWindowEnd?: T;
+        deadheadPolicyNote?: T;
+      };
+  applicableFees?:
+    | T
+    | {
+        feeIdentifier?: T;
+        feeName?: T;
+        feeCategory?: T;
+        triggerCondition?: T;
+        billingType?: T;
+        amount?: T;
+        customerDisclosure?: T;
+        id?: T;
+      };
+  fareInclusions?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  reconciliation?:
+    | T
+    | {
+        status?: T;
+        laReferenceCode?: T;
+        reconciliationNotes?: T;
+        verificationScreenshot?: T;
+        verifiedBy?: T;
+        verifiedAt?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1407,6 +1827,68 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Global pricing presentation defaults, universal tariff disclosures, and default policies.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricing-settings".
+ */
+export interface PricingSetting {
+  id: number;
+  currency?: ('USD' | 'CAD' | 'EUR' | 'GBP') | null;
+  /**
+   * Standard disclosure line for tariff cards.
+   */
+  defaultTaxNote?: string | null;
+  /**
+   * Mandatory transparency disclosure for hybrid own-fleet and affiliate fulfillment.
+   */
+  affiliateTariffNote?: string | null;
+  /**
+   * Comprehensive legal and commercial terms displayed on public pricing comparison views.
+   */
+  generalDisclosure?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Amenities included on all bookings regardless of vehicle class.
+   */
+  globalInclusions?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Compliance timestamp marking executive review of current tariff rates.
+   */
+  pricingLastReviewedAt?: string | null;
+  /**
+   * Fallback operational parameters when not explicitly overridden on a rate card.
+   */
+  defaultCommercialPolicies?: {
+    defaultCurbsideGraceMinutes?: number | null;
+    defaultDomesticAirportGraceMinutes?: number | null;
+    defaultInternationalAirportGraceMinutes?: number | null;
+    defaultDeadheadThresholdMiles?: number | null;
+    defaultLateNightWindowStart?: string | null;
+    defaultLateNightWindowEnd?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -1474,6 +1956,36 @@ export interface FooterSelect<T extends boolean = true> {
         id?: T;
       };
   copyright?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricing-settings_select".
+ */
+export interface PricingSettingsSelect<T extends boolean = true> {
+  currency?: T;
+  defaultTaxNote?: T;
+  affiliateTariffNote?: T;
+  generalDisclosure?: T;
+  globalInclusions?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  pricingLastReviewedAt?: T;
+  defaultCommercialPolicies?:
+    | T
+    | {
+        defaultCurbsideGraceMinutes?: T;
+        defaultDomesticAirportGraceMinutes?: T;
+        defaultInternationalAirportGraceMinutes?: T;
+        defaultDeadheadThresholdMiles?: T;
+        defaultLateNightWindowStart?: T;
+        defaultLateNightWindowEnd?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

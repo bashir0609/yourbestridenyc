@@ -20,12 +20,15 @@ import {
   TransportationLeads,
 } from './collections/Intake';
 import { Media } from './collections/Media';
+import { RateCards } from './collections/RateCards';
 import { Users } from './collections/Users';
+import { VehicleClasses } from './collections/VehicleClasses';
 import { readEnvironment } from './env';
+import { Footer, Navigation } from './globals/Navigation';
+import { PricingSettings } from './globals/PricingSettings';
+import { SiteSettings } from './globals/SiteSettings';
 import { createPublicIntakeEndpoint } from './publicIntake';
 import { createR2StorageOptions } from './storage';
-import { Footer, Navigation } from './globals/Navigation';
-import { SiteSettings } from './globals/SiteSettings';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const env = readEnvironment();
@@ -58,11 +61,13 @@ export default buildConfig({
     Testimonials,
     Locations,
     BlogPosts,
+    VehicleClasses,
+    RateCards,
     TransportationLeads,
     DriverApplications,
     PublicIntakeRateLimits,
   ],
-  globals: [SiteSettings, Navigation, Footer],
+  globals: [SiteSettings, Navigation, Footer, PricingSettings],
   endpoints: [createPublicIntakeEndpoint(env.intakeAPISecret)],
   db: postgresAdapter({
     pool: { connectionString: env.databaseURI, max: 10 },

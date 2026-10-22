@@ -138,3 +138,66 @@ export const displayFields: Field[] = [
     },
   },
 ];
+
+
+export const pricingDisplayField: Field = {
+  name: 'pricingDisplay',
+  label: 'Pricing presentation',
+  type: 'group',
+  admin: {
+    description:
+      'Controls how pricing appears on this service detail page. Numerical starting prices are derived automatically from eligible published rate cards.',
+  },
+  fields: [
+    {
+      name: 'showPricingOnPage',
+      label: 'Show pricing on service page',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Enable to display an eligible pricing section on this public service page.',
+      },
+    },
+    {
+      name: 'pricingHeadline',
+      label: 'Pricing section headline',
+      type: 'text',
+      maxLength: 120,
+      admin: {
+        description: 'Custom headline (e.g. "Airport Transfer Rates"). Leave blank for default.',
+      },
+    },
+    {
+      name: 'eligiblePricingModel',
+      label: 'Comparable pricing model',
+      type: 'select',
+      options: [
+        { label: 'Fixed Route / Airport Transfer', value: 'fixed' },
+        { label: 'Hourly Charter', value: 'hourly' },
+        { label: 'Mileage-Based Travel', value: 'mileage' },
+        { label: 'Contact for Quote Only', value: 'contact_only' },
+      ],
+      admin: {
+        description: 'Specifies which pricing model is comparable and eligible for deriving starting rates.',
+      },
+    },
+    {
+      name: 'showStartingFrom',
+      label: 'Display "Starting From" badge',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
+        description: 'Calculated automatically from eligible published rate cards. No manual price override.',
+      },
+    },
+    {
+      name: 'startingFromNote',
+      label: 'Starting from description note',
+      type: 'textarea',
+      maxLength: 300,
+      admin: {
+        description: 'Clear basis note (e.g., "Starting rate applies to Executive Sedan JFK Airport Transfer").',
+      },
+    },
+  ],
+};

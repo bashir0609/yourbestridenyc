@@ -1,4 +1,4 @@
-import type { Access, FieldAccess } from 'payload';
+import type { Access, FieldAccess, Where } from 'payload';
 
 export const roles = ['admin', 'content-manager', 'lead-manager'] as const;
 export type Role = (typeof roles)[number];
@@ -28,3 +28,20 @@ export const adminOrSelf: Access = ({ req }) => {
   if (!hasRole(req.user, roles)) return false;
   return { id: { equals: req.user!.id } };
 };
+
+export const rateCardPublicRead: Access = ({ req }) => {
+  if (hasRole(req.user, ['admin', 'content-manager'])) return true;
+  const where: Where = {
+    and: [
+      { _status: { equals: 'published' } },
+      { 'reconciliation.status': { equals: 'published' } },
+    ],
+  };
+  return where;
+};
+
+export const rateCardWrite = (({ req }) =>
+  hasRole(req.user, ['admin', 'content-manager'])) satisfies Access;
+
+export const rateCardDelete = (({ req }) =>
+  hasRole(req.user, ['admin'])) satisfies Access;
