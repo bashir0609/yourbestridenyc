@@ -334,3 +334,35 @@ test('Enquiry submission contract: processes quote requests through intake handl
   assert.ok(notif);
   assert.equal(notif.kind, 'transportation');
 });
+
+test('Hero CTA button design system: Fleet and Location pages have consistent secondary gold CTAs with arrow icon', () => {
+  const locationDetail = read('../src/app/(frontend)/locations/[slug]/page.tsx');
+  const uiStyles = read('../src/ui/styles.css');
+  const globalsCss = read('../src/app/(frontend)/globals.css');
+
+  // Fleet detail has secondary gold outline button with arrow icon
+  assert.match(
+    fleetDetail,
+    /className="button button-secondary"[\s\S]*?View Vehicle Rates <Icon name="arrow" width=\{16\} \/>/,
+  );
+
+  // Location detail has secondary gold outline button with arrow icon
+  assert.match(
+    locationDetail,
+    /className="button button-secondary"[\s\S]*?View Route Pricing <Icon name="arrow" width=\{16\} \/>/,
+  );
+
+  // ui/styles.css defines .button-secondary with gold theme tokens
+  assert.match(uiStyles, /\.button-secondary\s*\{[^}]*border:\s*1px solid var\(--color-gold\);/);
+  assert.match(uiStyles, /\.button-secondary\s*\{[^}]*color:\s*var\(--color-gold\);/);
+  assert.match(
+    uiStyles,
+    /\.button-secondary:hover\s*\{[^}]*border-color:\s*var\(--color-gold-light\);/,
+  );
+
+  // globals.css defines .button-secondary with gold hex codes and aligns action buttons
+  assert.match(globalsCss, /\.button-secondary\s*\{[^}]*border:\s*1px solid #d9a441;/);
+  assert.match(globalsCss, /\.button-secondary\s*\{[^}]*color:\s*#d9a441;/);
+  assert.match(globalsCss, /\.button-secondary:hover\s*\{[^}]*border-color:\s*#f2c96b;/);
+  assert.match(globalsCss, /\.detail-primary-actions\s*\{[^}]*align-items:\s*center;/);
+});

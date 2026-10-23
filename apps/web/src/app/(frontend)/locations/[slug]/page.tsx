@@ -101,7 +101,7 @@ export default async function LocationDetailPage({
                   href={`/rates-and-options?location=${page.slug}&tab=airport`}
                   className="button button-secondary"
                 >
-                  View Route Pricing
+                  View Route Pricing <Icon name="arrow" width={16} />
                 </Link>
                 <Link href="/locations" className="button detail-secondary-action">
                   Back to Service Areas

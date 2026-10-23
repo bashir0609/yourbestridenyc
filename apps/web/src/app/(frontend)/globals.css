@@ -1104,8 +1104,23 @@ section[id] {
 .detail-primary-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
   margin-top: 32px;
+}
+.button-secondary {
+  border: 1px solid #d9a441;
+  color: #d9a441;
+  background: transparent;
+}
+.button-secondary:hover {
+  border-color: #f2c96b;
+  color: #f2c96b;
+  background: rgba(217, 164, 65, 0.1);
+}
+.button-secondary:focus-visible {
+  outline: 2px solid #f2c96b;
+  outline-offset: 2px;
 }
 .detail-secondary-action {
   border: 1px solid #ffffff42;
@@ -1115,6 +1130,10 @@ section[id] {
 .detail-secondary-action:hover {
   border-color: #d9a441;
   color: #edc477;
+}
+.detail-secondary-action:focus-visible {
+  outline: 2px solid #f2c96b;
+  outline-offset: 2px;
 }
 .driver-detail,
 .fleet-detail {

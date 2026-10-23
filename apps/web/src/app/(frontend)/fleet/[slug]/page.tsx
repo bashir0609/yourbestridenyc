@@ -136,11 +136,11 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
                     href={`/rates-and-options?vehicleClass=${encodeURIComponent(page.vehicleClass.slug || page.vehicleClass.id || '')}&tab=airport`}
                     className="button button-secondary"
                   >
-                    View Vehicle Rates
+                    View Vehicle Rates <Icon name="arrow" width={16} />
                   </Link>
                 ) : (
                   <a href="#vehicle-rates" className="button button-secondary">
-                    View Vehicle Rates
+                    View Vehicle Rates <Icon name="arrow" width={16} />
                   </a>
                 )}
                 <a href="#vehicle-inquiry" className="button detail-secondary-action">

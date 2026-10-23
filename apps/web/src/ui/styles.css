@@ -35,6 +35,20 @@
 .button-gold:hover {
   background: var(--color-gold-light);
 }
+.button-secondary {
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+  background: transparent;
+}
+.button-secondary:hover {
+  border-color: var(--color-gold-light);
+  color: var(--color-gold-light);
+  background: rgba(217, 164, 65, 0.1);
+}
+.button-secondary:focus-visible {
+  outline: 2px solid var(--color-gold-light);
+  outline-offset: 2px;
+}
 .button-outline {
   border-color: #ffffff55;
   color: white;
