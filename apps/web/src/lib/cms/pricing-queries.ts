@@ -9,9 +9,13 @@ import {
   extractRelationSlug,
   isRateCardEligible,
   mapEligibleRateCardsToContent,
+  isRouteMatchingVehicleClass,
+  isHourlyMatchingVehicleClass,
   type RateCardCandidate,
 } from './pricing-rules';
 import type {
+  FixedRouteEntry,
+  HourlyCharterEntry,
   LocationRoutePrice,
   PricingSettingsView,
   RatesAndOptionsContent,
@@ -253,6 +257,12 @@ export const getLocationRoutePricing = cache(
           typeof card.vehicleClass === 'object' && card.vehicleClass !== null
             ? card.vehicleClass
             : null;
+        const classId =
+          vClass?.id !== undefined
+            ? Number(vClass.id)
+            : typeof card.vehicleClass === 'number'
+              ? card.vehicleClass
+              : undefined;
         const className = vClass?.name ? String(vClass.name) : 'Vehicle Class';
         const classSlug = vClass?.slug ? String(vClass.slug) : '';
 
@@ -285,6 +295,7 @@ export const getLocationRoutePricing = cache(
               notes: r.notes || undefined,
               vehicleClassName: className,
               vehicleClassSlug: classSlug,
+              vehicleClassId: classId,
               direction: 'outbound',
             });
           } else if (isInbound) {
@@ -303,6 +314,7 @@ export const getLocationRoutePricing = cache(
               notes: r.notes || undefined,
               vehicleClassName: className,
               vehicleClassSlug: classSlug,
+              vehicleClassId: classId,
               direction: 'inbound',
             });
           }
@@ -312,6 +324,34 @@ export const getLocationRoutePricing = cache(
       return routes;
     } catch {
       return [];
+    }
+  },
+);
+export const getVehiclePricing = cache(
+  async (
+    vehicleClassId?: number,
+    vehicleClassSlug?: string,
+  ): Promise<{
+    fixedRoutes: FixedRouteEntry[];
+    hourlyCharters: HourlyCharterEntry[];
+  }> => {
+    try {
+      const activeCards = await getActiveRateCards();
+      const content = mapEligibleRateCardsToContent(
+        [],
+        activeCards as unknown as RateCardCandidate[],
+        DEFAULT_SETTINGS,
+      );
+      const query =
+        vehicleClassSlug || (vehicleClassId !== undefined ? String(vehicleClassId) : undefined);
+      return {
+        fixedRoutes: content.fixedRoutes.filter((r) => isRouteMatchingVehicleClass(r, query)),
+        hourlyCharters: content.hourlyCharters.filter((c) =>
+          isHourlyMatchingVehicleClass(c, query),
+        ),
+      };
+    } catch {
+      return { fixedRoutes: [], hourlyCharters: [] };
     }
   },
 );

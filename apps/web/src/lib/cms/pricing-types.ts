@@ -29,6 +29,7 @@ export type FixedRouteEntry = {
   notes?: string;
   vehicleClassName: string;
   vehicleClassSlug: string;
+  vehicleClassId?: number;
 };
 
 export type LocationRoutePrice = {
@@ -45,6 +46,7 @@ export type LocationRoutePrice = {
   notes?: string;
   vehicleClassName: string;
   vehicleClassSlug: string;
+  vehicleClassId?: number;
   direction: 'outbound' | 'inbound';
 };
 
@@ -53,6 +55,7 @@ export type HourlyCharterEntry = {
   title: string;
   vehicleClassName: string;
   vehicleClassSlug: string;
+  vehicleClassId?: number;
   hourlyRate: number;
   minimumHours: number;
   minimumSubtotal: number;

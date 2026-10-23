@@ -4,7 +4,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Icon } from '@/components/icon';
 import { TrackLink } from '@/components/analytics';
-import { isRouteMatchingOriginLocation, resolveLocationDisplayName } from '@/lib/cms/pricing-rules';
+import {
+  isRouteMatchingOriginLocation,
+  resolveLocationDisplayName,
+  isRouteMatchingVehicleClass,
+  isHourlyMatchingVehicleClass,
+  resolveVehicleClassDisplayName,
+} from '@/lib/cms/pricing-rules';
 import type {
   FeeRuleEntry,
   FixedRouteEntry,
@@ -75,7 +81,7 @@ export function RatesAndOptionsTabs({
       return initialTab;
     return getInitialTab();
   });
-  const [highlightedClass, setHighlightedClass] = useState<string | null>(() => {
+  const [selectedVehicleClass, setSelectedVehicleClass] = useState<string | null>(() => {
     if (typeof initialVehicleClass === 'string' && initialVehicleClass.trim()) {
       return initialVehicleClass.trim();
     }
@@ -88,6 +94,8 @@ export function RatesAndOptionsTabs({
     return getInitialLocation();
   });
 
+  const highlightedClass = selectedVehicleClass;
+
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
@@ -97,7 +105,7 @@ export function RatesAndOptionsTabs({
       } else if (tabParam === 'hourly' || tabParam === 'mileage' || tabParam === 'custom') {
         setActiveTab(tabParam);
       }
-      setHighlightedClass(params.get('vehicleClass'));
+      setSelectedVehicleClass(params.get('vehicleClass'));
       setSelectedLocation(params.get('location'));
     };
     window.addEventListener('popstate', handlePopState);
@@ -113,11 +121,43 @@ export function RatesAndOptionsTabs({
     }
   };
 
-  const displayedFixedRoutes = selectedLocation
-    ? fixedRoutes.filter((route) => isRouteMatchingOriginLocation(route, selectedLocation))
-    : fixedRoutes;
+  const handleClearVehicleClassFilter = () => {
+    setSelectedVehicleClass(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('vehicleClass');
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
+
+  const handleClearAllFilters = () => {
+    setSelectedLocation(null);
+    setSelectedVehicleClass(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('location');
+      url.searchParams.delete('vehicleClass');
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
+
+  const displayedFixedRoutes = fixedRoutes.filter((route) => {
+    const matchesLocation =
+      !selectedLocation || isRouteMatchingOriginLocation(route, selectedLocation);
+    const matchesClass =
+      !selectedVehicleClass || isRouteMatchingVehicleClass(route, selectedVehicleClass);
+    return matchesLocation && matchesClass;
+  });
+
+  const displayedHourlyCharters = hourlyCharters.filter((charter) => {
+    return !selectedVehicleClass || isHourlyMatchingVehicleClass(charter, selectedVehicleClass);
+  });
 
   const locationDisplayName = resolveLocationDisplayName(selectedLocation, fixedRoutes);
+  const vehicleClassDisplayName = resolveVehicleClassDisplayName(
+    selectedVehicleClass,
+    vehicleClasses,
+  );
 
   const handleTabChange = (key: TabKey) => {
     setActiveTab(key);
@@ -197,11 +237,21 @@ export function RatesAndOptionsTabs({
               </div>
             </div>
 
-            {selectedLocation && (
+            {(selectedLocation || selectedVehicleClass) && (
               <div className="location-filter-banner">
                 <div className="location-filter-info">
-                  <span className="location-filter-label">Filtered by Location:</span>{' '}
-                  <strong>{locationDisplayName}</strong>
+                  {selectedLocation && (
+                    <span style={{ marginRight: selectedVehicleClass ? '14px' : '0' }}>
+                      <span className="location-filter-label">Filtered by Location:</span>{' '}
+                      <strong>{locationDisplayName}</strong>
+                    </span>
+                  )}
+                  {selectedVehicleClass && (
+                    <span>
+                      <span className="location-filter-label">Vehicle Class:</span>{' '}
+                      <strong>{vehicleClassDisplayName}</strong>
+                    </span>
+                  )}
                   {displayedFixedRoutes.length > 0 && (
                     <span className="location-filter-count">
                       {' '}
@@ -212,7 +262,13 @@ export function RatesAndOptionsTabs({
                 </div>
                 <button
                   type="button"
-                  onClick={handleClearLocationFilter}
+                  onClick={
+                    selectedLocation && !selectedVehicleClass
+                      ? handleClearLocationFilter
+                      : !selectedLocation && selectedVehicleClass
+                        ? handleClearVehicleClassFilter
+                        : handleClearAllFilters
+                  }
                   className="clear-location-filter-btn"
                   aria-label="Clear location filter"
                 >
@@ -297,26 +353,44 @@ export function RatesAndOptionsTabs({
                   </tbody>
                 </table>
               </div>
-            ) : selectedLocation ? (
+            ) : selectedLocation || selectedVehicleClass ? (
               <div className="rates-empty-card">
                 <div className="rates-empty-icon">
                   <Icon name="airport" width={28} height={28} />
                 </div>
-                <h3>No Published Routes for {locationDisplayName}</h3>
+                <h3>
+                  No Published Routes for{' '}
+                  {selectedVehicleClass && selectedLocation
+                    ? `${vehicleClassDisplayName} from ${locationDisplayName}`
+                    : selectedVehicleClass
+                      ? vehicleClassDisplayName
+                      : locationDisplayName}
+                </h3>
                 <p>
-                  No published route rates are currently available for {locationDisplayName}.
-                  Request a Custom Quote.
+                  No published route rates are currently available for{' '}
+                  {selectedLocation && selectedVehicleClass
+                    ? `${vehicleClassDisplayName} departing from ${locationDisplayName}`
+                    : selectedLocation
+                      ? locationDisplayName
+                      : vehicleClassDisplayName}
+                  . Request a Custom Quote.
                 </p>
                 <div className="rates-empty-actions">
                   <button
                     type="button"
-                    onClick={handleClearLocationFilter}
+                    onClick={
+                      selectedLocation && !selectedVehicleClass
+                        ? handleClearLocationFilter
+                        : !selectedLocation && selectedVehicleClass
+                          ? handleClearVehicleClassFilter
+                          : handleClearAllFilters
+                    }
                     className="button button-gold"
                   >
                     View All Published Routes
                   </button>
                   <a
-                    href={`/rates-and-options?location=${encodeURIComponent(selectedLocation)}#rates-inquiry`}
+                    href={`/rates-and-options?${selectedVehicleClass ? `vehicleClass=${encodeURIComponent(selectedVehicleClass)}&` : ''}${selectedLocation ? `location=${encodeURIComponent(selectedLocation)}&` : ''}#rates-inquiry`}
                     className="button button-secondary"
                   >
                     Request a Custom Quote
@@ -406,7 +480,24 @@ export function RatesAndOptionsTabs({
               </div>
             </div>
 
-            {hourlyCharters.length > 0 ? (
+            {selectedVehicleClass && (
+              <div className="location-filter-banner" style={{ marginBottom: '24px' }}>
+                <div className="location-filter-info">
+                  <span className="location-filter-label">Filtered by Vehicle Class:</span>{' '}
+                  <strong>{vehicleClassDisplayName}</strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearVehicleClassFilter}
+                  className="clear-location-filter-btn"
+                  aria-label="Clear vehicle class filter"
+                >
+                  Show All Vehicle Classes &times;
+                </button>
+              </div>
+            )}
+
+            {displayedHourlyCharters.length > 0 ? (
               <div className="rates-table-wrapper">
                 <table className="rates-comparison-table">
                   <thead>
@@ -422,7 +513,7 @@ export function RatesAndOptionsTabs({
                     </tr>
                   </thead>
                   <tbody>
-                    {hourlyCharters.map((charter) => {
+                    {displayedHourlyCharters.map((charter) => {
                       const minSubtotal =
                         typeof charter.minimumSubtotal === 'number'
                           ? charter.minimumSubtotal
@@ -483,6 +574,44 @@ export function RatesAndOptionsTabs({
                     })}
                   </tbody>
                 </table>
+              </div>
+            ) : selectedVehicleClass ? (
+              <div className="rates-empty-card">
+                <div className="rates-empty-icon">
+                  <Icon name="corporate" width={28} height={28} />
+                </div>
+                <h3>No Published Hourly Rates for {vehicleClassDisplayName}</h3>
+                <p>
+                  Hourly charter rates for {vehicleClassDisplayName} are currently quoted on
+                  request. Dedicated chauffeur service is available for bespoke itineraries. Request
+                  a Custom Quote.
+                </p>
+                <div className="rates-empty-actions">
+                  <button
+                    type="button"
+                    onClick={handleClearVehicleClassFilter}
+                    className="button button-gold"
+                  >
+                    View All Hourly Charters
+                  </button>
+                  <a
+                    href={`/rates-and-options?service=corporate&pricingModel=hourly&vehicleClass=${encodeURIComponent(selectedVehicleClass)}#rates-inquiry`}
+                    className="button button-secondary"
+                  >
+                    Request a Custom Quote
+                  </a>
+                  <TrackLink
+                    href="/book"
+                    className="button button-secondary"
+                    eventName="booking_click"
+                    eventParams={{
+                      source_page: '/rates-and-options',
+                      button_location: 'hourly_class_empty_cta',
+                    }}
+                  >
+                    Check Availability & Book <Icon name="arrow" width={16} />
+                  </TrackLink>
+                </div>
               </div>
             ) : (
               <div className="rates-empty-card">

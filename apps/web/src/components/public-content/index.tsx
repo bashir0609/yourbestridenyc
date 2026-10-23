@@ -224,10 +224,10 @@ export function FleetCard({ vehicle }: { vehicle: FleetVehicle }) {
         </a>
         {vehicle.vehicleClass && (
           <Link
-            href={`/rates-and-options?tab=hourly&vehicleClass=${encodeURIComponent(vehicle.vehicleClass.name)}`}
+            href={`/rates-and-options?vehicleClass=${encodeURIComponent(vehicle.vehicleClass.slug || vehicle.vehicleClass.id || '')}`}
             className="button button-small button-outline"
           >
-            View Class Rates
+            View Rates
           </Link>
         )}
       </div>

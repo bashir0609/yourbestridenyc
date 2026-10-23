@@ -492,6 +492,97 @@ export function resolveLocationDisplayName(
     .join(' ');
 }
 
+/**
+ * Strictly matches fixed routes against a vehicle class query parameter.
+ * Matches linked vehicleClassId, canonical vehicleClassSlug, or exact vehicleClassName.
+ * Never performs substring matching, never matches vehicle model names.
+ */
+export function isRouteMatchingVehicleClass(
+  route: FixedRouteEntry,
+  vehicleClassQuery?: string | number | null,
+): boolean {
+  if (vehicleClassQuery === undefined || vehicleClassQuery === null) return true;
+  const raw = String(vehicleClassQuery).trim();
+  if (!raw) return true;
+  const query = raw.toLowerCase();
+
+  // 1. Match against linked Payload vehicleClass relationship ID
+  if (route.vehicleClassId !== undefined && String(route.vehicleClassId) === raw) {
+    return true;
+  }
+
+  // 2. Match against canonical vehicleClass slug
+  if (route.vehicleClassSlug && route.vehicleClassSlug.toLowerCase() === query) {
+    return true;
+  }
+
+  // 3. Match against exact vehicleClass name (never substring)
+  if (route.vehicleClassName && route.vehicleClassName.toLowerCase() === query) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Strictly matches hourly charters against a vehicle class query parameter.
+ */
+export function isHourlyMatchingVehicleClass(
+  charter: HourlyCharterEntry,
+  vehicleClassQuery?: string | number | null,
+): boolean {
+  if (vehicleClassQuery === undefined || vehicleClassQuery === null) return true;
+  const raw = String(vehicleClassQuery).trim();
+  if (!raw) return true;
+  const query = raw.toLowerCase();
+
+  // 1. Match against linked Payload vehicleClass relationship ID
+  if (charter.vehicleClassId !== undefined && String(charter.vehicleClassId) === raw) {
+    return true;
+  }
+
+  // 2. Match against canonical vehicleClass slug
+  if (charter.vehicleClassSlug && charter.vehicleClassSlug.toLowerCase() === query) {
+    return true;
+  }
+
+  // 3. Match against exact vehicleClass name (never substring)
+  if (charter.vehicleClassName && charter.vehicleClassName.toLowerCase() === query) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Resolves customer-friendly vehicle class display name.
+ */
+export function resolveVehicleClassDisplayName(
+  vehicleClassQuery?: string | number | null,
+  vehicleClasses?: VehicleClassCard[],
+): string {
+  if (!vehicleClassQuery) return '';
+  const raw = String(vehicleClassQuery).trim();
+  if (!raw) return '';
+  const query = raw.toLowerCase();
+
+  if (Array.isArray(vehicleClasses)) {
+    const matched = vehicleClasses.find(
+      (c) =>
+        String(c.id) === raw || c.slug.toLowerCase() === query || c.name.toLowerCase() === query,
+    );
+    if (matched) return matched.name;
+  }
+
+  if (query === 'standard-suv' || query === '1') return 'Standard SUV';
+  if (query === 'premium-crossover-suv' || query === '2') return 'Premium Crossover SUV';
+
+  return raw
+    .split(/[-_ ]+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 export function mapEligibleRateCardsToContent(
   classes: VehicleClassCard[],
   rateCards: RateCardCandidate[],
@@ -510,6 +601,12 @@ export function mapEligibleRateCardsToContent(
       typeof card.vehicleClass === 'object' && card.vehicleClass !== null
         ? card.vehicleClass
         : null;
+    const classId =
+      vClass?.id !== undefined
+        ? Number(vClass.id)
+        : typeof card.vehicleClass === 'number'
+          ? card.vehicleClass
+          : undefined;
     const className = vClass?.name ? String(vClass.name) : 'Vehicle Class';
     const classSlug = vClass?.slug ? String(vClass.slug) : '';
 
@@ -535,6 +632,7 @@ export function mapEligibleRateCardsToContent(
             notes: route.notes || undefined,
             vehicleClassName: className,
             vehicleClassSlug: classSlug,
+            vehicleClassId: classId,
           });
         }
       }
@@ -550,6 +648,7 @@ export function mapEligibleRateCardsToContent(
         title: card.title || `${className} Hourly Charter`,
         vehicleClassName: className,
         vehicleClassSlug: classSlug,
+        vehicleClassId: classId,
         hourlyRate,
         minimumHours,
         minimumSubtotal,

@@ -4,8 +4,7 @@ import { readFileSync } from 'node:fs';
 import { transportationInquirySchema } from '@yourbestride/types';
 import { createIntakeHandler } from '../src/lib/intake';
 
-const read = (relPath: string) =>
-  readFileSync(new URL(relPath, import.meta.url), 'utf8');
+const read = (relPath: string) => readFileSync(new URL(relPath, import.meta.url), 'utf8');
 
 const ratesAndOptionsTabs = read('../src/components/rates-and-options/RatesAndOptionsTabs.tsx');
 const ratesAndOptionsPage = read('../src/app/(frontend)/rates-and-options/page.tsx');
@@ -24,19 +23,40 @@ test('Rates & Options: uses standard URLs with query before fragment', () => {
   assert.match(ratesAndOptionsTabs, /href=\{\`\/rates-and-options\?service=airport&route=/);
 
   // Hourly links use standard URL structure
-  assert.match(ratesAndOptionsTabs, /href="\/rates-and-options\?service=corporate&pricingModel=hourly#rates-inquiry"/);
-  assert.match(ratesAndOptionsTabs, /href=\{\`\/rates-and-options\?service=corporate&pricingModel=hourly&vehicleClass=/);
+  assert.match(
+    ratesAndOptionsTabs,
+    /href="\/rates-and-options\?service=corporate&pricingModel=hourly#rates-inquiry"/,
+  );
+  assert.match(
+    ratesAndOptionsTabs,
+    /href=\{\`\/rates-and-options\?service=corporate&pricingModel=hourly&vehicleClass=/,
+  );
 
   // Mileage links use standard URL structure
-  assert.match(ratesAndOptionsTabs, /href="\/rates-and-options\?service=private&pricingModel=mileage#rates-inquiry"/);
+  assert.match(
+    ratesAndOptionsTabs,
+    /href="\/rates-and-options\?service=private&pricingModel=mileage#rates-inquiry"/,
+  );
 
   // Custom package links use standard URL structure
-  assert.match(ratesAndOptionsTabs, /href="\/rates-and-options\?service=corporate&package=roadshow#rates-inquiry"/);
-  assert.match(ratesAndOptionsTabs, /href="\/rates-and-options\?service=private&package=wedding#rates-inquiry"/);
-  assert.match(ratesAndOptionsTabs, /href="\/rates-and-options\?service=airport&package=meet-greet#rates-inquiry"/);
+  assert.match(
+    ratesAndOptionsTabs,
+    /href="\/rates-and-options\?service=corporate&package=roadshow#rates-inquiry"/,
+  );
+  assert.match(
+    ratesAndOptionsTabs,
+    /href="\/rates-and-options\?service=private&package=wedding#rates-inquiry"/,
+  );
+  assert.match(
+    ratesAndOptionsTabs,
+    /href="\/rates-and-options\?service=airport&package=meet-greet#rates-inquiry"/,
+  );
 
   // Vehicle class overview cards use standard URL structure
-  assert.match(ratesAndOptionsTabs, /href=\{\`\/rates-and-options\?vehicleClass=\${encodeURIComponent\(vClass\.name\)}#rates-inquiry\`\}/);
+  assert.match(
+    ratesAndOptionsTabs,
+    /href=\{\`\/rates-and-options\?vehicleClass=\${encodeURIComponent\(vClass\.name\)}#rates-inquiry\`\}/,
+  );
 
   // Fleet directory cards use standard URL structure: /fleet?...#fleet-inquiry
   assert.match(publicCards, /href=\{\`\/fleet\?vehicle=\${encodeURIComponent\(vehicle\.title\)}/);
@@ -88,7 +108,8 @@ test('Fleet pages: directory and vehicle detail provide complete 3-tier actions'
   assert.match(publicCards, /Check Availability & Book/);
   assert.match(publicCards, /button_location: 'fleet_card'/);
   assert.match(publicCards, /Request This Vehicle/);
-  assert.match(publicCards, /View Class Rates/);
+  assert.match(publicCards, /View Rates/);
+  assert.match(publicCards, /href={`\/rates-and-options\?vehicleClass=/);
 
   // Fleet directory page has matching inquiry section id
   assert.match(fleetPage, /id="fleet-inquiry"/);
@@ -99,7 +120,8 @@ test('Fleet pages: directory and vehicle detail provide complete 3-tier actions'
   assert.match(fleetDetail, /button_location: 'vehicle_hero'/);
   assert.match(fleetDetail, /href="#vehicle-inquiry"/);
   assert.match(fleetDetail, /Request This Vehicle/);
-  assert.match(fleetDetail, /View Class Rates/);
+  assert.match(fleetDetail, /View Vehicle Rates/);
+  assert.match(fleetDetail, /href={`\/rates-and-options\?vehicleClass=/);
   assert.match(fleetDetail, /href="\/fleet"/);
 
   // Dedicated inquiry section on fleet detail
@@ -139,7 +161,8 @@ test('Prefilled enquiry scenarios: all 7 required scenarios preserve context and
         serviceType: 'private',
         pickupArea: 'Manhattan, NY',
         dropoffArea: 'JFK Airport, NY',
-        message: 'I would like to request a custom quote for the Toyota RAV4 (Standard SUV) for my upcoming journey.',
+        message:
+          'I would like to request a custom quote for the Toyota RAV4 (Standard SUV) for my upcoming journey.',
       },
     },
     {
@@ -151,7 +174,8 @@ test('Prefilled enquiry scenarios: all 7 required scenarios preserve context and
         serviceType: 'private',
         pickupArea: 'Wall Street, NY',
         dropoffArea: 'EWR Airport, NJ',
-        message: 'I would like to request a custom quote for the Cadillac XT6 (Premium Crossover SUV) for my upcoming journey.',
+        message:
+          'I would like to request a custom quote for the Cadillac XT6 (Premium Crossover SUV) for my upcoming journey.',
       },
     },
     {
@@ -175,7 +199,8 @@ test('Prefilled enquiry scenarios: all 7 required scenarios preserve context and
         serviceType: 'corporate',
         pickupArea: 'Midtown Manhattan',
         dropoffArea: 'As-directed financial district itinerary',
-        message: 'I am requesting an hourly charter quote for the Standard SUV vehicle class (3 hours minimum).',
+        message:
+          'I am requesting an hourly charter quote for the Standard SUV vehicle class (3 hours minimum).',
       },
     },
     {
@@ -199,7 +224,8 @@ test('Prefilled enquiry scenarios: all 7 required scenarios preserve context and
         serviceType: 'private',
         pickupArea: 'Upper East Side, NY',
         dropoffArea: 'Oheka Castle, Long Island',
-        message: 'I would like to request a custom quote for wedding and celebration transportation.',
+        message:
+          'I would like to request a custom quote for wedding and celebration transportation.',
       },
     },
     {
@@ -211,7 +237,8 @@ test('Prefilled enquiry scenarios: all 7 required scenarios preserve context and
         serviceType: 'private',
         pickupArea: 'Manhattan, NY',
         dropoffArea: 'Hamptons, Long Island',
-        message: 'I would like to request a custom distance / mileage quote for my planned itinerary.',
+        message:
+          'I would like to request a custom distance / mileage quote for my planned itinerary.',
       },
     },
   ];
@@ -220,11 +247,11 @@ test('Prefilled enquiry scenarios: all 7 required scenarios preserve context and
     const result = transportationInquirySchema.safeParse(scenario.payload);
     assert.ok(
       result.success,
-      `Scenario "${scenario.name}" must strictly validate with transportationInquirySchema`
+      `Scenario "${scenario.name}" must strictly validate with transportationInquirySchema`,
     );
     assert.ok(
       scenario.payload.message.length >= 10,
-      `Scenario "${scenario.name}" message must have >= 10 characters`
+      `Scenario "${scenario.name}" message must have >= 10 characters`,
     );
   }
 });
@@ -255,9 +282,11 @@ test('Enquiry submission contract: processes quote requests through intake handl
     { kind: 'transportation', source: 'web', schema: transportationInquirySchema },
     {
       fetch: mockFetcher,
-      notify: mockNotify as unknown as NonNullable<Parameters<typeof createIntakeHandler>[1]>['notify'],
+      notify: mockNotify as unknown as NonNullable<
+        Parameters<typeof createIntakeHandler>[1]
+      >['notify'],
       env: mockEnv,
-    }
+    },
   );
 
   const testPayload = {
@@ -296,7 +325,11 @@ test('Enquiry submission contract: processes quote requests through intake handl
   assert.equal(stored.type, 'transportation-lead');
   assert.equal(stored.sourcePage, '/rates-and-options');
 
-  assert.equal(notifications.length, 1, 'Email notification must be triggered for transportation inquiry');
+  assert.equal(
+    notifications.length,
+    1,
+    'Email notification must be triggered for transportation inquiry',
+  );
   const notif = notifications[0];
   assert.ok(notif);
   assert.equal(notif.kind, 'transportation');

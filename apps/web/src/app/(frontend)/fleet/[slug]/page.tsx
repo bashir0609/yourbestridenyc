@@ -9,6 +9,8 @@ import { getPublicConfig } from '@/lib/config';
 import { CmsImage } from '@/components/cms-content';
 import { TrackLink } from '@/components/analytics';
 import { DetailBreadcrumb } from '@/components/public-content';
+import { getVehiclePricing } from '@/lib/cms/pricing-queries';
+import { VehiclePricingSection } from '@/components/fleet/VehiclePricingSection';
 import { TransportationInquiryForm } from '@/components/forms/TransportationInquiryForm';
 
 export const revalidate = 300;
@@ -70,6 +72,7 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
     notFound();
   }
 
+  const vehicleRates = await getVehiclePricing(page.vehicleClass?.id, page.vehicleClass?.slug);
   const primaryImage = page.gallery[0];
   const additionalImages = page.gallery.slice(1);
   const hasDetails = page.description.length > 0;
@@ -88,7 +91,7 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
                 {page.category && <p className="fleet-detail-category">{page.category}</p>}
                 {page.vehicleClass && (
                   <Link
-                    href={`/rates-and-options?tab=hourly&vehicleClass=${encodeURIComponent(page.vehicleClass.name)}`}
+                    href={`/rates-and-options?vehicleClass=${encodeURIComponent(page.vehicleClass.slug || page.vehicleClass.id || '')}&tab=airport`}
                     className="fleet-detail-class-badge"
                     title={`View tariff rates for ${page.vehicleClass.name}`}
                   >
@@ -128,17 +131,21 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
                 >
                   Check Availability & Book <Icon name="arrow" width={16} />
                 </TrackLink>
+                {page.vehicleClass ? (
+                  <Link
+                    href={`/rates-and-options?vehicleClass=${encodeURIComponent(page.vehicleClass.slug || page.vehicleClass.id || '')}&tab=airport`}
+                    className="button button-secondary"
+                  >
+                    View Vehicle Rates
+                  </Link>
+                ) : (
+                  <a href="#vehicle-rates" className="button button-secondary">
+                    View Vehicle Rates
+                  </a>
+                )}
                 <a href="#vehicle-inquiry" className="button detail-secondary-action">
                   Request This Vehicle
                 </a>
-                {page.vehicleClass && (
-                  <Link
-                    href={`/rates-and-options?tab=hourly&vehicleClass=${encodeURIComponent(page.vehicleClass.name)}`}
-                    className="button button-outline"
-                  >
-                    View Class Rates
-                  </Link>
-                )}
                 <Link href="/fleet" className="button detail-secondary-action">
                   Back to Our Fleet
                 </Link>
@@ -220,14 +227,24 @@ export default async function FleetDetailPage({ params }: { params: Promise<{ sl
         </section>
       )}
 
-      <section id="vehicle-inquiry" className="section inquiry-section" aria-labelledby="inquiry-heading">
+      <VehiclePricingSection
+        vehicleTitle={page.title}
+        vehicleSlug={page.slug}
+        vehicleClass={page.vehicleClass}
+        fixedRoutes={vehicleRates.fixedRoutes}
+        hourlyCharters={vehicleRates.hourlyCharters}
+      />
+
+      <section
+        id="vehicle-inquiry"
+        className="section inquiry-section"
+        aria-labelledby="inquiry-heading"
+      >
         <Container>
           <div className="inquiry-header">
             <p className="eyebrow">REQUEST THIS VEHICLE</p>
             <h2 id="inquiry-heading">Request a Custom Quote for {page.title}</h2>
-            <p>
-              Share your trip details and requirements. Final fare confirmed during booking.
-            </p>
+            <p>Share your trip details and requirements. Final fare confirmed during booking.</p>
           </div>
           <TransportationInquiryForm
             sourcePage={`/fleet/${page.slug}`}

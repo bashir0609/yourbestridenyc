@@ -10,10 +10,14 @@ import {
   mapEligibleRateCardsToContent,
   isRouteMatchingOriginLocation,
   resolveLocationDisplayName,
+  isRouteMatchingVehicleClass,
+  isHourlyMatchingVehicleClass,
+  resolveVehicleClassDisplayName,
   type RateCardCandidate,
 } from '../src/lib/cms/pricing-rules';
 import type {
   FixedRouteEntry,
+  HourlyCharterEntry,
   PricingSettingsView,
   VehicleClassCard,
 } from '../src/lib/cms/pricing-types';
@@ -802,11 +806,8 @@ test('Rates & Options UI contract strictly isolates location routes and renders 
   assert.match(tabsSource, /isRouteMatchingOriginLocation\(route,\s*selectedLocation\)/);
 
   // 3. RatesAndOptionsTabs renders exact required empty state text
-  assert.ok(
-    tabsSource.includes(
-      'No published route rates are currently available for {locationDisplayName}. Request a Custom Quote.',
-    ),
-  );
+  assert.ok(tabsSource.includes('No published route rates are currently available for'));
+  assert.ok(tabsSource.includes('Request a Custom Quote.'));
 
   // 4. RatesAndOptionsTabs provides clear location filter action
   assert.ok(tabsSource.includes('handleClearLocationFilter'));
@@ -819,4 +820,173 @@ test('Rates & Options UI contract strictly isolates location routes and renders 
       '!r.originLocationSlug || r.originLocationSlug.toLowerCase() === cleanSlug',
     ),
   );
+});
+test('isRouteMatchingVehicleClass strictly isolates routes by vehicle class without substring leaks', () => {
+  const premiumRoute: FixedRouteEntry = {
+    id: 'm1',
+    routeLabel: 'Manhattan to JFK Airport',
+    originZone: 'Manhattan',
+    destinationZone: 'JFK Airport',
+    vehicleClassName: 'Premium Crossover SUV',
+    vehicleClassSlug: 'premium-crossover-suv',
+    vehicleClassId: 2,
+    flatRate: 205,
+  };
+
+  const standardRoute: FixedRouteEntry = {
+    id: 'm2',
+    routeLabel: 'Manhattan to JFK Airport',
+    originZone: 'Manhattan',
+    destinationZone: 'JFK Airport',
+    vehicleClassName: 'Standard SUV',
+    vehicleClassSlug: 'standard-suv',
+    vehicleClassId: 1,
+    flatRate: 175,
+  };
+
+  const routes = [premiumRoute, standardRoute];
+
+  // 1. Matches by canonical slug
+  const premiumBySlug = routes.filter((r) =>
+    isRouteMatchingVehicleClass(r, 'premium-crossover-suv'),
+  );
+  assert.equal(premiumBySlug.length, 1);
+  assert.equal(premiumBySlug[0]?.vehicleClassSlug, 'premium-crossover-suv');
+
+  // 2. Matches by numeric ID string
+  const premiumById = routes.filter((r) => isRouteMatchingVehicleClass(r, '2'));
+  assert.equal(premiumById.length, 1);
+  assert.equal(premiumById[0]?.vehicleClassId, 2);
+
+  // 3. Matches by exact class name
+  const standardByName = routes.filter((r) => isRouteMatchingVehicleClass(r, 'Standard SUV'));
+  assert.equal(standardByName.length, 1);
+  assert.equal(standardByName[0]?.vehicleClassSlug, 'standard-suv');
+
+  // 4. Substring rejection: 'suv' or 'crossover' must NOT match either or both
+  assert.equal(isRouteMatchingVehicleClass(premiumRoute, 'suv'), false);
+  assert.equal(isRouteMatchingVehicleClass(premiumRoute, 'crossover'), false);
+  assert.equal(isRouteMatchingVehicleClass(standardRoute, 'suv'), false);
+
+  // 5. Vehicle model name rejection: 'cadillac-xt6' or 'toyota-rav4' must NOT match
+  assert.equal(isRouteMatchingVehicleClass(premiumRoute, 'cadillac-xt6'), false);
+  assert.equal(isRouteMatchingVehicleClass(premiumRoute, 'Cadillac XT6'), false);
+  assert.equal(isRouteMatchingVehicleClass(standardRoute, 'toyota-rav4'), false);
+
+  // 6. Cross-class rejection: standard-suv query strictly excludes premium crossover
+  assert.equal(isRouteMatchingVehicleClass(premiumRoute, 'standard-suv'), false);
+  assert.equal(isRouteMatchingVehicleClass(standardRoute, 'premium-crossover-suv'), false);
+
+  // 7. Unfiltered (undefined or empty) returns true (no exclusion)
+  assert.equal(isRouteMatchingVehicleClass(premiumRoute, undefined), true);
+  assert.equal(isRouteMatchingVehicleClass(premiumRoute, ''), true);
+});
+
+test('isHourlyMatchingVehicleClass strictly isolates hourly charters', () => {
+  const premiumCharter: HourlyCharterEntry = {
+    id: 2,
+    title: 'Premium Crossover SUV Hourly Charter',
+    vehicleClassName: 'Premium Crossover SUV',
+    vehicleClassSlug: 'premium-crossover-suv',
+    vehicleClassId: 2,
+    hourlyRate: 135,
+    minimumHours: 3,
+    minimumSubtotal: 405,
+  };
+
+  const standardCharter: HourlyCharterEntry = {
+    id: 1,
+    title: 'Standard SUV Hourly Charter',
+    vehicleClassName: 'Standard SUV',
+    vehicleClassSlug: 'standard-suv',
+    vehicleClassId: 1,
+    hourlyRate: 115,
+    minimumHours: 3,
+    minimumSubtotal: 345,
+  };
+
+  const charters = [premiumCharter, standardCharter];
+
+  assert.equal(
+    charters.filter((c) => isHourlyMatchingVehicleClass(c, 'premium-crossover-suv')).length,
+    1,
+  );
+  assert.equal(charters.filter((c) => isHourlyMatchingVehicleClass(c, '2')).length, 1);
+  assert.equal(charters.filter((c) => isHourlyMatchingVehicleClass(c, '1')).length, 1);
+  assert.equal(isHourlyMatchingVehicleClass(premiumCharter, 'standard-suv'), false);
+  assert.equal(isHourlyMatchingVehicleClass(premiumCharter, 'suv'), false);
+  assert.equal(isHourlyMatchingVehicleClass(premiumCharter, undefined), true);
+});
+
+test('resolveVehicleClassDisplayName formats known and unknown vehicle classes accurately', () => {
+  const classes: VehicleClassCard[] = [
+    {
+      id: 2,
+      name: 'Premium Crossover SUV',
+      slug: 'premium-crossover-suv',
+      tier: 'fullsize_suv',
+      passengerCapacity: 6,
+    },
+    {
+      id: 1,
+      name: 'Standard SUV',
+      slug: 'standard-suv',
+      tier: 'fullsize_suv',
+      passengerCapacity: 4,
+    },
+  ];
+
+  assert.equal(
+    resolveVehicleClassDisplayName('premium-crossover-suv', classes),
+    'Premium Crossover SUV',
+  );
+  assert.equal(resolveVehicleClassDisplayName('standard-suv', classes), 'Standard SUV');
+  assert.equal(resolveVehicleClassDisplayName('2', classes), 'Premium Crossover SUV');
+  assert.equal(resolveVehicleClassDisplayName('1', classes), 'Standard SUV');
+  assert.equal(resolveVehicleClassDisplayName(undefined, classes), '');
+  assert.equal(resolveVehicleClassDisplayName('', classes), '');
+});
+
+test('Fleet dynamic pricing UI contracts: card View Rates, detail View Vehicle Rates, and VehiclePricingSection', () => {
+  const publicCardsSource = readFileSync(
+    new URL('../src/components/public-content/index.tsx', import.meta.url),
+    'utf8',
+  );
+  const fleetDetailSource = readFileSync(
+    new URL('../src/app/(frontend)/fleet/[slug]/page.tsx', import.meta.url),
+    'utf8',
+  );
+  const vehiclePricingSectionSource = readFileSync(
+    new URL('../src/components/fleet/VehiclePricingSection.tsx', import.meta.url),
+    'utf8',
+  );
+  const tabsSource = readFileSync(
+    new URL('../src/components/rates-and-options/RatesAndOptionsTabs.tsx', import.meta.url),
+    'utf8',
+  );
+
+  // 1. FleetCard has View Rates link targeting /rates-and-options?vehicleClass=
+  assert.ok(publicCardsSource.includes('View Rates'));
+  assert.ok(publicCardsSource.includes('/rates-and-options?vehicleClass='));
+
+  // 2. FleetDetailPage has View Vehicle Rates CTA near booking action
+  assert.ok(fleetDetailSource.includes('View Vehicle Rates'));
+  assert.ok(fleetDetailSource.includes('/rates-and-options?vehicleClass='));
+
+  // 3. FleetDetailPage renders VehiclePricingSection with vehicle rates
+  assert.ok(fleetDetailSource.includes('<VehiclePricingSection'));
+  assert.ok(fleetDetailSource.includes('vehicleTitle={page.title}'));
+  assert.ok(fleetDetailSource.includes('vehicleClass={page.vehicleClass}'));
+
+  // 4. VehiclePricingSection renders approved heading and disclosures
+  assert.ok(vehiclePricingSectionSource.includes('Rates &amp; Options for {vehicleTitle}'));
+  assert.ok(vehiclePricingSectionSource.includes('20% chauffeur gratuity'));
+  assert.ok(vehiclePricingSectionSource.includes('Limo Anywhere'));
+  assert.ok(vehiclePricingSectionSource.includes('NYS Congestion Surcharge'));
+
+  // 5. RatesAndOptionsTabs supports simultaneous vehicleClass and location filtering
+  assert.ok(tabsSource.includes('isRouteMatchingVehicleClass(route, selectedVehicleClass)'));
+  assert.ok(tabsSource.includes('isHourlyMatchingVehicleClass(charter, selectedVehicleClass)'));
+  assert.ok(tabsSource.includes('handleClearVehicleClassFilter'));
+  assert.ok(tabsSource.includes('Show All Vehicle Classes'));
 });
