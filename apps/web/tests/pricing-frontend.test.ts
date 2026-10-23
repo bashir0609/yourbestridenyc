@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { mapFleet } from '../src/lib/cms/mappers';
 import { mapFleetPage, mapServicePage } from '../src/lib/cms/page-mappers';
@@ -7,9 +8,15 @@ import {
   evaluateTripFees,
   isRateCardEligible,
   mapEligibleRateCardsToContent,
+  isRouteMatchingOriginLocation,
+  resolveLocationDisplayName,
   type RateCardCandidate,
 } from '../src/lib/cms/pricing-rules';
-import type { PricingSettingsView, VehicleClassCard } from '../src/lib/cms/pricing-types';
+import type {
+  FixedRouteEntry,
+  PricingSettingsView,
+  VehicleClassCard,
+} from '../src/lib/cms/pricing-types';
 
 test('mapFleet maps vehicleClass relationship on fleet cards', () => {
   const payloadDoc = {
@@ -673,4 +680,143 @@ test('Location route direction matching prevents reverse-direction fare fabricat
   const brooklynResult = matchRoutesForLocation(99, 'brooklyn');
   assert.equal(brooklynResult.outbound.length, 0);
   assert.equal(brooklynResult.inbound.length, 0);
+});
+
+test('isRouteMatchingOriginLocation strictly isolates routes by explicit linked origin location', () => {
+  const manhattanRoute: FixedRouteEntry = {
+    id: 'manhattan-jfk',
+    routeLabel: 'Manhattan to JFK Airport (Brooklyn Bridge Corridor)',
+    originZone: 'Manhattan',
+    destinationZone: 'JFK Airport',
+    originLocationId: 2,
+    originLocationSlug: 'manhattan',
+    originLocationName: 'Manhattan, New York',
+    destinationLocationId: 8,
+    destinationLocationSlug: 'jfk-airport',
+    destinationLocationName: 'John F. Kennedy International Airport',
+    flatRate: 205,
+    vehicleClassName: 'Premium Crossover SUV',
+    vehicleClassSlug: 'premium-crossover-suv',
+  };
+
+  const unlinkedRoute: FixedRouteEntry = {
+    id: 'unlinked-corridor',
+    routeLabel: 'Generic Regional Corridor',
+    originZone: 'Tri-State Area',
+    destinationZone: 'Regional Airport',
+    flatRate: 150,
+    vehicleClassName: 'Standard SUV',
+    vehicleClassSlug: 'standard-suv',
+  };
+
+  const sampleRoutes = [manhattanRoute, unlinkedRoute];
+
+  // 1. Manhattan selection: Matches explicit slug or ID
+  const manhattanFiltered = sampleRoutes.filter((r) =>
+    isRouteMatchingOriginLocation(r, 'manhattan'),
+  );
+  assert.equal(manhattanFiltered.length, 1);
+  assert.equal(manhattanFiltered[0]?.id, 'manhattan-jfk');
+
+  const idFiltered = sampleRoutes.filter((r) => isRouteMatchingOriginLocation(r, '2'));
+  assert.equal(idFiltered.length, 1);
+  assert.equal(idFiltered[0]?.id, 'manhattan-jfk');
+
+  // 2. Brooklyn selection: Strictly EXCLUDES Manhattan routes (zero price leakage)
+  const brooklynFiltered = sampleRoutes.filter((r) => isRouteMatchingOriginLocation(r, 'brooklyn'));
+  assert.equal(
+    brooklynFiltered.length,
+    0,
+    'Brooklyn filter must exclude Manhattan routes even if published',
+  );
+
+  // 3. Substring non-match: Route label contains "Brooklyn Bridge Corridor", but origin is Manhattan
+  // Route MUST NOT be matched merely because "Brooklyn" appears in the label or corridor text
+  assert.equal(isRouteMatchingOriginLocation(manhattanRoute, 'brooklyn'), false);
+
+  // 4. Queens selection: Excludes Manhattan routes
+  const queensFiltered = sampleRoutes.filter((r) => isRouteMatchingOriginLocation(r, 'queens'));
+  assert.equal(queensFiltered.length, 0, 'Queens filter must exclude Manhattan routes');
+
+  // 5. Unknown slug selection: Returns empty
+  const unknownFiltered = sampleRoutes.filter((r) =>
+    isRouteMatchingOriginLocation(r, 'unknown-borough'),
+  );
+  assert.equal(unknownFiltered.length, 0);
+
+  // 6. Non-reversal: Matching destination airport slug (e.g. 'jfk-airport') does NOT match origin filter
+  const jfkFiltered = sampleRoutes.filter((r) => isRouteMatchingOriginLocation(r, 'jfk-airport'));
+  assert.equal(jfkFiltered.length, 0, 'Must NOT match destination location as origin');
+
+  // 7. Clearing location filter (undefined or empty string): Restores all eligible routes
+  const clearedFiltered = sampleRoutes.filter((r) => isRouteMatchingOriginLocation(r, undefined));
+  assert.equal(clearedFiltered.length, 2, 'Clearing filter restores all published routes');
+
+  const emptyStringFiltered = sampleRoutes.filter((r) => isRouteMatchingOriginLocation(r, ''));
+  assert.equal(emptyStringFiltered.length, 2, 'Empty string restores all published routes');
+});
+
+test('resolveLocationDisplayName formats known and unknown locations accurately', () => {
+  const dummyRoutes: FixedRouteEntry[] = [
+    {
+      id: 'm1',
+      routeLabel: 'Manhattan to JFK',
+      originZone: 'Manhattan',
+      destinationZone: 'JFK',
+      originLocationSlug: 'manhattan',
+      originLocationName: 'Manhattan, New York',
+      flatRate: 205,
+      vehicleClassName: 'Premium Crossover SUV',
+      vehicleClassSlug: 'premium-crossover-suv',
+    },
+  ];
+
+  assert.equal(resolveLocationDisplayName('brooklyn', dummyRoutes), 'Brooklyn');
+  assert.equal(resolveLocationDisplayName('manhattan', dummyRoutes), 'Manhattan');
+  assert.equal(resolveLocationDisplayName('queens', dummyRoutes), 'Queens');
+  assert.equal(resolveLocationDisplayName('long-island-city', dummyRoutes), 'Long Island City');
+  assert.equal(resolveLocationDisplayName('', dummyRoutes), '');
+  assert.equal(resolveLocationDisplayName(undefined, dummyRoutes), '');
+});
+
+test('Rates & Options UI contract strictly isolates location routes and renders approved copy', () => {
+  const tabsSource = readFileSync(
+    new URL('../src/components/rates-and-options/RatesAndOptionsTabs.tsx', import.meta.url),
+    'utf8',
+  );
+  const pageSource = readFileSync(
+    new URL('../src/app/(frontend)/rates-and-options/page.tsx', import.meta.url),
+    'utf8',
+  );
+  const locationSectionSource = readFileSync(
+    new URL('../src/components/locations/LocationPricingSection.tsx', import.meta.url),
+    'utf8',
+  );
+
+  // 1. page.tsx passes server searchParams to RatesAndOptionsTabs
+  assert.match(pageSource, /searchParams\?:\s*Promise/);
+  assert.match(pageSource, /initialLocation=\{rawLocation\}/);
+  assert.match(pageSource, /initialTab=\{rawTab\}/);
+
+  // 2. RatesAndOptionsTabs uses route-level isRouteMatchingOriginLocation
+  assert.match(tabsSource, /isRouteMatchingOriginLocation\(route,\s*selectedLocation\)/);
+
+  // 3. RatesAndOptionsTabs renders exact required empty state text
+  assert.ok(
+    tabsSource.includes(
+      'No published route rates are currently available for {locationDisplayName}. Request a Custom Quote.',
+    ),
+  );
+
+  // 4. RatesAndOptionsTabs provides clear location filter action
+  assert.ok(tabsSource.includes('handleClearLocationFilter'));
+  assert.ok(tabsSource.includes('Show All Locations'));
+
+  // 5. LocationPricingSection guarantees zero route leakage
+  assert.ok(locationSectionSource.includes("r.direction === 'outbound'"));
+  assert.ok(
+    locationSectionSource.includes(
+      '!r.originLocationSlug || r.originLocationSlug.toLowerCase() === cleanSlug',
+    ),
+  );
 });

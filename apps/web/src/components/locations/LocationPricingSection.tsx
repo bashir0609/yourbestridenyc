@@ -20,7 +20,12 @@ export function LocationPricingSection({
   locationSlug,
   routes,
 }: LocationPricingSectionProps) {
-  const outboundRoutes = routes.filter((r) => r.direction === 'outbound');
+  const cleanSlug = locationSlug.toLowerCase().trim();
+  const outboundRoutes = routes.filter(
+    (r) =>
+      r.direction === 'outbound' &&
+      (!r.originLocationSlug || r.originLocationSlug.toLowerCase() === cleanSlug),
+  );
 
   // Group outbound routes by destinationZone
   const groupedDestinations: DestinationGroup[] = [];

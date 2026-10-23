@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Icon } from '@/components/icon';
 import { TrackLink } from '@/components/analytics';
+import { isRouteMatchingOriginLocation, resolveLocationDisplayName } from '@/lib/cms/pricing-rules';
 import type {
   FeeRuleEntry,
   FixedRouteEntry,
@@ -22,6 +23,9 @@ interface RatesAndOptionsTabsProps {
   mileagePolicies: MileagePolicyEntry[];
   applicableFees: FeeRuleEntry[];
   settings: PricingSettingsView;
+  initialTab?: string;
+  initialLocation?: string;
+  initialVehicleClass?: string;
 }
 
 function getInitialTab(): TabKey {
@@ -61,10 +65,28 @@ export function RatesAndOptionsTabs({
   mileagePolicies,
   applicableFees,
   settings,
+  initialTab,
+  initialLocation,
+  initialVehicleClass,
 }: RatesAndOptionsTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>(getInitialTab);
-  const [highlightedClass, setHighlightedClass] = useState<string | null>(getInitialVehicleClass);
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(getInitialLocation);
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    if (initialTab === 'airport' || initialTab === 'fixed') return 'fixed';
+    if (initialTab === 'hourly' || initialTab === 'mileage' || initialTab === 'custom')
+      return initialTab;
+    return getInitialTab();
+  });
+  const [highlightedClass, setHighlightedClass] = useState<string | null>(() => {
+    if (typeof initialVehicleClass === 'string' && initialVehicleClass.trim()) {
+      return initialVehicleClass.trim();
+    }
+    return getInitialVehicleClass();
+  });
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(() => {
+    if (typeof initialLocation === 'string' && initialLocation.trim()) {
+      return initialLocation.trim();
+    }
+    return getInitialLocation();
+  });
 
   useEffect(() => {
     const handlePopState = () => {
@@ -92,56 +114,10 @@ export function RatesAndOptionsTabs({
   };
 
   const displayedFixedRoutes = selectedLocation
-    ? fixedRoutes.filter((route) => {
-        const loc = selectedLocation.toLowerCase().trim();
-        const originSlug = route.originLocationSlug?.toLowerCase();
-        const destSlug = route.destinationLocationSlug?.toLowerCase();
-        const originId = route.originLocationId ? String(route.originLocationId) : '';
-        const destId = route.destinationLocationId ? String(route.destinationLocationId) : '';
-        const originName = route.originLocationName?.toLowerCase();
-        const destName = route.destinationLocationName?.toLowerCase();
-        const originZone = route.originZone?.toLowerCase();
-        const destZone = route.destinationZone?.toLowerCase();
-
-        return (
-          originSlug === loc ||
-          destSlug === loc ||
-          originId === loc ||
-          destId === loc ||
-          (originName && originName.includes(loc)) ||
-          (destName && destName.includes(loc)) ||
-          (originZone && originZone.includes(loc)) ||
-          (destZone && destZone.includes(loc))
-        );
-      })
+    ? fixedRoutes.filter((route) => isRouteMatchingOriginLocation(route, selectedLocation))
     : fixedRoutes;
 
-  const locationDisplayName = (() => {
-    if (!selectedLocation) return '';
-    const loc = selectedLocation.toLowerCase().trim();
-    const matchedRoute = fixedRoutes.find(
-      (r) =>
-        r.originLocationSlug?.toLowerCase() === loc ||
-        r.destinationLocationSlug?.toLowerCase() === loc ||
-        String(r.originLocationId) === loc ||
-        String(r.destinationLocationId) === loc,
-    );
-    if (matchedRoute) {
-      if (
-        matchedRoute.originLocationSlug?.toLowerCase() === loc ||
-        String(matchedRoute.originLocationId) === loc
-      ) {
-        return matchedRoute.originLocationName || selectedLocation;
-      }
-      if (
-        matchedRoute.destinationLocationSlug?.toLowerCase() === loc ||
-        String(matchedRoute.destinationLocationId) === loc
-      ) {
-        return matchedRoute.destinationLocationName || selectedLocation;
-      }
-    }
-    return selectedLocation.charAt(0).toUpperCase() + selectedLocation.slice(1);
-  })();
+  const locationDisplayName = resolveLocationDisplayName(selectedLocation, fixedRoutes);
 
   const handleTabChange = (key: TabKey) => {
     setActiveTab(key);
@@ -328,9 +304,8 @@ export function RatesAndOptionsTabs({
                 </div>
                 <h3>No Published Routes for {locationDisplayName}</h3>
                 <p>
-                  We currently do not have fixed airport tariffs published specifically for{' '}
-                  {locationDisplayName}. Point-to-point and customized hourly charter services are
-                  available with tailored dispatch pricing.
+                  No published route rates are currently available for {locationDisplayName}.
+                  Request a Custom Quote.
                 </p>
                 <div className="rates-empty-actions">
                   <button

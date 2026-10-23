@@ -429,6 +429,69 @@ export function extractRelationName(val: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Strict route-level location filtering.
+ * Matches a selected location strictly against the route's explicit linked originLocation
+ * canonical slug or numeric/string ID.
+ *
+ * Rules:
+ * - When no location query is provided, all routes remain eligible.
+ * - Matches strictly against the linked originLocation ID or canonical slug.
+ * - Excludes routes originating from other locations (e.g. Manhattan routes excluded when filtering Brooklyn).
+ * - Excludes unlinked routes when an explicit location filter is active.
+ * - Does NOT perform substring matching on route names, labels, or zones.
+ * - Does NOT infer inbound or reverse-direction fares (does not match destinationLocation).
+ */
+export function isRouteMatchingOriginLocation(
+  route: FixedRouteEntry,
+  locationQuery: string | undefined | null,
+): boolean {
+  if (!locationQuery || !locationQuery.trim()) {
+    return true;
+  }
+  const cleanLoc = locationQuery.trim().toLowerCase();
+
+  if (route.originLocationSlug && route.originLocationSlug.toLowerCase() === cleanLoc) {
+    return true;
+  }
+
+  if (route.originLocationId !== undefined && String(route.originLocationId) === cleanLoc) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Resolves customer-friendly location display name.
+ * Uses linked originLocationName if available, or formats canonical slug.
+ */
+export function resolveLocationDisplayName(
+  locationQuery: string | undefined | null,
+  fixedRoutes?: FixedRouteEntry[],
+): string {
+  if (!locationQuery || !locationQuery.trim()) return '';
+  const clean = locationQuery.trim().toLowerCase();
+
+  if (fixedRoutes) {
+    const matchedRoute = fixedRoutes.find(
+      (r) =>
+        (r.originLocationSlug && r.originLocationSlug.toLowerCase() === clean) ||
+        (r.originLocationId !== undefined && String(r.originLocationId) === clean),
+    );
+    if (matchedRoute?.originLocationName) {
+      const parts = matchedRoute.originLocationName.split(',');
+      const first = parts[0];
+      return first ? first.trim() : matchedRoute.originLocationName;
+    }
+  }
+
+  return clean
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 export function mapEligibleRateCardsToContent(
   classes: VehicleClassCard[],
   rateCards: RateCardCandidate[],

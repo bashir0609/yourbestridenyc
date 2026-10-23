@@ -26,12 +26,37 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary',
       title: 'Rates & Options | YourBestRide',
-      description: 'Explore transparent luxury chauffeured transportation rates and vehicle options.',
+      description:
+        'Explore transparent luxury chauffeured transportation rates and vehicle options.',
     },
   };
 }
 
-export default async function RatesAndOptionsPage() {
+interface RatesAndOptionsPageProps {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function RatesAndOptionsPage({ searchParams }: RatesAndOptionsPageProps) {
+  const resolvedParams = searchParams ? await searchParams : {};
+  const rawLocation =
+    typeof resolvedParams.location === 'string'
+      ? resolvedParams.location
+      : Array.isArray(resolvedParams.location)
+        ? resolvedParams.location[0]
+        : undefined;
+  const rawTab =
+    typeof resolvedParams.tab === 'string'
+      ? resolvedParams.tab
+      : Array.isArray(resolvedParams.tab)
+        ? resolvedParams.tab[0]
+        : undefined;
+  const rawVehicleClass =
+    typeof resolvedParams.vehicleClass === 'string'
+      ? resolvedParams.vehicleClass
+      : Array.isArray(resolvedParams.vehicleClass)
+        ? resolvedParams.vehicleClass[0]
+        : undefined;
+
   const content = await getRatesAndOptionsContent();
 
   return (
@@ -51,19 +76,26 @@ export default async function RatesAndOptionsPage() {
             mileagePolicies={content.mileagePolicies}
             applicableFees={content.applicableFees}
             settings={content.settings}
+            initialTab={rawTab}
+            initialLocation={rawLocation}
+            initialVehicleClass={rawVehicleClass}
           />
         </Container>
       </section>
 
       {/* Quote Inquiry Section */}
-      <section className="section inquiry-section" id="rates-inquiry" aria-labelledby="inquiry-heading">
+      <section
+        className="section inquiry-section"
+        id="rates-inquiry"
+        aria-labelledby="inquiry-heading"
+      >
         <Container>
           <div className="inquiry-header">
             <p className="eyebrow">CUSTOM QUOTATION</p>
             <h2 id="inquiry-heading">Request a custom rate or corporate itinerary</h2>
             <p>
-              Have a multi-vehicle itinerary, regional trip, or bespoke corporate requirement?
-              Share your trip details and our team will provide a tailored quote.
+              Have a multi-vehicle itinerary, regional trip, or bespoke corporate requirement? Share
+              your trip details and our team will provide a tailored quote.
             </p>
           </div>
           <TransportationInquiryForm sourcePage="/rates-and-options" />
