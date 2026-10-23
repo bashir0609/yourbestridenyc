@@ -23,27 +23,63 @@ export default async function BookPage() {
     <main id="main-content" className="booking-page">
       <section className="booking-hero" aria-labelledby="booking-title">
         <Container>
-          <p className="eyebrow">ONLINE RESERVATIONS</p>
-          <h1 id="booking-title">
-            Book Your <span>Ride</span>
-          </h1>
-          <p>
-            Plan your transportation through our official online reservation experience.
-            Availability, rates, and confirmation are provided by our reservation partner.
-          </p>
+          <div className="booking-hero-content">
+            <p className="eyebrow">ONLINE RESERVATIONS</p>
+            <h1 id="booking-title">
+              Book Your <span>Ride</span>
+            </h1>
+            <p className="booking-hero-description">
+              Reserve executive transportation across New York with live availability, transparent
+              rates, and instant confirmation powered by our official reservation partner.
+            </p>
+
+            <div className="booking-trust-grid" role="list" aria-label="Booking assurances">
+              <div className="booking-trust-card" role="listitem">
+                <span className="booking-trust-icon" aria-hidden="true">
+                  <Icon name="check" width={20} height={20} />
+                </span>
+                <div className="booking-trust-content">
+                  <strong className="booking-trust-title">Live Availability</strong>
+                  <span className="booking-trust-detail">
+                    Real-time confirmation via Limo Anywhere
+                  </span>
+                </div>
+              </div>
+
+              <div className="booking-trust-card" role="listitem">
+                <span className="booking-trust-icon" aria-hidden="true">
+                  <Icon name="award" width={20} height={20} />
+                </span>
+                <div className="booking-trust-content">
+                  <strong className="booking-trust-title">Executive Chauffeurs</strong>
+                  <span className="booking-trust-detail">
+                    Vetted, licensed professional drivers
+                  </span>
+                </div>
+              </div>
+
+              <div className="booking-trust-card" role="listitem">
+                <span className="booking-trust-icon" aria-hidden="true">
+                  <Icon name="briefcase" width={20} height={20} />
+                </span>
+                <div className="booking-trust-content">
+                  <strong className="booking-trust-title">Upfront Pricing</strong>
+                  <span className="booking-trust-detail">
+                    Transparent commercial tariffs & dispatch
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </Container>
       </section>
 
       <section className="booking-experience" aria-labelledby="reservation-heading">
         <Container>
           <div className="booking-heading">
-            <span className="icon-tile" aria-hidden="true">
-              <Icon name="airport" width={28} height={28} />
-            </span>
             <div>
-              <p className="eyebrow">SECURE BOOKING</p>
+              <p className="eyebrow">SECURE RESERVATION ENGINE</p>
               <h2 id="reservation-heading">Complete your reservation</h2>
-              <p>Your trip details are entered directly into our secure reservation system.</p>
             </div>
           </div>
 

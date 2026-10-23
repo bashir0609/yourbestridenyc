@@ -167,3 +167,46 @@ test('vendor script is scoped to the booking integration only', async () => {
     'vendor widget markup and loader references must stay isolated to the booking component',
   );
 });
+
+test('book page delivers redesigned hero with three trust indicators and single reservation engine', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { fileURLToPath } = await import('node:url');
+  const source = await readFile(
+    fileURLToPath(new URL('../src/app/(frontend)/book/page.tsx', import.meta.url)),
+    'utf8',
+  );
+
+  // Redesigned hero with black-and-gold visual identity and concise copy
+  assert.match(source, /className="booking-hero"/);
+  assert.match(source, /Book Your <span>Ride<\/span>/);
+
+  // Three trust indicators
+  assert.match(source, /className="booking-trust-grid"/);
+  assert.match(source, /Live Availability/);
+  assert.match(source, /Executive Chauffeurs/);
+  assert.match(source, /Upfront Pricing/);
+
+  // Single booking form only (no QuickRes)
+  const widgetOccurrences = source.match(/<LimoAnywhereBooking\b/g) ?? [];
+  assert.equal(widgetOccurrences.length, 1, 'exactly one booking widget must be rendered');
+  assert.doesNotMatch(source, /quickres/i, 'QuickRes widget must not be included');
+
+  // Accessible fallback and privacy notices preserved
+  assert.match(source, /booking-privacy-note/);
+  assert.match(source, /interior-footnote/);
+});
+
+test('widget component immediately verifies existing iframe and triggers navigation re-initialization', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { fileURLToPath } = await import('node:url');
+  const source = await readFile(
+    fileURLToPath(new URL('../src/components/limo-anywhere-booking.tsx', import.meta.url)),
+    'utf8',
+  );
+
+  assert.match(
+    source,
+    /if \(container\.querySelector\('\.ores4iframe'\)\) \{[\s\S]*?markReady\(\);/,
+  );
+  assert.match(source, /reinitializeAfterClientNavigation\(\);/);
+});

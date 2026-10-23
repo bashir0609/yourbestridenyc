@@ -55,6 +55,12 @@ export function LimoAnywhereBooking({ bookingUrl }: LimoAnywhereBookingProps) {
       }
     };
 
+    if (container.querySelector('.ores4iframe')) {
+      markReady();
+    } else {
+      reinitializeAfterClientNavigation();
+    }
+
     const observer = new MutationObserver(markReady);
     observer.observe(container, { childList: true, subtree: true });
 
@@ -66,7 +72,7 @@ export function LimoAnywhereBooking({ bookingUrl }: LimoAnywhereBookingProps) {
       observer.disconnect();
       window.clearTimeout(timeout);
     };
-  }, []);
+  }, [reinitializeAfterClientNavigation]);
 
   return (
     <div className="ores-booking">
