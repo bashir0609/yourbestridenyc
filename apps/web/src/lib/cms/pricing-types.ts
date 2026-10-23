@@ -18,11 +18,34 @@ export type FixedRouteEntry = {
   routeLabel: string;
   originZone: string;
   destinationZone: string;
+  originLocationId?: number;
+  originLocationSlug?: string;
+  originLocationName?: string;
+  destinationLocationId?: number;
+  destinationLocationSlug?: string;
+  destinationLocationName?: string;
   flatRate: number;
   additionalStopFee?: number;
   notes?: string;
   vehicleClassName: string;
   vehicleClassSlug: string;
+};
+
+export type LocationRoutePrice = {
+  id: string;
+  routeLabel: string;
+  originZone: string;
+  destinationZone: string;
+  originLocationId?: number;
+  originLocationSlug?: string;
+  destinationLocationId?: number;
+  destinationLocationSlug?: string;
+  flatRate: number;
+  additionalStopFee?: number;
+  notes?: string;
+  vehicleClassName: string;
+  vehicleClassSlug: string;
+  direction: 'outbound' | 'inbound';
 };
 
 export type HourlyCharterEntry = {

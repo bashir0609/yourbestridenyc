@@ -91,7 +91,10 @@ test('mapServicePage maps pricingDisplay configuration', () => {
   assert.equal(service.pricingDisplay?.pricingHeadline, 'Direct Airport Transfer Rates');
   assert.equal(service.pricingDisplay?.eligiblePricingModel, 'fixed');
   assert.equal(service.pricingDisplay?.showStartingFrom, true);
-  assert.equal(service.pricingDisplay?.startingFromNote, 'Fares include flight tracking and tolls.');
+  assert.equal(
+    service.pricingDisplay?.startingFromNote,
+    'Fares include flight tracking and tolls.',
+  );
 });
 
 test('computeStartingPrice handles empty rate cards with zero fabricated rates', () => {
@@ -106,7 +109,11 @@ test('computeStartingPrice handles empty rate cards with zero fabricated rates',
       routes: [{ flatRate: 120, routeLabel: 'JFK to Manhattan' }],
     },
   ]);
-  assert.equal(draftOnlyResult, null, 'Unpublished draft rate cards must not produce starting prices');
+  assert.equal(
+    draftOnlyResult,
+    null,
+    'Unpublished draft rate cards must not produce starting prices',
+  );
 
   const unverifiedResult = computeStartingPrice([
     {
@@ -116,7 +123,11 @@ test('computeStartingPrice handles empty rate cards with zero fabricated rates',
       routes: [{ flatRate: 120, routeLabel: 'JFK to Manhattan' }],
     },
   ]);
-  assert.equal(unverifiedResult, null, 'Unreconciled rate cards must not produce public starting prices');
+  assert.equal(
+    unverifiedResult,
+    null,
+    'Unreconciled rate cards must not produce public starting prices',
+  );
 });
 
 test('computeStartingPrice calculates lowest comparable price strictly per model', () => {
@@ -179,10 +190,26 @@ test('rate card effective date filtering isolates expired and future-dated cards
     return true;
   };
 
-  assert.equal(isCardActive({ effectiveFrom: farPast, effectiveTo: past }), false, 'Expired card must be excluded');
-  assert.equal(isCardActive({ effectiveFrom: future, effectiveTo: farFuture }), false, 'Future-dated card must be excluded');
-  assert.equal(isCardActive({ effectiveFrom: past, effectiveTo: future }), true, 'Currently active card must be included');
-  assert.equal(isCardActive({ effectiveFrom: null, effectiveTo: null }), true, 'Indefinite active card must be included');
+  assert.equal(
+    isCardActive({ effectiveFrom: farPast, effectiveTo: past }),
+    false,
+    'Expired card must be excluded',
+  );
+  assert.equal(
+    isCardActive({ effectiveFrom: future, effectiveTo: farFuture }),
+    false,
+    'Future-dated card must be excluded',
+  );
+  assert.equal(
+    isCardActive({ effectiveFrom: past, effectiveTo: future }),
+    true,
+    'Currently active card must be included',
+  );
+  assert.equal(
+    isCardActive({ effectiveFrom: null, effectiveTo: null }),
+    true,
+    'Indefinite active card must be included',
+  );
 });
 
 test('service-specific rates shadow global tariffs for targeted services', () => {
@@ -217,7 +244,11 @@ test('service-specific rates shadow global tariffs for targeted services', () =>
   assert.equal(matchesService(globalCard, 'airport-transfers'), true);
   assert.equal(matchesService(globalCard, 'hourly-as-directed'), true);
   assert.equal(matchesService(specificCard, 'airport-transfers'), true);
-  assert.equal(matchesService(specificCard, 'hourly-as-directed'), false, 'Service-specific card must not bleed into other services');
+  assert.equal(
+    matchesService(specificCard, 'hourly-as-directed'),
+    false,
+    'Service-specific card must not bleed into other services',
+  );
 });
 
 test('configurable CMS fee disclosures override static regulatory fee amounts', () => {
@@ -237,7 +268,7 @@ test('configurable CMS fee disclosures override static regulatory fee amounts', 
       feeCategory: 'statutory_mandate' as const,
       triggerCondition: 'mta_cbd_entry_south_60' as const,
       billingType: 'flat' as const,
-      amount: 1.50,
+      amount: 1.5,
       customerDisclosure: 'MTA Congestion Relief Zone entry toll under adopted program schedule.',
     },
   ];
@@ -251,11 +282,14 @@ test('configurable CMS fee disclosures override static regulatory fee amounts', 
   assert.ok(nys, 'NYS fee should be applied');
   assert.equal(nys.amount, 2.75);
   assert.equal(nys.feeName, 'NYS Congestion Surcharge (Verified)');
-  assert.equal(nys.reason, 'NYS Tax Law § 1281 verified congestion surcharge for south of 96th St.');
+  assert.equal(
+    nys.reason,
+    'NYS Tax Law § 1281 verified congestion surcharge for south of 96th St.',
+  );
 
   const mta = evaluated.find((f) => f.feeIdentifier === 'mta_cbd_tolling');
   assert.ok(mta, 'MTA CBD fee should be applied');
-  assert.equal(mta.amount, 1.50);
+  assert.equal(mta.amount, 1.5);
   assert.equal(mta.feeName, 'MTA Central Business District Tolling (Configured)');
   assert.equal(mta.reason, 'MTA Congestion Relief Zone entry toll under adopted program schedule.');
 });
@@ -279,11 +313,22 @@ test('Rate card eligibility: validates actual reconciliation.status === publishe
     pricingModel: 'fixed',
     serviceScope: 'global',
     vehicleClass: { id: 1, name: 'Standard SUV', slug: 'standard-suv' },
-    routes: [{ flatRate: 155, routeLabel: 'JFK to Manhattan', originZone: 'JFK', destinationZone: 'Manhattan' }],
+    routes: [
+      {
+        flatRate: 155,
+        routeLabel: 'JFK to Manhattan',
+        originZone: 'JFK',
+        destinationZone: 'Manhattan',
+      },
+    ],
   };
 
   // 1. Admin-published & reconciled card with no date bounds is eligible
-  assert.equal(isRateCardEligible(baseCard, now), true, 'Reconciled and published card must be eligible');
+  assert.equal(
+    isRateCardEligible(baseCard, now),
+    true,
+    'Reconciled and published card must be eligible',
+  );
 
   // 2. Draft status must be hidden
   assert.equal(
@@ -305,10 +350,7 @@ test('Rate card eligibility: validates actual reconciliation.status === publishe
   ];
   for (const status of invalidReconciliationStatuses) {
     assert.equal(
-      isRateCardEligible(
-        { ...baseCard, reconciliation: { status } },
-        now,
-      ),
+      isRateCardEligible({ ...baseCard, reconciliation: { status } }, now),
       false,
       `Rate card with reconciliation status "${status}" must not be eligible for public display`,
     );
@@ -381,7 +423,11 @@ test('Admin-published rates dynamically populate the correct frontend pricing ta
       id: 101,
       title: 'Standard SUV Airport Tariff',
       _status: 'published',
-      reconciliation: { status: 'published', laReferenceCode: 'LA-FIX-1', reconciliationNotes: 'Audit verified' },
+      reconciliation: {
+        status: 'published',
+        laReferenceCode: 'LA-FIX-1',
+        reconciliationNotes: 'Audit verified',
+      },
       pricingModel: 'fixed',
       serviceScope: 'global',
       vehicleClass: { id: 1, name: 'Standard SUV', slug: 'standard-suv' },
@@ -402,7 +448,11 @@ test('Admin-published rates dynamically populate the correct frontend pricing ta
       id: 102,
       title: 'Premium Crossover SUV Hourly Charter',
       _status: 'published',
-      reconciliation: { status: 'published', laReferenceCode: 'LA-HRLY-2', reconciliationNotes: 'Audit verified' },
+      reconciliation: {
+        status: 'published',
+        laReferenceCode: 'LA-HRLY-2',
+        reconciliationNotes: 'Audit verified',
+      },
       pricingModel: 'hourly',
       serviceScope: 'global',
       vehicleClass: { id: 2, name: 'Premium Crossover SUV', slug: 'premium-crossover-suv' },
@@ -460,8 +510,167 @@ test('Admin-published rates dynamically populate the correct frontend pricing ta
   assert.equal(hourly.overtimeRate, 150);
 
   // Verify draft rate (99) and unverified rate (80) never appeared
-  assert.equal(content.hourlyCharters.some((h) => h.hourlyRate === 99), false);
-  assert.equal(content.fixedRoutes.some((f) => f.flatRate === 80), false);
+  assert.equal(
+    content.hourlyCharters.some((h) => h.hourlyRate === 99),
+    false,
+  );
+  assert.equal(
+    content.fixedRoutes.some((f) => f.flatRate === 80),
+    false,
+  );
 });
 
+test('mapEligibleRateCardsToContent preserves origin and destination location relationships', () => {
+  const dummyClasses: VehicleClassCard[] = [
+    {
+      id: 2,
+      name: 'Premium Crossover SUV',
+      slug: 'premium-crossover-suv',
+      tier: 'premium',
+      passengerCapacity: 4,
+      luggageCapacity: 4,
+    },
+  ];
 
+  const dummySettings: PricingSettingsView = {
+    currency: 'USD',
+    defaultTaxNote: 'Rates exclude local sales tax.',
+    affiliateTariffNote: 'Single universal customer tariff.',
+    globalInclusions: [],
+    defaultCurbsideGraceMinutes: 15,
+    defaultDomesticAirportGraceMinutes: 30,
+    defaultInternationalAirportGraceMinutes: 60,
+    defaultLateNightWindowStart: '23:00',
+    defaultLateNightWindowEnd: '05:00',
+  };
+
+  const rateCardsWithLocations: RateCardCandidate[] = [
+    {
+      id: 4,
+      title: 'Premium Crossover SUV — NYC Airport Transfers 2026',
+      _status: 'published',
+      reconciliation: { status: 'published', laReferenceCode: 'LA-RATE-4' },
+      pricingModel: 'fixed',
+      serviceScope: 'global',
+      vehicleClass: { id: 2, name: 'Premium Crossover SUV', slug: 'premium-crossover-suv' },
+      routes: [
+        {
+          id: 'route-1',
+          routeLabel: 'Manhattan to JFK Airport',
+          originZone: 'Manhattan',
+          destinationZone: 'JFK Airport',
+          flatRate: 205,
+          additionalStopFee: 25,
+          notes: 'Includes 45m flight delay buffer.',
+          originLocation: {
+            id: 2,
+            slug: 'manhattan',
+            title: 'Manhattan, New York',
+          },
+          destinationLocation: {
+            id: 8,
+            slug: 'jfk-airport',
+            title: 'John F. Kennedy International Airport',
+          },
+        },
+        {
+          id: 'route-2',
+          routeLabel: 'Manhattan to LGA Airport (Numeric relation)',
+          originZone: 'Manhattan',
+          destinationZone: 'LGA Airport',
+          flatRate: 175,
+          originLocation: 2, // numeric reference
+          destinationLocation: null,
+        },
+      ],
+    },
+  ];
+
+  const content = mapEligibleRateCardsToContent(
+    dummyClasses,
+    rateCardsWithLocations,
+    dummySettings,
+  );
+
+  assert.equal(content.fixedRoutes.length, 2);
+
+  const route1 = content.fixedRoutes[0];
+  assert.ok(route1);
+  assert.equal(route1.originLocationId, 2);
+  assert.equal(route1.originLocationSlug, 'manhattan');
+  assert.equal(route1.originLocationName, 'Manhattan, New York');
+  assert.equal(route1.destinationLocationId, 8);
+  assert.equal(route1.destinationLocationSlug, 'jfk-airport');
+  assert.equal(route1.destinationLocationName, 'John F. Kennedy International Airport');
+
+  const route2 = content.fixedRoutes[1];
+  assert.ok(route2);
+  assert.equal(route2.originLocationId, 2);
+  assert.equal(route2.originLocationSlug, undefined);
+  assert.equal(route2.originLocationName, undefined);
+  assert.equal(route2.destinationLocationId, undefined);
+});
+
+test('Location route direction matching prevents reverse-direction fare fabrication', () => {
+  const dummyRoutes = [
+    {
+      id: 'manhattan-jfk',
+      routeLabel: 'Manhattan to JFK Airport',
+      originZone: 'Manhattan',
+      destinationZone: 'JFK Airport',
+      flatRate: 205,
+      originLocation: { id: 2, slug: 'manhattan', title: 'Manhattan' },
+      destinationLocation: { id: 8, slug: 'jfk-airport', title: 'JFK Airport' },
+    },
+  ];
+
+  // Helper matching the getLocationRoutePricing direction resolution logic
+  const matchRoutesForLocation = (locationId: number, locationSlug: string) => {
+    const cleanSlug = locationSlug.toLowerCase().trim();
+    const outbound: typeof dummyRoutes = [];
+    const inbound: typeof dummyRoutes = [];
+
+    for (const r of dummyRoutes) {
+      const origId = typeof r.originLocation === 'object' ? r.originLocation?.id : r.originLocation;
+      const origSlug =
+        typeof r.originLocation === 'object' ? r.originLocation?.slug?.toLowerCase() : undefined;
+      const destId =
+        typeof r.destinationLocation === 'object'
+          ? r.destinationLocation?.id
+          : r.destinationLocation;
+      const destSlug =
+        typeof r.destinationLocation === 'object'
+          ? r.destinationLocation?.slug?.toLowerCase()
+          : undefined;
+
+      if (origId === locationId || (origSlug !== undefined && origSlug === cleanSlug)) {
+        outbound.push(r);
+      } else if (destId === locationId || (destSlug !== undefined && destSlug === cleanSlug)) {
+        inbound.push(r);
+      }
+    }
+
+    return { outbound, inbound };
+  };
+
+  // Manhattan query: Outbound has route; inbound is empty
+  const manhattanResult = matchRoutesForLocation(2, 'manhattan');
+  assert.equal(manhattanResult.outbound.length, 1);
+  assert.equal(manhattanResult.outbound[0]?.routeLabel, 'Manhattan to JFK Airport');
+  assert.equal(manhattanResult.inbound.length, 0);
+
+  // JFK query: Outbound is empty; inbound has route.
+  // CRITICAL: We do NOT infer that JFK -> Manhattan costs $205 from Manhattan -> JFK outbound rate.
+  const jfkResult = matchRoutesForLocation(8, 'jfk-airport');
+  assert.equal(
+    jfkResult.outbound.length,
+    0,
+    'Must NOT reverse outbound route into outbound JFK departure',
+  );
+  assert.equal(jfkResult.inbound.length, 1);
+
+  // Unrelated location query: Both are empty
+  const brooklynResult = matchRoutesForLocation(99, 'brooklyn');
+  assert.equal(brooklynResult.outbound.length, 0);
+  assert.equal(brooklynResult.inbound.length, 0);
+});

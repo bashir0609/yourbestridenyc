@@ -548,6 +548,9 @@ test('enforceReconciliationGate handles draft verification lifecycle, audit stam
     },
   };
 
+  // Ensure system clock advances at least 5ms so the re-verification timestamp is distinctly newer
+  await new Promise((resolve) => setTimeout(resolve, 10));
+
   const reVerifiedResult = await enforceReconciliationGate(
     mockArgs(
       {

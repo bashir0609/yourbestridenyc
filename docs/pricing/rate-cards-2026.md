@@ -4,7 +4,7 @@
 **Effective Year:** 2026  
 **Backend:** Payload CMS 3 (PostgreSQL / Neon)  
 **Booking Integration:** Limo Anywhere (LA) Universal Booking Engine  
-**Access Classification:** Commercial Tariff Architecture & Administrative Reference  
+**Access Classification:** Commercial Tariff Architecture & Administrative Reference
 
 ---
 
@@ -13,6 +13,7 @@
 The foundational requirement of Your Best Ride Inc. is that **all customer-facing transportation prices and commercial tariffs are administrator-managed through Payload CMS**. Prices are never hardcoded into frontend components, nor is the pricing system replaced with an enquiry-only workflow.
 
 Customer-facing tariffs are governed by a strict **Reconciliation & Audit Gate**:
+
 - Rates are managed at `/admin` &rarr; **Rate Cards**.
 - Prior to public activation, rate tariffs must undergo manual verification against Limo Anywhere test quotes.
 - Only rate cards that achieve **`reconciliation.status = 'published'`** and **`_status = 'published'`** within an active effective date window are queried by the public frontend (`/rates-and-options`, service starting prices, fleet vehicle class links).
@@ -26,67 +27,74 @@ The operational tariffs for 2026 encompass four core Rate Cards covering the pri
 
 ### Rate Card Schedule Summary
 
-| Rate Card Title | ID | Vehicle Class | Pricing Model | Scope | Base Tariff Details | Minimum Terms | Current CMS Status |
-| :--- | :---: | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Standard SUV — Hourly Chauffeur Rate 2026** | `1` | Standard SUV (ID: 1) | Hourly (`hourly`) | Global | **$115.00 / hour** | 3 hours ($345.00 min) | `draft` |
-| **Premium Crossover SUV — Hourly Chauffeur Rate 2026** | `2` | Premium Crossover SUV (ID: 2) | Hourly (`hourly`) | Global | **$135.00 / hour** | 3 hours ($405.00 min) | `draft` |
-| **Standard SUV — NYC Airport Transfers 2026** | `3` | Standard SUV (ID: 1) | Fixed Route (`fixed`) | Global | **JFK:** $175.00<br>**LGA:** $150.00<br>**EWR:** $185.00 | Point-to-Point Flat Rate | `draft` |
-| **Premium Crossover SUV — NYC Airport Transfers 2026** | `4` | Premium Crossover SUV (ID: 2) | Fixed Route (`fixed`) | Global | **JFK:** $205.00<br>**LGA:** $175.00<br>**EWR:** $215.00 | Point-to-Point Flat Rate | `published` |
+| Rate Card Title                                        | ID  | Vehicle Class                 | Pricing Model         | Scope  | Base Tariff Details                                      | Minimum Terms            | Current CMS Status |
+| :----------------------------------------------------- | :-: | :---------------------------- | :-------------------- | :----- | :------------------------------------------------------- | :----------------------- | :----------------- |
+| **Standard SUV — Hourly Chauffeur Rate 2026**          | `1` | Standard SUV (ID: 1)          | Hourly (`hourly`)     | Global | **$115.00 / hour**                                       | 3 hours ($345.00 min)    | `draft`            |
+| **Premium Crossover SUV — Hourly Chauffeur Rate 2026** | `2` | Premium Crossover SUV (ID: 2) | Hourly (`hourly`)     | Global | **$135.00 / hour**                                       | 3 hours ($405.00 min)    | `draft`            |
+| **Standard SUV — NYC Airport Transfers 2026**          | `3` | Standard SUV (ID: 1)          | Fixed Route (`fixed`) | Global | **JFK:** $175.00<br>**LGA:** $150.00<br>**EWR:** $185.00 | Point-to-Point Flat Rate | `draft`            |
+| **Premium Crossover SUV — NYC Airport Transfers 2026** | `4` | Premium Crossover SUV (ID: 2) | Fixed Route (`fixed`) | Global | **JFK:** $205.00<br>**LGA:** $175.00<br>**EWR:** $215.00 | Point-to-Point Flat Rate | `published`        |
 
 ---
 
 ### Detailed Rate Card Specifications
 
 #### 1. Standard SUV — Hourly Chauffeur Rate 2026 (Card ID: 1)
-* **Vehicle Class:** Standard SUV (`standard-suv`, Seating: 4 passengers, Luggage: 3 pieces).
-* **Hourly Rate:** $115.00 / hour.
-* **Minimum Hours:** 3 hours consecutive ($345.00 minimum base charge).
-* **Additional Hours:** $115.00 / hour billed in 15-minute increments ($28.75 / increment).
-* **Scope:** Global tariff across NYC metropolitan region.
-* **Included Amenities:** Complimentary bottled water, onboard Wi-Fi, flight tracking.
-* **Lifecycle Status:** Draft (`reconciliation.status = 'draft'`). Requires LA test quote reconciliation before publishing.
+
+- **Vehicle Class:** Standard SUV (`standard-suv`, Seating: 4 passengers, Luggage: 3 pieces).
+- **Hourly Rate:** $115.00 / hour.
+- **Minimum Hours:** 3 hours consecutive ($345.00 minimum base charge).
+- **Additional Hours:** $115.00 / hour billed in 15-minute increments ($28.75 / increment).
+- **Scope:** Global tariff across NYC metropolitan region.
+- **Included Amenities:** Complimentary bottled water, onboard Wi-Fi, flight tracking.
+- **Lifecycle Status:** Draft (`reconciliation.status = 'draft'`). Requires LA test quote reconciliation before publishing.
 
 #### 2. Premium Crossover SUV — Hourly Chauffeur Rate 2026 (Card ID: 2)
-* **Vehicle Class:** Premium Crossover SUV (`premium-crossover-suv`, Seating: 6 passengers, Luggage: 3 pieces).
-* **Hourly Rate:** $135.00 / hour.
-* **Minimum Hours:** 3 hours consecutive ($405.00 minimum base charge).
-* **Additional Hours:** $135.00 / hour billed in 15-minute increments ($33.75 / increment).
-* **Scope:** Global tariff across NYC metropolitan region.
-* **Included Amenities:** Complimentary bottled water, onboard Wi-Fi, luxury appointments, flight tracking.
-* **Lifecycle Status:** Draft (`reconciliation.status = 'draft'`). Requires LA test quote reconciliation before publishing.
+
+- **Vehicle Class:** Premium Crossover SUV (`premium-crossover-suv`, Seating: 6 passengers, Luggage: 3 pieces).
+- **Hourly Rate:** $135.00 / hour.
+- **Minimum Hours:** 3 hours consecutive ($405.00 minimum base charge).
+- **Additional Hours:** $135.00 / hour billed in 15-minute increments ($33.75 / increment).
+- **Scope:** Global tariff across NYC metropolitan region.
+- **Included Amenities:** Complimentary bottled water, onboard Wi-Fi, luxury appointments, flight tracking.
+- **Lifecycle Status:** Draft (`reconciliation.status = 'draft'`). Requires LA test quote reconciliation before publishing.
 
 #### 3. Standard SUV — NYC Airport Transfers 2026 (Card ID: 3)
-* **Vehicle Class:** Standard SUV (`standard-suv`).
-* **Corridors & Flat Fares:**
+
+- **Vehicle Class:** Standard SUV (`standard-suv`).
+- **Corridors & Flat Fares:**
   - **Manhattan &harr; John F. Kennedy International Airport (JFK):** $175.00 flat rate.
   - **Manhattan &harr; LaGuardia Airport (LGA):** $150.00 flat rate.
   - **Manhattan &harr; Newark Liberty International Airport (EWR):** $185.00 flat rate.
-* **Additional Stop Fee:** $25.00 per en-route intermediate stop.
-* **Lifecycle Status:** Draft (`reconciliation.status = 'draft'`). Requires LA test quote reconciliation before publishing.
+- **Additional Stop Fee:** $25.00 per en-route intermediate stop.
+- **Lifecycle Status:** Draft (`reconciliation.status = 'draft'`). Requires LA test quote reconciliation before publishing.
 
 #### 4. Premium Crossover SUV — NYC Airport Transfers 2026 (Card ID: 4)
-* **Vehicle Class:** Premium Crossover SUV (`premium-crossover-suv`).
-* **Corridors & Flat Fares:**
+
+- **Vehicle Class:** Premium Crossover SUV (`premium-crossover-suv`).
+- **Corridors & Flat Fares:**
   - **Manhattan &harr; John F. Kennedy International Airport (JFK):** $205.00 flat rate.
   - **Manhattan &harr; LaGuardia Airport (LGA):** $175.00 flat rate.
   - **Manhattan &harr; Newark Liberty International Airport (EWR):** $215.00 flat rate.
-* **Additional Stop Fee:** $25.00 per en-route intermediate stop.
-* **Verification Proof:** Reconciled against Limo Anywhere Matrix Code: `Default Fixed Rate Matrix / MHT / PCSUV / JFK-LGA-EWR`.
-* **Audit Metadata:** Verified by Administrator (User ID: 1) on `2026-10-23T12:46:07.215Z`.
-* **Lifecycle Status:** **Published** (`_status = 'published'`, `reconciliation.status = 'published'`). Eligible for live customer presentation.
+- **Additional Stop Fee:** $25.00 per en-route intermediate stop.
+- **Verification Proof:** Reconciled against Limo Anywhere Matrix Code: `Default Fixed Rate Matrix / MHT / PCSUV / JFK-LGA-EWR`.
+- **Audit Metadata:** Verified by Administrator (User ID: 1) on `2026-10-23T12:46:07.215Z`.
+- **Lifecycle Status:** **Published** (`_status = 'published'`, `reconciliation.status = 'published'`). Eligible for live customer presentation.
 
 ---
 
 ## 3. Disclosures, Surcharges & Commercial Policies
 
 ### 3.1 20% Limo Anywhere Standard Gratuity
+
 In the primary Limo Anywhere operating configuration, an automated **20% chauffeur gratuity** is calculated on the net base fare for online bookings.
+
 - **Frontend Presentation Rule:** Customer-facing tables on `/rates-and-options` display the **administrator-configured base tariff**.
 - **Mandatory Consumer Disclosure:** Clear commercial notices state:
-  > *"All displayed prices represent base tariffs. In accordance with luxury chauffeured industry standards, standard chauffeur gratuity (20%), state regulatory surcharges, airport authority access fees, and commercial bridge/tunnel tolls are itemized transparently during booking checkout."*
+  > _"All displayed prices represent base tariffs. In accordance with luxury chauffeured industry standards, standard chauffeur gratuity (20%), state regulatory surcharges, airport authority access fees, and commercial bridge/tunnel tolls are itemized transparently during booking checkout."_
 - **No Hidden Fees:** Customers are never presented with a surprise total; the booking checkout displays a full, itemized calculation before credit card authorization.
 
 ### 3.2 Statutory Mandates & Regulatory Surcharges
+
 1. **NYS Congestion Surcharge (Tax Law § 1281):**
    - **Amount:** $2.75 per trip.
    - **Trigger:** Any for-hire transportation that begins, ends, or traverses Manhattan south of 96th Street.
@@ -99,12 +107,13 @@ In the primary Limo Anywhere operating configuration, an automated **20% chauffe
    - **Billing Type:** Actual EZPass commercial toll pass-through for bridges and tunnels (Lincoln Tunnel, Holland Tunnel, Queens-Midtown Tunnel, RFK Bridge, George Washington Bridge, Verrazzano-Narrows Bridge).
 
 ### 3.3 Operating Policies & Grace Periods
-* **Curbside Pickup Grace Period:** 15 minutes complimentary wait time from scheduled pickup.
-* **Domestic Airport Flight Grace Period:** 30 minutes complimentary wait time from confirmed flight touchdown (tracked via real-time FAA flight radar).
-* **International Airport Flight Grace Period:** 60 minutes complimentary wait time from confirmed flight touchdown.
-* **Layover & Overtime Waiting Rate:** Pro-rated in 15-minute increments based on the applicable vehicle class hourly rate after expiration of grace period.
-* **Late-Night / Early-Morning Window:** 23:00 to 05:00 (11:00 PM to 5:00 AM local time). Standard surcharge applies when scheduled within this window.
-* **Deadhead Radius Threshold:** 35 miles from Manhattan staging radius before mileage return recovery applies.
+
+- **Curbside Pickup Grace Period:** 15 minutes complimentary wait time from scheduled pickup.
+- **Domestic Airport Flight Grace Period:** 30 minutes complimentary wait time from confirmed flight touchdown (tracked via real-time FAA flight radar).
+- **International Airport Flight Grace Period:** 60 minutes complimentary wait time from confirmed flight touchdown.
+- **Layover & Overtime Waiting Rate:** Pro-rated in 15-minute increments based on the applicable vehicle class hourly rate after expiration of grace period.
+- **Late-Night / Early-Morning Window:** 23:00 to 05:00 (11:00 PM to 5:00 AM local time). Standard surcharge applies when scheduled within this window.
+- **Deadhead Radius Threshold:** 35 miles from Manhattan staging radius before mileage return recovery applies.
 
 ---
 
@@ -119,12 +128,13 @@ flowchart TD
     S3 --> S4["4. LA Verified & Reconciled\n(Explicit Admin Action)"]
     S4 --> S5["5. Published / Active\n(Live Customer Tariff)"]
     S5 --> S6["6. Archived\n(Historical tariff record)"]
-    
+
     S4 -. Material Tariff Change .-> S1
     S5 -. Material Tariff Change .-> S1
 ```
 
 ### Stage Definitions & Security Gates:
+
 1. **1. Draft (`draft`):** Initial entry of rates, corridors, or hourly terms. Read-only audit stamps remain `null`.
 2. **2. Under Internal Review (`internal_review`):** Management review of commercial profitability and seasonal adjustments.
 3. **3. Pending LA Verification (`la_pending_verification`):** Assigned to dispatch operations to execute a test quote in Limo Anywhere.
@@ -148,9 +158,11 @@ flowchart TD
 ## 5. Investigation: `/rates-and-options` Public Display Architecture
 
 ### 5.1 Root Cause of Empty Pricing on Previous Visits
+
 When visiting `/rates-and-options`, customers previously observed vehicle classes rendered in the summary strip, but empty pricing cards for airport and hourly routes.
 
 The investigation confirmed:
+
 1. **Not a Frontend Bug:** The frontend components ([`RatesAndOptionsTabs.tsx`](file:///c:/Users/Islah4/Desktop/Apps/YourBestRide/apps/web/src/components/rates-and-options/RatesAndOptionsTabs.tsx)) and Next.js page correctly receive data from [`getRatesAndOptionsContent()`](file:///c:/Users/Islah4/Desktop/Apps/YourBestRide/apps/web/src/lib/cms/pricing-queries.ts#L137-L161).
 2. **Not a Component Malfunction:** [`getVehicleClasses()`](file:///c:/Users/Islah4/Desktop/Apps/YourBestRide/apps/web/src/lib/cms/pricing-queries.ts#L40-L71) queries the `vehicle-classes` collection, where vehicle classes were published. Hence, vehicle classes were visible.
 3. **Strict Query Isolation:** [`getActiveRateCards()`](file:///c:/Users/Islah4/Desktop/Apps/YourBestRide/apps/web/src/lib/cms/pricing-queries.ts#L111-L135) strictly filters:
@@ -159,14 +171,16 @@ The investigation confirmed:
      and: [
        { _status: { equals: 'published' } },
        { 'reconciliation.status': { equals: 'published' } },
-     ]
+     ];
    }
    ```
 4. **Draft Rate Card State:** In the database, Rate Cards 1, 2, and 3 were in `_status = 'draft'` and `reconciliation_status = 'draft'`. Because no rate card was published at that time, `getActiveRateCards()` returned an empty array `[]`.
 5. **Compliant Empty State:** In compliance with regulatory standards, when zero rate cards are published, the frontend presents a truthful empty state with **"Request a Custom Quote"** and **"Check Availability & Book"** CTAs rather than fabricating synthetic or draft prices.
 
 ### 5.2 Live Behavior with Published Rate Card ID 4
+
 With Rate Card ID 4 published by the administrator:
+
 - `getActiveRateCards()` retrieves Card ID 4.
 - `mapEligibleRateCardsToContent` constructs the `fixedRoutes` dataset:
   - Manhattan &harr; JFK: **$205.00**
@@ -181,12 +195,41 @@ With Rate Card ID 4 published by the administrator:
 
 In accordance with compliance standards, the following commercial operational parameters are currently marked as **Unconfirmed & Non-Verified** pending operational sign-off:
 
-| Commercial Parameter | Current Baseline | Status | Required Operational Action |
-| :--- | :--- | :--- | :--- |
-| **Child Safety Seat Fee** | $25.00 / seat | **Unconfirmed** | Confirm whether booster and forward-facing car seats are billed flat or provided complimentary on corporate accounts. |
-| **Late Night Surcharge Window** | 23:00 – 05:00 ($20.00) | **Unconfirmed** | Verify whether Limo Anywhere auto-applies a late-night differential or if it is billed as a flat surcharge. |
-| **VIP Airport Meet & Greet** | $65.00 flat add-on | **Unconfirmed** | Verify dispatcher staffing costs and terminal access permit fees for inside baggage claim greeting at JFK T4/T8. |
-| **Out-of-Town Layover Hourly** | Standard vehicle class hourly | **Unconfirmed** | Confirm overnight chauffeur per diem and lodging allowances for multi-day itineraries outside the tri-state area. |
-| **Commercial Holiday Surcharges** | $35.00 flat fee | **Unconfirmed** | Confirm official calendar of applicable major holidays (New Year's Eve, Thanksgiving, Christmas, Memorial Day, Labor Day, July 4th). |
+| Commercial Parameter                 | Current Baseline              | Status          | Required Operational Action                                                                                                          |
+| :----------------------------------- | :---------------------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| **Child Safety Seat Fee**            | $25.00 / seat                 | **Unconfirmed** | Confirm whether booster and forward-facing car seats are billed flat or provided complimentary on corporate accounts.                |
+| **Late Night Surcharge Window**      | 23:00 – 05:00 ($20.00)        | **Unconfirmed** | Verify whether Limo Anywhere auto-applies a late-night differential or if it is billed as a flat surcharge.                          |
+| **VIP Airport Meet & Greet**         | $65.00 flat add-on            | **Unconfirmed** | Verify dispatcher staffing costs and terminal access permit fees for inside baggage claim greeting at JFK T4/T8.                     |
+| **Out-of-Town Layover Hourly**       | Standard vehicle class hourly | **Unconfirmed** | Confirm overnight chauffeur per diem and lodging allowances for multi-day itineraries outside the tri-state area.                    |
+| **Commercial Holiday Surcharges**    | $35.00 flat fee               | **Unconfirmed** | Confirm official calendar of applicable major holidays (New Year's Eve, Thanksgiving, Christmas, Memorial Day, Labor Day, July 4th). |
+| **Additional Intermediate Stop Fee** | $25.00 / stop                 | **Unconfirmed** | Subject to Limo Anywhere routing matrix reconciliation; quoted on request pending operational confirmation.                          |
 
-*Note: These terms will not be published as active customer tariffs until verified in Limo Anywhere and authorized by company management.*
+_Note: These terms will not be published as active customer tariffs until verified in Limo Anywhere and authorized by company management._
+
+---
+
+## 7. Location-Specific Route Pricing Architecture
+
+### 7.1 Overview & Core Architecture
+
+Visitors navigating individual Service Area pages (e.g., `/locations/manhattan`) can access all publicly available route prices associated with that location directly on the page, with seamless bi-directional links to the centralized Rates & Options system.
+
+The architecture connects:
+
+1. **Service Area Pages (`/locations/[slug]`):**
+   - Hero action: **"View Route Pricing"** linking to `/rates-and-options?location=<slug>&tab=airport`.
+   - Dedicated Section: **"Transportation Rates From [Location Name]"** rendering grouped destination cards for published outbound fixed routes.
+   - Comprehensive commercial disclosures: 20% chauffeur gratuity calculated in Limo Anywhere, bridge/tunnel tolls, NYS Congestion Surcharge, and PANYNJ airport access fees.
+   - Responsive design with action buttons wrapping cleanly on mobile viewports.
+   - Graceful fallback: When no published routes exist for a service area, renders an informative custom quotation card without empty tables.
+2. **Rates & Options System (`/rates-and-options`):**
+   - Query Parameter Support: Accepts `?location=<slug_or_id>` and aliases `?tab=airport` to `tab=fixed`.
+   - Dynamic Filter Banner: Displays **"Filtered by Location: [Location Name]"** with a prominent **"Show All Locations &times;"** reset button that updates browser history without page reload.
+   - Filtered Table: Filters published routes by matching `originLocationSlug`, `destinationLocationSlug`, location ID, or zone text.
+   - Location-Specific Empty State: Provides direct CTAs to view all routes or submit a customized itinerary inquiry if no routes match the selected location.
+
+### 7.2 Strict Non-Reversal & Safety Guarantees
+
+- **No Reverse-Direction Fare Inference:** Outbound tariffs (e.g., Manhattan &rarr; JFK at $205.00) are never automatically inferred as return fares (JFK &rarr; Manhattan) without an explicit, administrator-verified inbound route entry.
+- **Reconciliation & Publication Isolation:** Only rate cards in `_status = 'published'` and `reconciliation.status = 'published'` within an active effective date window are displayed. Draft or unverified tariffs are never exposed on location pages.
+- **Dynamic Relationship Matching:** Matches Payload CMS `originLocation` and `destinationLocation` relationships (`id`, `slug`, `title`) dynamically across present and future service areas without hardcoding.

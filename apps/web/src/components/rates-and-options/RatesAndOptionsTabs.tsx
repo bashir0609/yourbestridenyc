@@ -28,7 +28,10 @@ function getInitialTab(): TabKey {
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get('tab');
-    if (tabParam === 'fixed' || tabParam === 'hourly' || tabParam === 'mileage' || tabParam === 'custom') {
+    if (tabParam === 'airport' || tabParam === 'fixed') {
+      return 'fixed';
+    }
+    if (tabParam === 'hourly' || tabParam === 'mileage' || tabParam === 'custom') {
       return tabParam;
     }
   }
@@ -43,6 +46,14 @@ function getInitialVehicleClass(): string | null {
   return null;
 }
 
+function getInitialLocation(): string | null {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('location');
+  }
+  return null;
+}
+
 export function RatesAndOptionsTabs({
   vehicleClasses,
   fixedRoutes,
@@ -53,19 +64,84 @@ export function RatesAndOptionsTabs({
 }: RatesAndOptionsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>(getInitialTab);
   const [highlightedClass, setHighlightedClass] = useState<string | null>(getInitialVehicleClass);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(getInitialLocation);
 
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'fixed' || tabParam === 'hourly' || tabParam === 'mileage' || tabParam === 'custom') {
+      if (tabParam === 'airport' || tabParam === 'fixed') {
+        setActiveTab('fixed');
+      } else if (tabParam === 'hourly' || tabParam === 'mileage' || tabParam === 'custom') {
         setActiveTab(tabParam);
       }
       setHighlightedClass(params.get('vehicleClass'));
+      setSelectedLocation(params.get('location'));
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  const handleClearLocationFilter = () => {
+    setSelectedLocation(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('location');
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
+
+  const displayedFixedRoutes = selectedLocation
+    ? fixedRoutes.filter((route) => {
+        const loc = selectedLocation.toLowerCase().trim();
+        const originSlug = route.originLocationSlug?.toLowerCase();
+        const destSlug = route.destinationLocationSlug?.toLowerCase();
+        const originId = route.originLocationId ? String(route.originLocationId) : '';
+        const destId = route.destinationLocationId ? String(route.destinationLocationId) : '';
+        const originName = route.originLocationName?.toLowerCase();
+        const destName = route.destinationLocationName?.toLowerCase();
+        const originZone = route.originZone?.toLowerCase();
+        const destZone = route.destinationZone?.toLowerCase();
+
+        return (
+          originSlug === loc ||
+          destSlug === loc ||
+          originId === loc ||
+          destId === loc ||
+          (originName && originName.includes(loc)) ||
+          (destName && destName.includes(loc)) ||
+          (originZone && originZone.includes(loc)) ||
+          (destZone && destZone.includes(loc))
+        );
+      })
+    : fixedRoutes;
+
+  const locationDisplayName = (() => {
+    if (!selectedLocation) return '';
+    const loc = selectedLocation.toLowerCase().trim();
+    const matchedRoute = fixedRoutes.find(
+      (r) =>
+        r.originLocationSlug?.toLowerCase() === loc ||
+        r.destinationLocationSlug?.toLowerCase() === loc ||
+        String(r.originLocationId) === loc ||
+        String(r.destinationLocationId) === loc,
+    );
+    if (matchedRoute) {
+      if (
+        matchedRoute.originLocationSlug?.toLowerCase() === loc ||
+        String(matchedRoute.originLocationId) === loc
+      ) {
+        return matchedRoute.originLocationName || selectedLocation;
+      }
+      if (
+        matchedRoute.destinationLocationSlug?.toLowerCase() === loc ||
+        String(matchedRoute.destinationLocationId) === loc
+      ) {
+        return matchedRoute.destinationLocationName || selectedLocation;
+      }
+    }
+    return selectedLocation.charAt(0).toUpperCase() + selectedLocation.slice(1);
+  })();
 
   const handleTabChange = (key: TabKey) => {
     setActiveTab(key);
@@ -120,26 +196,56 @@ export function RatesAndOptionsTabs({
               <div>
                 <h2>Airport & Point-to-Point Flat Rates</h2>
                 <p>
-                  Predictable, upfront flat-rate pricing for all major New York metropolitan airports
-                  (JFK, LGA, EWR) and regional transfer corridors.
+                  Predictable, upfront flat-rate pricing for all major New York metropolitan
+                  airports (JFK, LGA, EWR) and regional transfer corridors.
                 </p>
               </div>
               <div className="rates-header-action rates-header-actions-group">
-                <a href="/rates-and-options?service=airport#rates-inquiry" className="button button-secondary">
+                <a
+                  href="/rates-and-options?service=airport#rates-inquiry"
+                  className="button button-secondary"
+                >
                   Request a Custom Quote
                 </a>
                 <TrackLink
                   href="/book"
                   className="button button-gold"
                   eventName="booking_click"
-                  eventParams={{ source_page: '/rates-and-options', button_location: 'fixed_header' }}
+                  eventParams={{
+                    source_page: '/rates-and-options',
+                    button_location: 'fixed_header',
+                  }}
                 >
                   Check Availability & Book <Icon name="arrow" width={16} />
                 </TrackLink>
               </div>
             </div>
 
-            {fixedRoutes.length > 0 ? (
+            {selectedLocation && (
+              <div className="location-filter-banner">
+                <div className="location-filter-info">
+                  <span className="location-filter-label">Filtered by Location:</span>{' '}
+                  <strong>{locationDisplayName}</strong>
+                  {displayedFixedRoutes.length > 0 && (
+                    <span className="location-filter-count">
+                      {' '}
+                      ({displayedFixedRoutes.length} route
+                      {displayedFixedRoutes.length === 1 ? '' : 's'})
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearLocationFilter}
+                  className="clear-location-filter-btn"
+                  aria-label="Clear location filter"
+                >
+                  Show All Locations &times;
+                </button>
+              </div>
+            )}
+
+            {displayedFixedRoutes.length > 0 ? (
               <div className="rates-table-wrapper">
                 <table className="rates-comparison-table">
                   <thead>
@@ -148,64 +254,110 @@ export function RatesAndOptionsTabs({
                       <th scope="col">Vehicle Class</th>
                       <th scope="col">Starting Rate</th>
                       <th scope="col">Inclusions & Conditions</th>
-                      <th scope="col" className="text-right">Action</th>
+                      <th scope="col" className="text-right">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {fixedRoutes.map((route) => {
+                    {displayedFixedRoutes.map((route) => {
                       const isHighlighted = Boolean(
                         highlightedClass &&
-                        (route.vehicleClassName.toLowerCase() === highlightedClass.toLowerCase() ||
-                         route.vehicleClassSlug?.toLowerCase() === highlightedClass.toLowerCase()),
+                          (route.vehicleClassName.toLowerCase() ===
+                            highlightedClass.toLowerCase() ||
+                            route.vehicleClassSlug?.toLowerCase() ===
+                              highlightedClass.toLowerCase()),
                       );
                       return (
-                        <tr key={route.id} className={isHighlighted ? 'highlighted-rate-row' : undefined}>
+                        <tr
+                          key={route.id}
+                          className={isHighlighted ? 'highlighted-rate-row' : undefined}
+                        >
                           <td className="font-semibold">
-                          <div className="route-name">{route.routeLabel}</div>
-                          <div className="route-endpoints text-muted">
-                            {route.originZone} ↔ {route.destinationZone}
-                          </div>
-                        </td>
-                        <td>
-                          <span className="vehicle-class-pill">{route.vehicleClassName}</span>
-                        </td>
-                        <td className="rate-amount">
-                          ${route.flatRate.toFixed(2)}
-                          {route.additionalStopFee && (
-                            <div className="rate-addon-note text-muted">
-                              +${route.additionalStopFee} per additional stop
+                            <div className="route-name">{route.routeLabel}</div>
+                            <div className="route-endpoints text-muted">
+                              {route.originZone} ↔ {route.destinationZone}
                             </div>
-                          )}
-                        </td>
-                        <td className="rate-notes">
-                          {route.notes || 'Includes flight tracking & standard grace period.'}
-                        </td>
-                        <td className="text-right">
-                          <div className="table-actions-cell">
-                            <TrackLink
-                              href="/book"
-                              className="button button-small button-gold"
-                              eventName="booking_click"
-                              eventParams={{
-                                source_page: '/rates-and-options',
-                                button_location: 'fixed_route_row',
-                              }}
-                            >
-                              Book Now
-                            </TrackLink>
-                            <a
-                              href={`/rates-and-options?service=airport&route=${encodeURIComponent(route.routeLabel)}&vehicleClass=${encodeURIComponent(route.vehicleClassName)}&pickup=${encodeURIComponent(route.originZone)}&dropoff=${encodeURIComponent(route.destinationZone)}#rates-inquiry`}
-                              className="button button-small button-secondary"
-                            >
-                              Request a Custom Quote
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          </td>
+                          <td>
+                            <span className="vehicle-class-pill">{route.vehicleClassName}</span>
+                          </td>
+                          <td className="rate-amount">
+                            ${route.flatRate.toFixed(2)}
+                            {route.additionalStopFee && (
+                              <div className="rate-addon-note text-muted">
+                                En-route stops: quoted on request (est. ${route.additionalStopFee},
+                                pending LA confirmation)
+                              </div>
+                            )}
+                          </td>
+                          <td className="rate-notes">
+                            {route.notes || 'Includes flight tracking & standard grace period.'}
+                          </td>
+                          <td className="text-right">
+                            <div className="table-actions-cell">
+                              <TrackLink
+                                href="/book"
+                                className="button button-small button-gold"
+                                eventName="booking_click"
+                                eventParams={{
+                                  source_page: '/rates-and-options',
+                                  button_location: 'fixed_route_row',
+                                }}
+                              >
+                                Book Now
+                              </TrackLink>
+                              <a
+                                href={`/rates-and-options?service=airport&route=${encodeURIComponent(route.routeLabel)}&vehicleClass=${encodeURIComponent(route.vehicleClassName)}&pickup=${encodeURIComponent(route.originZone)}&dropoff=${encodeURIComponent(route.destinationZone)}#rates-inquiry`}
+                                className="button button-small button-secondary"
+                              >
+                                Request a Custom Quote
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
+              </div>
+            ) : selectedLocation ? (
+              <div className="rates-empty-card">
+                <div className="rates-empty-icon">
+                  <Icon name="airport" width={28} height={28} />
+                </div>
+                <h3>No Published Routes for {locationDisplayName}</h3>
+                <p>
+                  We currently do not have fixed airport tariffs published specifically for{' '}
+                  {locationDisplayName}. Point-to-point and customized hourly charter services are
+                  available with tailored dispatch pricing.
+                </p>
+                <div className="rates-empty-actions">
+                  <button
+                    type="button"
+                    onClick={handleClearLocationFilter}
+                    className="button button-gold"
+                  >
+                    View All Published Routes
+                  </button>
+                  <a
+                    href={`/rates-and-options?location=${encodeURIComponent(selectedLocation)}#rates-inquiry`}
+                    className="button button-secondary"
+                  >
+                    Request a Custom Quote
+                  </a>
+                  <TrackLink
+                    href="/book"
+                    className="button button-secondary"
+                    eventName="booking_click"
+                    eventParams={{
+                      source_page: '/rates-and-options',
+                      button_location: 'fixed_location_empty_cta',
+                    }}
+                  >
+                    Check Availability & Book <Icon name="arrow" width={16} />
+                  </TrackLink>
+                </div>
               </div>
             ) : (
               <div className="rates-empty-card">
@@ -214,19 +366,25 @@ export function RatesAndOptionsTabs({
                 </div>
                 <h3>Standard Fixed Airport Tariffs</h3>
                 <p>
-                  Our fixed-rate airport transfers between JFK, LGA, EWR and New York destinations are
-                  managed dynamically by vehicle class. Final fare confirmed during booking. For customized routes
-                  or corporate accounts, request a custom quote below.
+                  Our fixed-rate airport transfers between JFK, LGA, EWR and New York destinations
+                  are managed dynamically by vehicle class. Final fare confirmed during booking. For
+                  customized routes or corporate accounts, request a custom quote below.
                 </p>
                 <div className="rates-empty-actions">
-                  <a href="/rates-and-options?service=airport#rates-inquiry" className="button button-gold">
+                  <a
+                    href="/rates-and-options?service=airport#rates-inquiry"
+                    className="button button-gold"
+                  >
                     Request a Custom Quote <Icon name="arrow" width={16} />
                   </a>
                   <TrackLink
                     href="/book"
                     className="button button-secondary"
                     eventName="booking_click"
-                    eventParams={{ source_page: '/rates-and-options', button_location: 'fixed_empty_cta' }}
+                    eventParams={{
+                      source_page: '/rates-and-options',
+                      button_location: 'fixed_empty_cta',
+                    }}
                   >
                     Check Availability & Book <Icon name="arrow" width={16} />
                   </TrackLink>
@@ -248,19 +406,25 @@ export function RatesAndOptionsTabs({
               <div>
                 <h2>Hourly As-Directed Charters</h2>
                 <p>
-                  Complete flexibility for executive roadshows, personal itineraries, shopping excursions,
-                  and special events. Dedicated chauffeur at your disposal.
+                  Complete flexibility for executive roadshows, personal itineraries, shopping
+                  excursions, and special events. Dedicated chauffeur at your disposal.
                 </p>
               </div>
               <div className="rates-header-action rates-header-actions-group">
-                <a href="/rates-and-options?service=corporate&pricingModel=hourly#rates-inquiry" className="button button-secondary">
+                <a
+                  href="/rates-and-options?service=corporate&pricingModel=hourly#rates-inquiry"
+                  className="button button-secondary"
+                >
                   Request a Custom Quote
                 </a>
                 <TrackLink
                   href="/book"
                   className="button button-gold"
                   eventName="booking_click"
-                  eventParams={{ source_page: '/rates-and-options', button_location: 'hourly_header' }}
+                  eventParams={{
+                    source_page: '/rates-and-options',
+                    button_location: 'hourly_header',
+                  }}
                 >
                   Check Availability & Book <Icon name="arrow" width={16} />
                 </TrackLink>
@@ -277,7 +441,9 @@ export function RatesAndOptionsTabs({
                       <th scope="col">Minimum Booking Hours</th>
                       <th scope="col">Minimum Booking Subtotal</th>
                       <th scope="col">Overtime Terms</th>
-                      <th scope="col" className="text-right">Action</th>
+                      <th scope="col" className="text-right">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -288,12 +454,17 @@ export function RatesAndOptionsTabs({
                           : charter.hourlyRate * charter.minimumHours;
                       const isHighlighted = Boolean(
                         highlightedClass &&
-                        (charter.vehicleClassName.toLowerCase() === highlightedClass.toLowerCase() ||
-                         charter.vehicleClassSlug?.toLowerCase() === highlightedClass.toLowerCase()),
+                          (charter.vehicleClassName.toLowerCase() ===
+                            highlightedClass.toLowerCase() ||
+                            charter.vehicleClassSlug?.toLowerCase() ===
+                              highlightedClass.toLowerCase()),
                       );
 
                       return (
-                        <tr key={charter.id} className={isHighlighted ? 'highlighted-rate-row' : undefined}>
+                        <tr
+                          key={charter.id}
+                          className={isHighlighted ? 'highlighted-rate-row' : undefined}
+                        >
                           <td className="font-semibold">
                             <span className="vehicle-class-pill">{charter.vehicleClassName}</span>
                           </td>
@@ -345,19 +516,25 @@ export function RatesAndOptionsTabs({
                 </div>
                 <h3>Dedicated Chauffeur Hourly Charters</h3>
                 <p>
-                  As-directed hourly charters include dedicated chauffeur service, in-city travel, and
-                  complimentary amenities. Final fare confirmed during booking. For customized itineraries,
-                  request a custom quote below.
+                  As-directed hourly charters include dedicated chauffeur service, in-city travel,
+                  and complimentary amenities. Final fare confirmed during booking. For customized
+                  itineraries, request a custom quote below.
                 </p>
                 <div className="rates-empty-actions">
-                  <a href="/rates-and-options?service=corporate&pricingModel=hourly#rates-inquiry" className="button button-gold">
+                  <a
+                    href="/rates-and-options?service=corporate&pricingModel=hourly#rates-inquiry"
+                    className="button button-gold"
+                  >
                     Request a Custom Quote <Icon name="arrow" width={16} />
                   </a>
                   <TrackLink
                     href="/book"
                     className="button button-secondary"
                     eventName="booking_click"
-                    eventParams={{ source_page: '/rates-and-options', button_location: 'hourly_empty_cta' }}
+                    eventParams={{
+                      source_page: '/rates-and-options',
+                      button_location: 'hourly_empty_cta',
+                    }}
                   >
                     Check Availability & Book <Icon name="arrow" width={16} />
                   </TrackLink>
@@ -379,8 +556,9 @@ export function RatesAndOptionsTabs({
               <div>
                 <h2>Distance & Mileage-Based Pricing</h2>
                 <p>
-                  Tailored point-to-point journeys outside our primary flat-rate airport corridors are
-                  calculated using verified dispatched route miles, staging requirements, and travel conditions.
+                  Tailored point-to-point journeys outside our primary flat-rate airport corridors
+                  are calculated using verified dispatched route miles, staging requirements, and
+                  travel conditions.
                 </p>
               </div>
             </div>
@@ -403,7 +581,9 @@ export function RatesAndOptionsTabs({
                           <span className="vehicle-class-pill">{pol.vehicleClassName}</span>
                         </td>
                         <td>{pol.baseFare ? `$${pol.baseFare.toFixed(2)}` : 'Included'}</td>
-                        <td>{pol.perMileRate ? `$${pol.perMileRate.toFixed(2)} / mi` : 'Custom Quote'}</td>
+                        <td>
+                          {pol.perMileRate ? `$${pol.perMileRate.toFixed(2)} / mi` : 'Custom Quote'}
+                        </td>
                         <td>{pol.minimumFare ? `$${pol.minimumFare.toFixed(2)}` : 'None'}</td>
                       </tr>
                     ))}
@@ -417,20 +597,21 @@ export function RatesAndOptionsTabs({
                 <h3>How Mileage Fares Are Formulated</h3>
                 <ul className="mileage-steps-list">
                   <li>
-                    <strong>Flag Drop / Base Dispatch:</strong> Initial administrative and vehicle staging
-                    component.
+                    <strong>Flag Drop / Base Dispatch:</strong> Initial administrative and vehicle
+                    staging component.
                   </li>
                   <li>
-                    <strong>Per-Mile Route Distance:</strong> Calculated via verified commercial routing for the
-                    exact itinerary.
+                    <strong>Per-Mile Route Distance:</strong> Calculated via verified commercial
+                    routing for the exact itinerary.
                   </li>
                   <li>
-                    <strong>Deadhead & Return Threshold:</strong> For one-way trips extending beyond the standard
-                    service radius (typically beyond 35 miles), a return staging component applies.
+                    <strong>Deadhead & Return Threshold:</strong> For one-way trips extending beyond
+                    the standard service radius (typically beyond 35 miles), a return staging
+                    component applies.
                   </li>
                   <li>
-                    <strong>Waiting & Layover Terms:</strong> Standard grace periods apply at pickups; layovers
-                    are billed at the applicable vehicle-class hourly rate.
+                    <strong>Waiting & Layover Terms:</strong> Standard grace periods apply at
+                    pickups; layovers are billed at the applicable vehicle-class hourly rate.
                   </li>
                 </ul>
               </div>
@@ -439,18 +620,24 @@ export function RatesAndOptionsTabs({
                 <p className="eyebrow">CUSTOM FARE ESTIMATION</p>
                 <h3>Request a Custom Mileage Quote</h3>
                 <p>
-                  Because route traffic, bridge crossings, and staging conditions vary, final fares are confirmed
-                  during booking or via custom inquiry.
+                  Because route traffic, bridge crossings, and staging conditions vary, final fares
+                  are confirmed during booking or via custom inquiry.
                 </p>
                 <div className="mileage-card-actions">
-                  <a href="/rates-and-options?service=private&pricingModel=mileage#rates-inquiry" className="button button-gold">
+                  <a
+                    href="/rates-and-options?service=private&pricingModel=mileage#rates-inquiry"
+                    className="button button-gold"
+                  >
                     Request a Custom Quote <Icon name="arrow" width={16} />
                   </a>
                   <TrackLink
                     href="/book"
                     className="button button-secondary"
                     eventName="booking_click"
-                    eventParams={{ source_page: '/rates-and-options', button_location: 'mileage_cta' }}
+                    eventParams={{
+                      source_page: '/rates-and-options',
+                      button_location: 'mileage_cta',
+                    }}
                   >
                     Check Availability & Book <Icon name="arrow" width={16} />
                   </TrackLink>
@@ -472,8 +659,8 @@ export function RatesAndOptionsTabs({
               <div>
                 <h2>Custom Itineraries & Event Delegations</h2>
                 <p>
-                  Tailored transportation coordination for corporate roadshows, wedding parties, executive
-                  conferences, and multi-vehicle delegations.
+                  Tailored transportation coordination for corporate roadshows, wedding parties,
+                  executive conferences, and multi-vehicle delegations.
                 </p>
               </div>
             </div>
@@ -482,10 +669,13 @@ export function RatesAndOptionsTabs({
               <article className="custom-package-card">
                 <h3>Corporate Roadshows</h3>
                 <p>
-                  Multi-stop Manhattan and tri-state financial itineraries. Real-time coordinator updates,
-                  discrete executive service, and continuous chauffeur availability.
+                  Multi-stop Manhattan and tri-state financial itineraries. Real-time coordinator
+                  updates, discrete executive service, and continuous chauffeur availability.
                 </p>
-                <a href="/rates-and-options?service=corporate&package=roadshow#rates-inquiry" className="button button-secondary button-small">
+                <a
+                  href="/rates-and-options?service=corporate&package=roadshow#rates-inquiry"
+                  className="button button-secondary button-small"
+                >
                   Request a Custom Quote <Icon name="arrow" width={14} />
                 </a>
               </article>
@@ -493,10 +683,13 @@ export function RatesAndOptionsTabs({
               <article className="custom-package-card">
                 <h3>Weddings & Special Celebrations</h3>
                 <p>
-                  Impeccably detailed luxury crossovers and executive SUVs for bridal parties, VIP guests, and
-                  seamless venue shuttles throughout New York and Long Island.
+                  Impeccably detailed luxury crossovers and executive SUVs for bridal parties, VIP
+                  guests, and seamless venue shuttles throughout New York and Long Island.
                 </p>
-                <a href="/rates-and-options?service=private&package=wedding#rates-inquiry" className="button button-secondary button-small">
+                <a
+                  href="/rates-and-options?service=private&package=wedding#rates-inquiry"
+                  className="button button-secondary button-small"
+                >
                   Request a Custom Quote <Icon name="arrow" width={14} />
                 </a>
               </article>
@@ -504,18 +697,24 @@ export function RatesAndOptionsTabs({
               <article className="custom-package-card">
                 <h3>Airport Meet & Greet</h3>
                 <p>
-                  VIP baggage claim reception, luggage assistance, and escort to vehicle staging at JFK, LGA,
-                  EWR, and Westchester County Airport.
+                  VIP baggage claim reception, luggage assistance, and escort to vehicle staging at
+                  JFK, LGA, EWR, and Westchester County Airport.
                 </p>
                 <div className="custom-card-actions">
-                  <a href="/rates-and-options?service=airport&package=meet-greet#rates-inquiry" className="button button-secondary button-small">
+                  <a
+                    href="/rates-and-options?service=airport&package=meet-greet#rates-inquiry"
+                    className="button button-secondary button-small"
+                  >
                     Request a Custom Quote <Icon name="arrow" width={14} />
                   </a>
                   <TrackLink
                     href="/book"
                     className="text-link"
                     eventName="booking_click"
-                    eventParams={{ source_page: '/rates-and-options', button_location: 'custom_vip_link' }}
+                    eventParams={{
+                      source_page: '/rates-and-options',
+                      button_location: 'custom_vip_link',
+                    }}
                   >
                     Check Availability & Book <Icon name="arrow" width={14} />
                   </TrackLink>
@@ -539,11 +738,13 @@ export function RatesAndOptionsTabs({
                 <h4>{vClass.name}</h4>
                 <div className="class-capacity-indicators">
                   <span>
-                    <Icon name="users" width={16} height={16} /> {vClass.passengerCapacity} Passengers
+                    <Icon name="users" width={16} height={16} /> {vClass.passengerCapacity}{' '}
+                    Passengers
                   </span>
                   {vClass.luggageCapacity && (
                     <span>
-                      <Icon name="luggage" width={16} height={16} /> {vClass.luggageCapacity} Luggage
+                      <Icon name="luggage" width={16} height={16} /> {vClass.luggageCapacity}{' '}
+                      Luggage
                     </span>
                   )}
                 </div>
@@ -579,22 +780,23 @@ export function RatesAndOptionsTabs({
           <div className="disclosure-item">
             <h4>NYS Congestion Surcharge</h4>
             <p>
-              In compliance with NYS Tax Law § 1281, a statutory surcharge applies to chauffeured and
-              for-hire transportation trips that begin, end, or pass through Manhattan south of 96th Street.
+              In compliance with NYS Tax Law § 1281, a statutory surcharge applies to chauffeured
+              and for-hire transportation trips that begin, end, or pass through Manhattan south of
+              96th Street.
             </p>
           </div>
           <div className="disclosure-item">
             <h4>MTA Central Business District Tolling</h4>
             <p>
-              Under MTA Congestion Relief Zone regulations, per-trip charges apply to qualifying commercial
-              for-hire vehicles entering the Manhattan CBD zone south of 60th Street.
+              Under MTA Congestion Relief Zone regulations, per-trip charges apply to qualifying
+              commercial for-hire vehicles entering the Manhattan CBD zone south of 60th Street.
             </p>
           </div>
           <div className="disclosure-item">
             <h4>Port Authority Airport Access</h4>
             <p>
-              Official Port Authority of NY & NJ airport ground transportation access fees apply to commercial
-              pickups at JFK, LGA, and EWR international airports.
+              Official Port Authority of NY & NJ airport ground transportation access fees apply to
+              commercial pickups at JFK, LGA, and EWR international airports.
             </p>
           </div>
           <div className="disclosure-item">

@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { Container } from '@/ui';
 import { Icon } from '@/components/icon';
 import { getLocationPage, getLocationServices, getSitemapRecords } from '@/lib/cms/page-queries';
+import { getLocationRoutePricing } from '@/lib/cms/pricing-queries';
+import { LocationPricingSection } from '@/components/locations/LocationPricingSection';
 import { getPublicConfig } from '@/lib/config';
 import type { LocationPage } from '@/lib/cms/types';
 import { TrackLink } from '@/components/analytics';
@@ -63,7 +65,10 @@ export default async function LocationDetailPage({
   const page = await getPageData(slug);
   if (!page) notFound();
 
-  const servicesResult = await getLocationServices(page.id);
+  const [servicesResult, routePrices] = await Promise.all([
+    getLocationServices(page.id),
+    getLocationRoutePricing(page.id, page.slug),
+  ]);
   const services = [...page.relatedServices, ...servicesResult.items].filter(
     (service, index, entries) => entries.findIndex((item) => item.slug === service.slug) === index,
   );
@@ -92,6 +97,12 @@ export default async function LocationDetailPage({
                 >
                   Book a Ride <Icon name="arrow" width={16} />
                 </TrackLink>
+                <Link
+                  href={`/rates-and-options?location=${page.slug}&tab=airport`}
+                  className="button button-secondary"
+                >
+                  View Route Pricing
+                </Link>
                 <Link href="/locations" className="button detail-secondary-action">
                   Back to Service Areas
                 </Link>
@@ -161,6 +172,12 @@ export default async function LocationDetailPage({
           </Container>
         </section>
       )}
+
+      <LocationPricingSection
+        locationTitle={page.title}
+        locationSlug={page.slug}
+        routes={routePrices}
+      />
 
       {page.faqs.length > 0 && <FaqSection faqs={page.faqs} />}
 

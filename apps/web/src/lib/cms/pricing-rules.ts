@@ -32,7 +32,12 @@ export interface TripContext {
 export interface EvaluatedFee {
   feeIdentifier: string;
   feeName: string;
-  category: 'statutory_mandate' | 'airport_authority' | 'toll_pass_through' | 'company_policy' | 'passenger_option';
+  category:
+    | 'statutory_mandate'
+    | 'airport_authority'
+    | 'toll_pass_through'
+    | 'company_policy'
+    | 'passenger_option';
   amount: number;
   billingType: 'flat' | 'percentage' | 'pass_through_actual';
   applied: boolean;
@@ -94,7 +99,10 @@ export function evaluateTripFees(
   }
 
   // 1. Statutory NYS Congestion Surcharge
-  if (qualifiesForNYSCongestionSurcharge(context) && !appliedIdentifiers.has('nys_congestion_surcharge')) {
+  if (
+    qualifiesForNYSCongestionSurcharge(context) &&
+    !appliedIdentifiers.has('nys_congestion_surcharge')
+  ) {
     appliedIdentifiers.add('nys_congestion_surcharge');
     const override = configuredMap.get('nys_congestion_surcharge');
     results.push({
@@ -118,7 +126,7 @@ export function evaluateTripFees(
       feeIdentifier: 'mta_cbd_tolling',
       feeName: override?.feeName || 'MTA CBD Tolling Charge',
       category: 'statutory_mandate',
-      amount: override?.amount !== undefined ? override.amount : 1.50,
+      amount: override?.amount !== undefined ? override.amount : 1.5,
       billingType: override?.billingType || 'flat',
       applied: true,
       reason:
@@ -141,7 +149,7 @@ export function evaluateTripFees(
       feeIdentifier: 'panynj_airport_access',
       feeName: override?.feeName || 'Port Authority Airport Access Fee',
       category: 'airport_authority',
-      amount: override?.amount !== undefined ? override.amount : 3.50,
+      amount: override?.amount !== undefined ? override.amount : 3.5,
       billingType: override?.billingType || 'flat',
       applied: true,
       reason:
@@ -151,7 +159,11 @@ export function evaluateTripFees(
   }
 
   // 4. Passenger options
-  if (context.childSeatsCount && context.childSeatsCount > 0 && !appliedIdentifiers.has('child_safety_seat')) {
+  if (
+    context.childSeatsCount &&
+    context.childSeatsCount > 0 &&
+    !appliedIdentifiers.has('child_safety_seat')
+  ) {
     appliedIdentifiers.add('child_safety_seat');
     results.push({
       feeIdentifier: 'child_safety_seat',
@@ -173,7 +185,8 @@ export function evaluateTripFees(
       amount: 45.0,
       billingType: 'flat',
       applied: true,
-      reason: 'Chauffeur greeting inside passenger arrival terminal with custom name board and luggage assistance.',
+      reason:
+        'Chauffeur greeting inside passenger arrival terminal with custom name board and luggage assistance.',
     });
   }
 
@@ -242,7 +255,11 @@ export function computeStartingPrice(
 
     if (card.pricingModel === 'fixed' && Array.isArray(card.routes)) {
       for (const route of card.routes) {
-        if (typeof route.flatRate === 'number' && route.flatRate > 0 && route.flatRate < lowestPrice) {
+        if (
+          typeof route.flatRate === 'number' &&
+          route.flatRate > 0 &&
+          route.flatRate < lowestPrice
+        ) {
           lowestPrice = route.flatRate;
           selectedBasis = `${vcName} ${route.routeLabel || 'Airport Transfer'}`;
           selectedModel = 'fixed';
@@ -257,7 +274,10 @@ export function computeStartingPrice(
         selectedBasis = `${vcName} ($${rate}/hr, ${minHours}-hr minimum, $${minSubtotal} min subtotal)`;
         selectedModel = 'hourly';
       }
-    } else if (card.pricingModel === 'mileage' && (card.mileage?.minimumFare || card.mileage?.baseFare)) {
+    } else if (
+      card.pricingModel === 'mileage' &&
+      (card.mileage?.minimumFare || card.mileage?.baseFare)
+    ) {
       const fare = card.mileage.minimumFare || card.mileage.baseFare || 0;
       if (fare > 0 && fare < lowestPrice) {
         lowestPrice = fare;
@@ -297,6 +317,16 @@ export interface RateCardCandidate {
     routeLabel?: string | null;
     originZone?: string | null;
     destinationZone?: string | null;
+    originLocation?:
+      | { id?: number | string; name?: string; title?: string; slug?: string }
+      | number
+      | string
+      | null;
+    destinationLocation?:
+      | { id?: number | string; name?: string; title?: string; slug?: string }
+      | number
+      | string
+      | null;
     flatRate?: number | null;
     additionalStopFee?: number | null;
     notes?: string | null;
@@ -365,6 +395,40 @@ export function isRateCardEligible(
   return true;
 }
 
+export function extractRelationId(val: unknown): number | undefined {
+  if (val === null || val === undefined) return undefined;
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string' && !isNaN(Number(val))) return Number(val);
+  if (typeof val === 'object' && 'id' in val) {
+    const id = (val as { id: unknown }).id;
+    if (typeof id === 'number') return id;
+    if (typeof id === 'string' && !isNaN(Number(id))) return Number(id);
+  }
+  return undefined;
+}
+
+export function extractRelationSlug(val: unknown): string | undefined {
+  if (val === null || val === undefined) return undefined;
+  if (typeof val === 'object' && 'slug' in val) {
+    const slug = (val as { slug: unknown }).slug;
+    return typeof slug === 'string' ? slug : undefined;
+  }
+  return undefined;
+}
+
+export function extractRelationName(val: unknown): string | undefined {
+  if (val === null || val === undefined) return undefined;
+  if (typeof val === 'object') {
+    if ('name' in val && typeof (val as { name: unknown }).name === 'string') {
+      return (val as { name: string }).name;
+    }
+    if ('title' in val && typeof (val as { title: unknown }).title === 'string') {
+      return (val as { title: string }).title;
+    }
+  }
+  return undefined;
+}
+
 export function mapEligibleRateCardsToContent(
   classes: VehicleClassCard[],
   rateCards: RateCardCandidate[],
@@ -396,6 +460,12 @@ export function mapEligibleRateCardsToContent(
               `${route.originZone || 'Origin'} to ${route.destinationZone || 'Destination'}`,
             originZone: route.originZone || 'Origin',
             destinationZone: route.destinationZone || 'Destination',
+            originLocationId: extractRelationId(route.originLocation),
+            originLocationSlug: extractRelationSlug(route.originLocation),
+            originLocationName: extractRelationName(route.originLocation),
+            destinationLocationId: extractRelationId(route.destinationLocation),
+            destinationLocationSlug: extractRelationSlug(route.destinationLocation),
+            destinationLocationName: extractRelationName(route.destinationLocation),
             flatRate: Number(route.flatRate),
             additionalStopFee:
               typeof route.additionalStopFee === 'number' ? route.additionalStopFee : undefined,
@@ -463,8 +533,7 @@ export function mapEligibleRateCardsToContent(
         title: card.title || `${className} Mileage Rate`,
         vehicleClassName: className,
         vehicleClassSlug: classSlug,
-        baseFare:
-          typeof card.mileage?.baseFare === 'number' ? card.mileage.baseFare : undefined,
+        baseFare: typeof card.mileage?.baseFare === 'number' ? card.mileage.baseFare : undefined,
         perMileRate:
           typeof card.mileage?.perMileRate === 'number' ? card.mileage.perMileRate : undefined,
         minimumFare:
@@ -510,7 +579,8 @@ export function mapEligibleRateCardsToContent(
     }
   }
 
-  const hasContent = fixedRoutes.length > 0 || hourlyCharters.length > 0 || mileagePolicies.length > 0;
+  const hasContent =
+    fixedRoutes.length > 0 || hourlyCharters.length > 0 || mileagePolicies.length > 0;
 
   return {
     vehicleClasses: classes,
