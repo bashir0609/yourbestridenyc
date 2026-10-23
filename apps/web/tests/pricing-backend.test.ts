@@ -947,6 +947,127 @@ test('enforceReconciliationGate preserves verification across partial updates wi
   );
 });
 
+test('enforceReconciliationGate safely handles legacy draft with missing verification audit stamps', async () => {
+  const adminReq = asRequest({
+    user: { id: 1, collection: 'users', role: 'admin' },
+  });
+
+  const legacyDraftDoc = {
+    id: 4,
+    title: 'Premium Crossover SUV — NYC Airport Transfers 2026',
+    vehicleClass: 2,
+    pricingModel: 'fixed',
+    serviceScope: 'global',
+    reconciliation: {
+      status: 'la_verified',
+      laReferenceCode: 'Default Fixed Rate Matrix / MHT / PCSUV / JFK-LGA-EWR',
+      reconciliationNotes: 'Legacy draft verified prior to audit hook deployment.',
+      verifiedBy: null,
+      verifiedAt: null,
+    },
+    _status: 'draft',
+  };
+
+  // 1. Unrelated save or draft save without explicit transition invalidates legacy pseudo-verification
+  // and resets to 'draft' without falsely attributing historical verification to the saving administrator
+  const unrelatedSaveResult = await enforceReconciliationGate(
+    mockArgs(
+      {
+        ...legacyDraftDoc,
+        title: 'Premium Crossover SUV — NYC Airport Transfers 2026 (Updated Title)',
+      },
+      adminReq,
+      'update',
+      legacyDraftDoc,
+    ),
+  );
+  const resetRec = unrelatedSaveResult.reconciliation as Record<string, unknown>;
+  assert.equal(
+    resetRec.status,
+    'draft',
+    'Legacy card with missing stamps must be demoted to draft on unrelated save',
+  );
+  assert.equal(
+    resetRec.verifiedBy,
+    null,
+    'Must NOT falsely attribute verification to saving admin',
+  );
+  assert.equal(resetRec.verifiedAt, null, 'Must NOT set fake verification timestamp');
+
+  // 2. Direct publication attempt on legacy unverified draft is strictly blocked
+  await assert.rejects(
+    async () =>
+      enforceReconciliationGate(
+        mockArgs(
+          {
+            ...legacyDraftDoc,
+            _status: 'published',
+          },
+          adminReq,
+          'update',
+          legacyDraftDoc,
+        ),
+      ),
+    (err: unknown) => isValidationError(err, 'reconciliation.status'),
+  );
+
+  // 3. Explicit transition from draft to la_verified records genuine administrator identity & timestamp
+  const nowResetDoc = {
+    ...legacyDraftDoc,
+    reconciliation: {
+      ...legacyDraftDoc.reconciliation,
+      status: 'draft',
+      verifiedBy: null,
+      verifiedAt: null,
+    },
+  };
+
+  const freshVerificationResult = await enforceReconciliationGate(
+    mockArgs(
+      {
+        ...nowResetDoc,
+        reconciliation: {
+          ...nowResetDoc.reconciliation,
+          status: 'la_verified',
+          reconciliationNotes: 'Dispatcher test quote verified live in Limo Anywhere matrix.',
+        },
+      },
+      adminReq,
+      'update',
+      nowResetDoc,
+    ),
+  );
+  const verifiedRec = freshVerificationResult.reconciliation as Record<string, unknown>;
+  assert.equal(verifiedRec.status, 'la_verified');
+  assert.equal(verifiedRec.verifiedBy, 1, 'Server stamps actual verifying administrator ID');
+  assert.ok(
+    typeof verifiedRec.verifiedAt === 'string',
+    'Server stamps actual verification timestamp',
+  );
+
+  // 4. Once legitimately verified, subsequent harmless edits preserve the genuine verification stamps
+  const legitimatelyVerifiedDoc = {
+    ...nowResetDoc,
+    reconciliation: verifiedRec,
+  };
+
+  const harmlessEditResult = await enforceReconciliationGate(
+    mockArgs(
+      {
+        ...legitimatelyVerifiedDoc,
+        title: 'Premium Crossover SUV — Harmless Marketing Title Edit',
+      },
+      adminReq,
+      'update',
+      legitimatelyVerifiedDoc,
+    ),
+  );
+  const preservedRec = harmlessEditResult.reconciliation as Record<string, unknown>;
+  assert.equal(preservedRec.status, 'la_verified');
+  assert.equal(preservedRec.verifiedBy, 1);
+  assert.equal(preservedRec.verifiedAt, verifiedRec.verifiedAt);
+});
+
 test('rateCardPublicRead isolates draft, unverified, and inactive rates from public queries', () => {
   type AccessArgs = Parameters<typeof rateCardPublicRead>[0];
   const publicReq = { req: asRequest({ user: null }) } as unknown as AccessArgs;

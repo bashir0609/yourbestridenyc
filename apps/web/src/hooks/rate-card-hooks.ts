@@ -419,6 +419,8 @@ export const enforceReconciliationGate: CollectionBeforeChangeHook = async ({
 
   const origWasVerified = ['la_verified', 'published'].includes(origRec.status as string);
   const targetIsVerified = ['la_verified', 'published'].includes(rec.status as string);
+  const origHasValidVerification =
+    origWasVerified && Boolean(origRec.verifiedBy) && Boolean(origRec.verifiedAt);
 
   // 1. Restrict reconciliation status elevation to administrators
   if (targetIsVerified || isPublishing) {
@@ -452,22 +454,28 @@ export const enforceReconciliationGate: CollectionBeforeChangeHook = async ({
     rec.verifiedBy = null;
     rec.verifiedAt = null;
     data.reconciliation = rec;
+  } else if (origHasValidVerification) {
+    // 4. Rate card was already legitimately verified: preserve original verification stamp across harmless subsequent edits
+    rec.verifiedBy = origRec.verifiedBy;
+    rec.verifiedAt = origRec.verifiedAt;
+    data.reconciliation = rec;
+  } else if (!origWasVerified && targetIsVerified) {
+    // 5. Fresh, explicit transition to verified from an unverified state by an authorized administrator
+    rec.verifiedBy = req.user?.id ?? null;
+    rec.verifiedAt = new Date().toISOString();
+    data.reconciliation = rec;
   } else {
-    // 4. Rate card is in or transitioning to a verified state (la_verified or published)
-    // Server derives identity and timestamp; client-submitted values are never trusted.
-    if (origWasVerified && origRec.verifiedBy && origRec.verifiedAt) {
-      // Preserve original verification stamp across harmless subsequent edits
-      rec.verifiedBy = origRec.verifiedBy;
-      rec.verifiedAt = origRec.verifiedAt;
-    } else {
-      // Fresh transition to verified by authorized administrator
-      rec.verifiedBy = req.user?.id ?? null;
-      rec.verifiedAt = new Date().toISOString();
-    }
+    // 6. Legacy draft document that claimed 'la_verified' without valid verification stamps.
+    // Do NOT falsely attribute historical verification to an administrator performing an unrelated later save.
+    // Invalidate the legacy unverified status and reset to 'draft'.
+    // A fresh, explicit administrator verification action (transition from draft to la_verified) is required.
+    rec.status = 'draft';
+    rec.verifiedBy = null;
+    rec.verifiedAt = null;
     data.reconciliation = rec;
   }
 
-  // 5. Publication gate
+  // 7. Publication gate
   if (isPublishing) {
     if (rec.status !== 'la_verified' && rec.status !== 'published') {
       throw new ValidationError({
@@ -513,10 +521,20 @@ export const enforceReconciliationGate: CollectionBeforeChangeHook = async ({
       });
     }
 
+    if (!rec.verifiedBy || !rec.verifiedAt) {
+      throw new ValidationError({
+        errors: [
+          {
+            path: 'reconciliation.status',
+            message:
+              'Cannot publish rate card: Rate card lacks valid administrator verification stamps. Transition through LA Verified & Reconciled first.',
+          },
+        ],
+      });
+    }
+
     // Set published status and ensure stamps exist
     rec.status = 'published';
-    rec.verifiedBy = rec.verifiedBy || req.user?.id || null;
-    rec.verifiedAt = rec.verifiedAt || new Date().toISOString();
     data.reconciliation = rec;
   }
 
