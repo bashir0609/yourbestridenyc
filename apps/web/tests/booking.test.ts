@@ -180,8 +180,8 @@ test('book page delivers redesigned hero with three trust indicators and single 
   assert.match(source, /className="booking-hero"/);
   assert.match(source, /Book Your <span>Ride<\/span>/);
 
-  // Three trust indicators
-  assert.match(source, /className="booking-trust-grid"/);
+  // Compact inline trust strip
+  assert.match(source, /booking-trust-strip/);
   assert.match(source, /Live Availability/);
   assert.match(source, /Executive Chauffeurs/);
   assert.match(source, /Upfront Pricing/);

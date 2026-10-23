@@ -29,65 +29,39 @@ export default async function BookPage() {
               Book Your <span>Ride</span>
             </h1>
             <p className="booking-hero-description">
-              Reserve executive transportation across New York with live availability, transparent
-              rates, and instant confirmation powered by our official reservation partner.
+              Reserve executive transportation across New York — live availability, transparent
+              rates, instant confirmation.
             </p>
 
-            <div className="booking-trust-grid" role="list" aria-label="Booking assurances">
-              <div className="booking-trust-card" role="listitem">
-                <span className="booking-trust-icon" aria-hidden="true">
-                  <Icon name="check" width={20} height={20} />
-                </span>
-                <div className="booking-trust-content">
-                  <strong className="booking-trust-title">Live Availability</strong>
-                  <span className="booking-trust-detail">
-                    Real-time confirmation via Limo Anywhere
-                  </span>
-                </div>
-              </div>
-
-              <div className="booking-trust-card" role="listitem">
-                <span className="booking-trust-icon" aria-hidden="true">
-                  <Icon name="award" width={20} height={20} />
-                </span>
-                <div className="booking-trust-content">
-                  <strong className="booking-trust-title">Executive Chauffeurs</strong>
-                  <span className="booking-trust-detail">
-                    Vetted, licensed professional drivers
-                  </span>
-                </div>
-              </div>
-
-              <div className="booking-trust-card" role="listitem">
-                <span className="booking-trust-icon" aria-hidden="true">
-                  <Icon name="briefcase" width={20} height={20} />
-                </span>
-                <div className="booking-trust-content">
-                  <strong className="booking-trust-title">Upfront Pricing</strong>
-                  <span className="booking-trust-detail">
-                    Transparent commercial tariffs & dispatch
-                  </span>
-                </div>
-              </div>
-            </div>
+            <ul className="booking-trust-strip" aria-label="Booking assurances">
+              <li>
+                <Icon name="check" width={15} height={15} aria-hidden="true" />
+                <span>Live Availability</span>
+              </li>
+              <li>
+                <Icon name="award" width={15} height={15} aria-hidden="true" />
+                <span>Executive Chauffeurs</span>
+              </li>
+              <li>
+                <Icon name="briefcase" width={15} height={15} aria-hidden="true" />
+                <span>Upfront Pricing</span>
+              </li>
+            </ul>
           </div>
         </Container>
       </section>
 
       <section className="booking-experience" aria-labelledby="reservation-heading">
         <Container>
-          <div className="booking-heading">
-            <div>
-              <p className="eyebrow">SECURE RESERVATION ENGINE</p>
-              <h2 id="reservation-heading">Complete your reservation</h2>
-            </div>
-          </div>
+          <h2 id="reservation-heading" className="booking-form-heading">
+            Complete your reservation
+          </h2>
 
           {oresBookingUrl ? (
             <LimoAnywhereBooking bookingUrl={oresBookingUrl} />
           ) : (
             <Card className="booking-card booking-unavailable">
-              <h2>Online booking isn’t connected yet.</h2>
+              <h2>Online booking isn&apos;t connected yet.</h2>
               <p>
                 The approved online booking destination is not configured. No reservation or payment
                 information is collected by this website.
