@@ -5,6 +5,7 @@ import { LimoAnywhereBooking } from '@/components/limo-anywhere-booking';
 import { getPublicConfig } from '@/lib/config';
 import { getBusinessConfig } from '@/lib/cms/queries';
 import { resolveOresBookingUrl } from '@/lib/booking';
+import './yourbestride-ores-theme-v6-fixed.css';
 
 export function generateMetadata(): Metadata {
   const { siteUrl } = getPublicConfig();
