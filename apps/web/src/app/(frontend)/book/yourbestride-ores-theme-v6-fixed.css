@@ -219,68 +219,179 @@ body { background: #f5f4f0 !important; }
   background: #f8f7f4;
 }
 .ors #ores4Wizard .bootstrap-touchspin .form-control { border-radius: 7px !important; }
-/* Use existing form controls; reshape the layout without cloning fields. */
+/* ============================================================
+   Step 1 Field Layout Refinements:
+   Left column: Service Type, Pick-Up Date/Time, Pick-Up Location,
+                Drop-Off Location, Number of Passengers, Luggage Count,
+                Add Child Seat, Accessible switch, Select Vehicle button
+   Right column: Route Map
+   ============================================================ */
+
+/* Passenger & Luggage counters: display side by side */
+.ors #step1Form .col-sm-6[style*='clear'] .form-group:first-child > .row,
+.ors #step1Form .row:has(> .col-md-6 > label[for="PassengerNumber"]) {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 14px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.ors #step1Form .col-sm-6[style*='clear'] .form-group:first-child > .row > .col-md-6,
+.ors #step1Form .row:has(> .col-md-6 > label[for="PassengerNumber"]) > .col-md-6 {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 50% !important;
+  max-width: 50% !important;
+  float: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Align Luggage Count label with Passenger Number */
+.ors #step1Form label[for="LuggageCount"].m-t-20-md,
+.ors #step1Form label[for="LuggageCount"] {
+  margin-top: 0 !important;
+}
+
+/* Hide empty HoursNumberCountainer row so Child Seat sits immediately below counters */
+.ors #step1Form .form-group:has(#HoursNumberCountainer:empty),
+.ors #step1Form #HoursNumberCountainer:empty {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Place Add Child Seat immediately below counters */
+.ors #step1Form #childSeatsContainer {
+  margin-top: 4px !important;
+  margin-bottom: 12px !important;
+}
+
+/* Desktop layout (>= 992px): Left column fields stack, Map on right */
 @media (min-width: 992px) {
   .ors #step1Form > .row {
-    display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
-    gap: 12px 28px;
-    margin: 0;
-    align-items: start;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr) !important;
+    column-gap: 28px !important;
+    row-gap: 0 !important;
+    margin: 0 !important;
+    align-items: start !important;
   }
+
   .ors #step1Form > .row > .col-sm-6 {
     float: none !important;
     width: auto !important;
-    min-width: 0;
-    padding: 0;
+    min-width: 0 !important;
+    padding: 0 !important;
   }
+
+  /* Left column: Row 1 = Service Type, Date/Time, Pickup, Dropoff */
   .ors #step1Form > .row > .col-sm-6:first-child {
-    grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
   }
+
+  /* Left column: Row 2 = Passengers, Luggage, Child Seat, Accessible, Select Vehicle */
+  .ors #step1Form > .row > .col-sm-6[style*='clear'] {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    clear: none !important;
+    margin-top: 0 !important;
+  }
+
+  /* Right column: Spans rows 1 and 2 = Route Map */
   .ors #step1Form > .row > .ors-col-map {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 2 !important;
+    grid-row: 1 / span 2 !important;
+    padding-top: 22px !important;
+    align-self: start !important;
+  }
+
+  .ors #step1Form .ors-col-max-width {
+    max-width: none !important;
+  }
+  .ors #step1Form .ors-col-map .ors-map-room {
+    max-width: none !important;
+  }
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 380px !important;
+    min-height: 360px !important;
+  }
+
+  /* Full-width Select Vehicle button in left column */
+  .ors #step1Form #showRatesBtn {
+    width: 100% !important;
+  }
+  .ors #step1Form .row.form-group:has(> .col-md-7 > #showRatesBtn) > .col-md-7 {
+    width: 100% !important;
+    float: none !important;
+  }
+}
+
+/* Tablet & Mobile layout (< 992px): Booking fields first, Map after */
+@media (max-width: 991px) {
+  .ors #step1Form > .row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    margin: 0 !important;
+  }
+  .ors #step1Form > .row > .col-sm-6 {
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Logical field order: Ride info (1), Passengers & Actions (2), Map (3) */
+  .ors #step1Form > .row > .col-sm-6:first-child {
+    order: 1 !important;
   }
   .ors #step1Form > .row > .col-sm-6[style*='clear'] {
-    grid-column: 2;
-    grid-row: 2;
+    order: 2 !important;
     clear: none !important;
+    margin-top: 0 !important;
   }
-  .ors #step1Form .ors-col-max-width {
-    max-width: none;
+  .ors #step1Form > .row > .ors-col-map {
+    order: 3 !important;
+    padding-top: 8px !important;
+    margin-top: 14px !important;
   }
-  .ors #step1Form .ors-col-map .ors-map-room { max-width: none; }
+
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 220px !important;
+  }
 }
-@media (max-width: 991px) {
-  .ors #ores4Wizard { padding: 0 !important; border-radius: 0 !important; }
-  .ors #ores4Wizard .ors-map-room .ors-map-outer { height: 220px !important; }
-}
+
+/* Mobile adjustments (<= 767px) */
 @media (max-width: 767px) {
-  .ors #ores4Wizard { padding: 0 !important; border-radius: 0 !important; }
-  .ors #ores4Wizard::before { content: none !important; display: none !important; }
-  .ors #ores4Wizard > .panel > .panel-heading { padding: 13px 12px; }
-  .ors #ores4Wizard .panel-body-book { padding: 14px 12px; }
-  .ors #ores4Wizard .ors-map-room .ors-map-outer { height: 200px !important; }
-  .ors #step1Form .ors-col-max-width { max-width: none; }
-  .ors #ores4Wizard .row { max-width: 100%; }
+  .ors #step1Form .col-sm-6[style*='clear'] .form-group:first-child > .row,
+  .ors #step1Form .row:has(> .col-md-6 > label[for="PassengerNumber"]) {
+    gap: 10px !important;
+  }
+  .ors #step1Form .bootstrap-touchspin .input-group-btn,
+  .ors #step1Form .bootstrap-touchspin .input-group-btn .btn {
+    width: 36px !important;
+    min-width: 36px !important;
+  }
+  .ors #step1Form .bootstrap-touchspin .form-control {
+    font-size: 14px !important;
+    padding: 6px 2px !important;
+  }
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 195px !important;
+  }
+  .ors #step1Form .row.form-group:has(#showRatesBtn) > .col-md-7 {
+    width: 100% !important;
+  }
 }
 
-/* ============================================================
-   V3 — focused layout refinements (load V3 INSTEAD of V1/V2)
-   No controls are hidden, duplicated, repositioned outside the
-   form, or prevented from receiving events.
-   ============================================================ */
-/* Remove the injected eyebrow that was partially clipped in V2. */
-.ors #ores4Wizard::before { content: none !important; display: none !important; }
-
-/* Reduce unnecessary space while retaining validation messages. */
-.ors #ores4Wizard .panel-body-book { padding-bottom: 15px; }
-.ors #step1Form .form-group { margin-bottom: 12px; }
-.ors #step1Form .ors-autocomplete-wrap-lg.form-group { margin-bottom: 13px; }
-.ors #step1Form .ors-extra-info-outer { margin-bottom: 12px; }
-.ors #step1Form .ors-col-max-width { max-width: none; }
-.ors #step1Form .ors-map-room .signature { margin: 5px 0 0; }
+/* Ensure submit button fills available row across all viewports */
+.ors #step1Form .row.form-group:has(#showRatesBtn) #showRatesBtn {
+  width: 100% !important;
+}
 
 /* Maintain a predictable 48px connected field and icon height. */
 .ors #ores4Wizard #pickupDateHolder .form-control,
@@ -319,42 +430,10 @@ body { background: #f5f4f0 !important; }
   padding: 7px 9px;
 }
 
-/* Step 1 right column: align the map visually with the first control,
-   then keep the real passenger/child-seat/accessible/submit controls. */
-@media (min-width: 992px) {
-  .ors #step1Form > .row {
-    grid-template-columns: minmax(0, 1.07fr) minmax(0, .93fr);
-    column-gap: 26px;
-    row-gap: 0;
-  }
-  .ors #step1Form > .row > .col-sm-6:first-child {
-    grid-row: 1 / span 2;
-  }
-  .ors #step1Form > .row > .ors-col-map {
-    grid-row: 1;
-    padding-top: 22px;
-  }
-  .ors #step1Form > .row > .col-sm-6[style*='clear'] {
-    grid-row: 2;
-    margin-top: 0;
-  }
-  .ors #step1Form .ors-map-room .ors-map-outer {
-    height: 250px !important;
-  }
-  /* Expand the actual ORES Select Vehicle action across the right column. */
-  .ors #step1Form #showRatesBtn {
-    width: 100% !important;
-  }
-  .ors #step1Form .row.form-group:has(> .col-md-7 > #showRatesBtn) > .col-md-7 {
-    width: 100% !important;
-    float: none !important;
-  }
-}
-
-/* Ensure the submit button fills its own available row on mobile too. */
-.ors #step1Form .row.form-group:has(#showRatesBtn) #showRatesBtn {
-  width: 100% !important;
-}
+.ors #step1Form .form-group { margin-bottom: 12px; }
+.ors #step1Form .ors-autocomplete-wrap-lg.form-group { margin-bottom: 13px; }
+.ors #step1Form .ors-extra-info-outer { margin-bottom: 12px; }
+.ors #step1Form .ors-map-room .signature { margin: 5px 0 0; }
 
 /* Preserve pricing, vehicle actions and guest/payment dialogs in Steps 2–3. */
 .ors #ores4Wizard #wizardStep2 .vehicle-grid-item,

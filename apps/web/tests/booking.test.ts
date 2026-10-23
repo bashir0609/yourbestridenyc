@@ -218,3 +218,26 @@ test('widget component immediately verifies existing iframe and triggers navigat
   );
   assert.match(source, /reinitializeAfterClientNavigation\(\);/);
 });
+
+test('ORES theme positions Step 1 passenger controls in left column beneath drop-off and map on right', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { fileURLToPath } = await import('node:url');
+  const source = await readFile(
+    fileURLToPath(new URL('../src/app/(frontend)/book/yourbestride-ores-theme-v6-fixed.css', import.meta.url)),
+    'utf8',
+  );
+
+  // Desktop grid: Left column (Row 1 fields, Row 2 passengers/counters), Right column (Map)
+  assert.match(source, /\.col-sm-6:first-child[^{]*\{[^}]*grid-column:\s*1/);
+  assert.match(source, /\.col-sm-6\[style\*='clear'\][^{]*\{[^}]*grid-column:\s*1/);
+  assert.match(source, /\.col-sm-6\[style\*='clear'\][^{]*\{[^}]*grid-row:\s*2/);
+  assert.match(source, /\.ors-col-map[^{]*\{[^}]*grid-column:\s*2/);
+
+  // Side-by-side counters
+  assert.match(source, /PassengerNumber[\s\S]*?display:\s*flex/);
+
+  // Mobile order: 1 = Ride info, 2 = Passengers, 3 = Map
+  assert.match(source, /\.col-sm-6:first-child[^{]*\{[^}]*order:\s*1/);
+  assert.match(source, /\.col-sm-6\[style\*='clear'\][^{]*\{[^}]*order:\s*2/);
+  assert.match(source, /\.ors-col-map[^{]*\{[^}]*order:\s*3/);
+});
