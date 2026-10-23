@@ -194,7 +194,7 @@ test('book page delivers unified black container with nested off-white reservati
   // Nested warm off-white reservation panel
   assert.match(source, /booking-panel-nested/);
   assert.match(source, /Your reservation/);
-  assert.match(source, /Powered by Limo Anywhere/);
+  assert.doesNotMatch(source, /Powered by Limo Anywhere/i, 'provider branding must not be exposed on custom booking page');
 
   // Single booking form only (no QuickRes)
   const widgetOccurrences = source.match(/<LimoAnywhereBooking\b/g) ?? [];
@@ -202,7 +202,7 @@ test('book page delivers unified black container with nested off-white reservati
   assert.doesNotMatch(source, /quickres/i, 'QuickRes widget must not be included');
 
   // Accessible fallback and privacy notices preserved
-  assert.match(source, /booking-privacy-note/);
+  assert.doesNotMatch(source, /Payload CMS/i, 'internal technology names must not be exposed on public booking page');
   assert.match(source, /interior-footnote/);
 });
 

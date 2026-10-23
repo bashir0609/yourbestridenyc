@@ -55,12 +55,9 @@ export default async function BookPage() {
           {/* Nested reservation panel */}
           <div className="booking-panel-nested" aria-labelledby="reservation-heading">
             <div className="booking-panel-header">
-              <div className="booking-panel-titles">
-                <h2 id="reservation-heading" className="booking-panel-heading">
-                  Your reservation
-                </h2>
-                <p className="booking-panel-sub">Powered by Limo Anywhere</p>
-              </div>
+              <h2 id="reservation-heading" className="booking-panel-heading">
+                Your reservation
+              </h2>
               <div className="booking-panel-badge" aria-label="Secure reservation">
                 <Icon name="shield" width={18} height={18} aria-hidden="true" />
               </div>
@@ -88,10 +85,6 @@ export default async function BookPage() {
 
           {/* Regulatory / policy disclosures */}
           <div className="booking-disclosures">
-            <p className="booking-privacy-note">
-              Your Best Ride does not store reservation, passenger, payment, or medical details in
-              Payload CMS. A ride is confirmed only through our official reservation partner.
-            </p>
             <p className="interior-footnote">
               For a medical emergency, contact your local emergency services. Do not use this
               website to request emergency transportation.

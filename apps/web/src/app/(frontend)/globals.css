@@ -2002,9 +2002,9 @@ section[id] {
 
 /* Disclosures inside unified card */
 .booking-disclosures {
-  margin-top: 20px;
+  margin-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 16px;
+  padding-top: 12px;
 }
 .booking-disclosures .booking-privacy-note {
   color: #9da098;
@@ -2018,7 +2018,7 @@ section[id] {
   font-size: 11px;
   line-height: 1.6;
   max-width: 820px;
-  margin-top: 8px;
+  margin: 0;
 }
 
 /* Legacy fallbacks */
