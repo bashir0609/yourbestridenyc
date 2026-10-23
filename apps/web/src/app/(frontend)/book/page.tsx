@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Button, Card, Container } from '@/ui';
+import { Button, Card } from '@/ui';
 import { Icon } from '@/components/icon';
 import { LimoAnywhereBooking } from '@/components/limo-anywhere-booking';
 import { getPublicConfig } from '@/lib/config';
@@ -22,76 +22,61 @@ export default async function BookPage() {
 
   return (
     <main id="main-content" className="booking-page">
-      <Container className="booking-container-wrap">
-        <section className="booking-unified-card" aria-labelledby="booking-title">
-          {/* Header inside the black container */}
-          <div className="booking-unified-header">
-            <p className="booking-eyebrow">PRIVATE CHAUFFEURED TRANSPORTATION</p>
-            <h1 id="booking-title" className="booking-unified-title">
-              Book your ride.
-            </h1>
-            <p className="booking-unified-description">
-              Tell us where you&apos;re going, compare available vehicles, and complete your
-              reservation securely.
-            </p>
+      <div className="booking-shell">
+        {/* Full-width charcoal booking header */}
+        <header className="booking-header">
+          <p className="booking-eyebrow">PRIVATE CHAUFFEURED TRANSPORTATION</p>
+          <h1 id="booking-title" className="booking-title">
+            Book your ride.
+          </h1>
+          <p className="booking-description">
+            Tell us where you&apos;re going, compare available vehicles, and complete your
+            reservation securely.
+          </p>
 
-            {/* Trust indicators */}
-            <ul className="booking-trust-strip" aria-label="Booking assurances">
-              <li>
-                <Icon name="check" width={15} height={15} aria-hidden="true" />
-                <span>Vehicle choice</span>
-              </li>
-              <li>
-                <Icon name="award" width={15} height={15} aria-hidden="true" />
-                <span>Live fare calculation</span>
-              </li>
-              <li>
-                <Icon name="shield" width={15} height={15} aria-hidden="true" />
-                <span>Secure booking</span>
-              </li>
-            </ul>
-          </div>
+          {/* Trust indicators */}
+          <ul className="booking-trust-strip" aria-label="Booking assurances">
+            <li>
+              <Icon name="check" width={15} height={15} aria-hidden="true" />
+              <span>Vehicle choice</span>
+            </li>
+            <li>
+              <Icon name="award" width={15} height={15} aria-hidden="true" />
+              <span>Live fare calculation</span>
+            </li>
+            <li>
+              <Icon name="shield" width={15} height={15} aria-hidden="true" />
+              <span>Secure booking</span>
+            </li>
+          </ul>
+        </header>
 
-          {/* Nested reservation panel */}
-          <div className="booking-panel-nested" aria-labelledby="reservation-heading">
-            <div className="booking-panel-header">
-              <h2 id="reservation-heading" className="booking-panel-heading">
-                Your reservation
-              </h2>
-              <div className="booking-panel-badge" aria-label="Secure reservation">
-                <Icon name="shield" width={18} height={18} aria-hidden="true" />
-              </div>
-            </div>
-
-            <div className="booking-panel-divider" role="separator" />
-
-            <div className="booking-panel-body">
-              {oresBookingUrl ? (
-                <LimoAnywhereBooking bookingUrl={oresBookingUrl} />
-              ) : (
-                <Card className="booking-card booking-unavailable">
-                  <h2>Online booking isn&apos;t connected yet.</h2>
-                  <p>
-                    The approved online booking destination is not configured. No reservation or
-                    payment information is collected by this website.
-                  </p>
-                  <Button href="/#contact">
-                    View contact information <Icon name="arrow" width={18} />
-                  </Button>
-                </Card>
-              )}
-            </div>
-          </div>
-
-          {/* Regulatory / policy disclosures */}
-          <div className="booking-disclosures">
-            <p className="interior-footnote">
-              For a medical emergency, contact your local emergency services. Do not use this
-              website to request emergency transportation.
-            </p>
-          </div>
+        {/* Limo Anywhere reservation iframe directly beneath the introduction and trust indicators */}
+        <section className="booking-engine-wrap" aria-label="Reservation form">
+          {oresBookingUrl ? (
+            <LimoAnywhereBooking bookingUrl={oresBookingUrl} />
+          ) : (
+            <Card className="booking-card booking-unavailable">
+              <h2>Online booking isn&apos;t connected yet.</h2>
+              <p>
+                The approved online booking destination is not configured. No reservation or
+                payment information is collected by this website.
+              </p>
+              <Button href="/#contact">
+                View contact information <Icon name="arrow" width={18} />
+              </Button>
+            </Card>
+          )}
         </section>
-      </Container>
+
+        {/* Regulatory / policy disclosures */}
+        <div className="booking-disclosures">
+          <p className="interior-footnote">
+            For a medical emergency, contact your local emergency services. Do not use this
+            website to request emergency transportation.
+          </p>
+        </div>
+      </div>
     </main>
   );
 }

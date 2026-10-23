@@ -168,7 +168,7 @@ test('vendor script is scoped to the booking integration only', async () => {
   );
 });
 
-test('book page delivers unified black container with nested off-white reservation panel and single reservation engine', async () => {
+test('book page delivers full-width charcoal booking section with direct reservation engine', async () => {
   const { readFile } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const source = await readFile(
@@ -176,8 +176,8 @@ test('book page delivers unified black container with nested off-white reservati
     'utf8',
   );
 
-  // Single unified black card container with gold eyebrow and approved copy
-  assert.match(source, /booking-unified-card/);
+  // Full-width charcoal outer section with gold eyebrow and approved copy
+  assert.match(source, /booking-page/);
   assert.match(source, /PRIVATE CHAUFFEURED TRANSPORTATION/);
   assert.match(source, /Book your ride\./);
   assert.match(
@@ -191,18 +191,18 @@ test('book page delivers unified black container with nested off-white reservati
   assert.match(source, /Live fare calculation/);
   assert.match(source, /Secure booking/);
 
-  // Nested warm off-white reservation panel
-  assert.match(source, /booking-panel-nested/);
-  assert.match(source, /Your reservation/);
-  assert.doesNotMatch(source, /Powered by Limo Anywhere/i, 'provider branding must not be exposed on custom booking page');
+  // Custom second reservation panel is completely removed
+  assert.doesNotMatch(source, /booking-panel-nested/, 'second reservation panel must be removed');
+  assert.doesNotMatch(source, /id="reservation-heading"/, 'second reservation heading must be removed');
+  assert.doesNotMatch(source, /Powered by Limo Anywhere/i, 'provider branding must not be exposed');
 
-  // Single booking form only (no QuickRes)
+  // Single booking engine only
   const widgetOccurrences = source.match(/<LimoAnywhereBooking\b/g) ?? [];
   assert.equal(widgetOccurrences.length, 1, 'exactly one booking widget must be rendered');
   assert.doesNotMatch(source, /quickres/i, 'QuickRes widget must not be included');
 
   // Accessible fallback and privacy notices preserved
-  assert.doesNotMatch(source, /Payload CMS/i, 'internal technology names must not be exposed on public booking page');
+  assert.doesNotMatch(source, /Payload CMS/i, 'internal technology names must not be exposed');
   assert.match(source, /interior-footnote/);
 });
 
