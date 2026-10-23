@@ -233,3 +233,33 @@ The architecture connects:
 - **No Reverse-Direction Fare Inference:** Outbound tariffs (e.g., Manhattan &rarr; JFK at $205.00) are never automatically inferred as return fares (JFK &rarr; Manhattan) without an explicit, administrator-verified inbound route entry.
 - **Reconciliation & Publication Isolation:** Only rate cards in `_status = 'published'` and `reconciliation.status = 'published'` within an active effective date window are displayed. Draft or unverified tariffs are never exposed on location pages.
 - **Dynamic Relationship Matching:** Matches Payload CMS `originLocation` and `destinationLocation` relationships (`id`, `slug`, `title`) dynamically across present and future service areas without hardcoding.
+
+---
+
+## 8. Fleet-Specific Dynamic Pricing Architecture
+
+### 8.1 Overview & System Architecture
+
+Visitors navigating Fleet pages (`/fleet` and `/fleet/[slug]`) experience the same dynamic, verified pricing connection that exists for Service Area locations.
+
+1. **Fleet Listing (`/fleet`):**
+   - Each fleet vehicle card features a secondary **"View Rates"** link targeting `/rates-and-options?vehicleClass=<class-slug-or-id>`.
+2. **Vehicle Detail Pages (`/fleet/[slug]`):**
+   - **Hero Action:** Prominent **"View Vehicle Rates"** CTA positioned near "Check Availability & Book", anchoring to `#vehicle-rates` or linking to `/rates-and-options?vehicleClass=<class-slug>&tab=airport`.
+   - **Dedicated Rates Section:** `<VehiclePricingSection />` titled *"Rates & Options for [Vehicle Name]"* rendering:
+     - All eligible published fixed/airport route rates matching the vehicle's pricing class with base flat fares.
+     - All eligible published hourly charter rates with hourly rate and consecutive minimum hours.
+     - Regulatory and commercial disclosures: net base fare labeling, 20% chauffeur gratuity calculated at booking, statutory bridge/tunnel tolls, and state surcharges.
+     - Empty-State Fallback: If no published tariffs exist for that vehicle's class (e.g., Standard SUV currently in draft), displays an elegant custom quotation card with direct links to request a bespoke quote or explore other fleet options.
+3. **Rates & Options Vehicle-Class Filtering (`/rates-and-options`):**
+   - Query Parameter: Accepts `?vehicleClass=<slug_or_id>`.
+   - Filter Banner: Displays *"Vehicle Class: [Class Name]"* with a 1-click reset action.
+   - Combined Multi-Filtering: Fully supports simultaneous location and vehicle-class filtering (e.g. `?location=manhattan&vehicleClass=premium-crossover-suv&tab=airport`).
+   - Zero-Match Protection: When a query yields 0 matching routes, displays an explicit notice without falling back or leaking across vehicle classes.
+
+### 8.2 Strict Vehicle Class Matching Rules
+
+To prevent misleading pricing representations:
+- **No Substring Matching:** Queries like `suv` or `crossover` never match `standard-suv` or `premium-crossover-suv`. Matching requires exact canonical slug, numeric ID, or exact class display name.
+- **Vehicle Model Isolation:** Individual vehicle models (e.g., `cadillac-xt6`, `toyota-rav4`) are mapped strictly through their CMS `vehicleClass` relationship. Vehicle model names are never used as vehicle class identifiers.
+- **Zero Cross-Class Leakage:** Standard SUV queries strictly exclude Premium Crossover SUV rates and vice versa.
