@@ -1,11 +1,13 @@
 # Your Best Ride — Fleet-Specific Dynamic Pricing Production Release Report
 
 **Project:** Your Best Ride Inc.  
-**Release Date:** October 23, 2026  
+**Release Date:** October 23, 2026 (21:06 UTC+6)  
 **Target Environment:** Production (`https://www.yourbestridenyc.com`)  
 **Production Branch:** `master`  
-**Source Branch:** `feature/single-deployment-payload`  
-**Status:** **READY FOR PRODUCTION MERGE & VERIFICATION**
+**Production Commit SHA:** `4d9c2c9` (`4d9c2c9f4007d4b459c5d1fa4cb5b6fa72e51147`)  
+**Vercel Deployment ID:** `dpl_E5FyczKhbrEVVkGadFuGMtayZJgm`  
+**Shared Database:** Neon Serverless PostgreSQL (`ep-quiet-sky-b8ned4h6-pooler`)  
+**Status:** **SUCCESS (Deployed & Verified Live)**
 
 ---
 
@@ -57,3 +59,19 @@ This release implements **Fleet-Specific Dynamic Pricing and Vehicle Class Filte
   - Strict hourly charter vehicle class isolation test.
   - Vehicle class display name resolution test.
   - UI contract regression test for Fleet Card, Fleet Detail CTA, and `<VehiclePricingSection />`.
+
+---
+
+## 5. Live Production Smoke Tests & Verification
+
+The release was tested live on the production domain (`https://www.yourbestridenyc.com`):
+
+| Test Vector | Target URL | HTTP Status | Production Verification Result |
+| :--- | :--- | :---: | :--- |
+| **Fleet Listing** | `/fleet` | `200 OK` | **PASS** — Each fleet vehicle card displays a secondary "View Rates" link targeting `/rates-and-options?vehicleClass=...`. |
+| **Cadillac XT6 Detail** | `/fleet/cadillac-xt6` | `200 OK` | **PASS** — Hero "View Vehicle Rates" CTA active; renders *"Rates & Options for Cadillac XT6"* with JFK ($205.00), LGA ($175.00), EWR ($215.00); 20% chauffeur gratuity and toll disclosures verified. |
+| **Toyota RAV4 Detail** | `/fleet/toyota-rav4` | `200 OK` | **PASS** — Renders *"Rates & Options for Toyota RAV4"* with elegant custom quote fallback card (*"Published fixed rates for the Toyota RAV4 (Standard SUV) are currently quoted on request..."*). |
+| **Rates & Options (Premium Crossover)** | `/rates-and-options?vehicleClass=premium-crossover-suv&tab=airport` | `200 OK` | **PASS** — Renders *"Vehicle Class: Premium Crossover SUV (3 routes)"*; displays JFK $205, LGA $175, EWR $215 routes. |
+| **Rates & Options (Standard SUV)** | `/rates-and-options?vehicleClass=standard-suv&tab=airport` | `200 OK` | **PASS** — Strictly isolates Standard SUV; zero route leakage from Premium Crossover; renders *"No Published Routes for Standard SUV"* empty notice and reset action. |
+| **Combined Filters** | `/rates-and-options?location=manhattan&vehicleClass=premium-crossover-suv&tab=airport` | `200 OK` | **PASS** — Renders both *"Filtered by Location: Manhattan"* and *"Vehicle Class: Premium Crossover SUV"*; displays 3 routes. |
+| **Combined Zero-Match** | `/rates-and-options?location=brooklyn&vehicleClass=premium-crossover-suv&tab=airport` | `200 OK` | **PASS** — Zero route leakage; renders *"No Published Routes for Premium Crossover SUV from Brooklyn"*. |
