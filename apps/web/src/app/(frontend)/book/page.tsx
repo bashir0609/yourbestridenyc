@@ -21,67 +21,83 @@ export default async function BookPage() {
 
   return (
     <main id="main-content" className="booking-page">
-      <section className="booking-hero" aria-labelledby="booking-title">
-        <Container>
-          <div className="booking-hero-content">
-            <p className="eyebrow">ONLINE RESERVATIONS</p>
-            <h1 id="booking-title">
-              Book Your <span>Ride</span>
+      <Container className="booking-container-wrap">
+        <section className="booking-unified-card" aria-labelledby="booking-title">
+          {/* Header inside the black container */}
+          <div className="booking-unified-header">
+            <p className="booking-eyebrow">PRIVATE CHAUFFEURED TRANSPORTATION</p>
+            <h1 id="booking-title" className="booking-unified-title">
+              Book your ride.
             </h1>
-            <p className="booking-hero-description">
-              Reserve executive transportation across New York — live availability, transparent
-              rates, instant confirmation.
+            <p className="booking-unified-description">
+              Tell us where you&apos;re going, compare available vehicles, and complete your
+              reservation securely.
             </p>
 
+            {/* Trust indicators */}
             <ul className="booking-trust-strip" aria-label="Booking assurances">
               <li>
                 <Icon name="check" width={15} height={15} aria-hidden="true" />
-                <span>Live Availability</span>
+                <span>Vehicle choice</span>
               </li>
               <li>
                 <Icon name="award" width={15} height={15} aria-hidden="true" />
-                <span>Executive Chauffeurs</span>
+                <span>Live fare calculation</span>
               </li>
               <li>
-                <Icon name="briefcase" width={15} height={15} aria-hidden="true" />
-                <span>Upfront Pricing</span>
+                <Icon name="shield" width={15} height={15} aria-hidden="true" />
+                <span>Secure booking</span>
               </li>
             </ul>
           </div>
-        </Container>
-      </section>
 
-      <section className="booking-experience" aria-labelledby="reservation-heading">
-        <Container>
-          <h2 id="reservation-heading" className="booking-form-heading">
-            Complete your reservation
-          </h2>
+          {/* Nested reservation panel */}
+          <div className="booking-panel-nested" aria-labelledby="reservation-heading">
+            <div className="booking-panel-header">
+              <div className="booking-panel-titles">
+                <h2 id="reservation-heading" className="booking-panel-heading">
+                  Your reservation
+                </h2>
+                <p className="booking-panel-sub">Powered by Limo Anywhere</p>
+              </div>
+              <div className="booking-panel-badge" aria-label="Secure reservation">
+                <Icon name="shield" width={18} height={18} aria-hidden="true" />
+              </div>
+            </div>
 
-          {oresBookingUrl ? (
-            <LimoAnywhereBooking bookingUrl={oresBookingUrl} />
-          ) : (
-            <Card className="booking-card booking-unavailable">
-              <h2>Online booking isn&apos;t connected yet.</h2>
-              <p>
-                The approved online booking destination is not configured. No reservation or payment
-                information is collected by this website.
-              </p>
-              <Button href="/#contact">
-                View contact information <Icon name="arrow" width={18} />
-              </Button>
-            </Card>
-          )}
+            <div className="booking-panel-divider" role="separator" />
 
-          <p className="booking-privacy-note">
-            Your Best Ride does not store reservation, passenger, payment, or medical details in
-            Payload CMS. A ride is confirmed only through our official reservation partner.
-          </p>
-          <p className="interior-footnote">
-            For a medical emergency, contact your local emergency services. Do not use this website
-            to request emergency transportation.
-          </p>
-        </Container>
-      </section>
+            <div className="booking-panel-body">
+              {oresBookingUrl ? (
+                <LimoAnywhereBooking bookingUrl={oresBookingUrl} />
+              ) : (
+                <Card className="booking-card booking-unavailable">
+                  <h2>Online booking isn&apos;t connected yet.</h2>
+                  <p>
+                    The approved online booking destination is not configured. No reservation or
+                    payment information is collected by this website.
+                  </p>
+                  <Button href="/#contact">
+                    View contact information <Icon name="arrow" width={18} />
+                  </Button>
+                </Card>
+              )}
+            </div>
+          </div>
+
+          {/* Regulatory / policy disclosures */}
+          <div className="booking-disclosures">
+            <p className="booking-privacy-note">
+              Your Best Ride does not store reservation, passenger, payment, or medical details in
+              Payload CMS. A ride is confirmed only through our official reservation partner.
+            </p>
+            <p className="interior-footnote">
+              For a medical emergency, contact your local emergency services. Do not use this
+              website to request emergency transportation.
+            </p>
+          </div>
+        </section>
+      </Container>
     </main>
   );
 }

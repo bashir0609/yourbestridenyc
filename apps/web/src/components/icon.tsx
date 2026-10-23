@@ -28,6 +28,7 @@ const paths = {
   plane: 'm22 2-7 20-4-9-9-4L22 2ZM11 13 22 2',
   briefcase: 'M3 7h18v14H3V7Zm5 0V3h8v4M3 12h18m-11 0v3h4v-3',
   mapPin: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+  shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
 } as const;
 
 export type IconName = keyof typeof paths;

@@ -168,7 +168,7 @@ test('vendor script is scoped to the booking integration only', async () => {
   );
 });
 
-test('book page delivers redesigned hero with three trust indicators and single reservation engine', async () => {
+test('book page delivers unified black container with nested off-white reservation panel and single reservation engine', async () => {
   const { readFile } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const source = await readFile(
@@ -176,15 +176,25 @@ test('book page delivers redesigned hero with three trust indicators and single 
     'utf8',
   );
 
-  // Redesigned hero with black-and-gold visual identity and concise copy
-  assert.match(source, /className="booking-hero"/);
-  assert.match(source, /Book Your <span>Ride<\/span>/);
+  // Single unified black card container with gold eyebrow and approved copy
+  assert.match(source, /booking-unified-card/);
+  assert.match(source, /PRIVATE CHAUFFEURED TRANSPORTATION/);
+  assert.match(source, /Book your ride\./);
+  assert.match(
+    source,
+    /Tell us where you(?:'|&apos;)re going[\s\S]*?compare available vehicles[\s\S]*?complete your[\s\S]*?reservation securely/,
+  );
 
-  // Compact inline trust strip
+  // Compact inline trust strip with the 3 approved indicators
   assert.match(source, /booking-trust-strip/);
-  assert.match(source, /Live Availability/);
-  assert.match(source, /Executive Chauffeurs/);
-  assert.match(source, /Upfront Pricing/);
+  assert.match(source, /Vehicle choice/);
+  assert.match(source, /Live fare calculation/);
+  assert.match(source, /Secure booking/);
+
+  // Nested warm off-white reservation panel
+  assert.match(source, /booking-panel-nested/);
+  assert.match(source, /Your reservation/);
+  assert.match(source, /Powered by Limo Anywhere/);
 
   // Single booking form only (no QuickRes)
   const widgetOccurrences = source.match(/<LimoAnywhereBooking\b/g) ?? [];
