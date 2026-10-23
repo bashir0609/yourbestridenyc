@@ -1935,22 +1935,6 @@ section[id] {
   margin: 14px;
   padding: 14px 16px;
 }
-.ores-fallback {
-  align-items: center;
-  border-top: 1px solid #e7e5de;
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  margin-top: 14px;
-  padding: 14px 18px;
-  background: #faf9f6;
-}
-.ores-fallback p {
-  color: #666860;
-  font-size: 11.5px;
-  line-height: 1.6;
-  margin: 0;
-}
 
 /* Disclosures inside unified card */
 .booking-disclosures {
@@ -2053,15 +2037,6 @@ section[id] {
     white-space: normal;
     width: max-content;
     max-width: calc(100% - 32px);
-  }
-  .ores-fallback {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-  }
-  .ores-fallback .button {
-    width: 100%;
   }
 }
 .interior-footnote {

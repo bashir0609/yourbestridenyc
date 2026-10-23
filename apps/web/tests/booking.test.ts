@@ -83,7 +83,7 @@ test('widget loads the vendor loader through Next.js Script exactly once', async
   );
 });
 
-test('widget keeps an accessible hosted-page fallback', async () => {
+test('widget does not render customer-facing fallback UI or fallback button', async () => {
   const { readFile } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const source = await readFile(
@@ -91,12 +91,10 @@ test('widget keeps an accessible hosted-page fallback', async () => {
     'utf8',
   );
 
-  assert.match(
-    source,
-    /eventName="booking_click"[\s\S]*?eventParams=\{\{ source_page: '\/book', button_location: 'booking_fallback' \}\}/,
-  );
-  assert.match(source, /target="_blank"/);
-  assert.match(source, /rel="noreferrer noopener"/);
+  assert.doesNotMatch(source, /ores-fallback/);
+  assert.doesNotMatch(source, /Open secure booking page/);
+  assert.doesNotMatch(source, /If the reservation form does not appear/);
+  assert.doesNotMatch(source, /booking_fallback/);
 });
 
 test('client navigation reload is guarded against duplicate widget instances', async () => {

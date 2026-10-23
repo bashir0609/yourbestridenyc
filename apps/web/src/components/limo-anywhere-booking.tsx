@@ -2,7 +2,6 @@
 
 import Script from 'next/script';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { TrackLink } from './analytics';
 import { ORES_ALIAS, ORES_WIDGET_LOADER_URL } from '@/lib/booking';
 
 const SCRIPT_ID = 'limo-anywhere-ores-widget';
@@ -85,28 +84,12 @@ export function LimoAnywhereBooking({ bookingUrl }: LimoAnywhereBookingProps) {
         )}
         {status === 'failed' && (
           <p className="ores-widget-notice" role="status">
-            The embedded reservation form could not be loaded. Use the secure booking link below.
+            The embedded reservation form could not be loaded.
           </p>
         )}
         <a href={bookingUrl} data-ores-widget="website" data-ores-alias={ORES_ALIAS}>
           Online Reservations
         </a>
-      </div>
-
-      <div className="ores-fallback">
-        <p>
-          If the reservation form does not appear, continue on our secure booking partner’s website.
-        </p>
-        <TrackLink
-          href={bookingUrl}
-          className="button button-outline"
-          target="_blank"
-          rel="noreferrer noopener"
-          eventName="booking_click"
-          eventParams={{ source_page: '/book', button_location: 'booking_fallback' }}
-        >
-          Open secure booking page
-        </TrackLink>
       </div>
 
       <Script
