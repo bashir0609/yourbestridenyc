@@ -304,7 +304,8 @@ body { background: #f5f4f0 !important; }
   .ors #step1Form > .row > .ors-col-map {
     grid-column: 2 !important;
     grid-row: 1 / span 2 !important;
-    padding-top: 22px !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
     align-self: start !important;
   }
 
@@ -323,8 +324,11 @@ body { background: #f5f4f0 !important; }
   .ors #step1Form #showRatesBtn {
     width: 100% !important;
   }
+  .ors #step1Form .col-md-7:has(#showRatesBtn),
+  .ors #step1Form .row.form-group:has(#showRatesBtn) > .col-md-7,
   .ors #step1Form .row.form-group:has(> .col-md-7 > #showRatesBtn) > .col-md-7 {
     width: 100% !important;
+    max-width: 100% !important;
     float: none !important;
   }
 }

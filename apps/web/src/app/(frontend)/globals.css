@@ -1802,7 +1802,7 @@ section[id] {
 .booking-content-shell,
 .booking-container-wrap {
   width: 100%;
-  max-width: 1360px;
+  max-width: 1180px;
   margin-inline: auto;
   box-sizing: border-box;
   padding: 36px 32px 56px;
@@ -1876,11 +1876,11 @@ section[id] {
 .ores-booking {
   width: 100%;
   box-sizing: border-box;
-  background: #ffffff;
-  border-radius: 8px;
+  background: transparent;
+  border-radius: 0;
   min-height: 540px;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   border: none;
 }
 .ores-widget-frame {

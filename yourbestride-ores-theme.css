@@ -1,0 +1,917 @@
+/* YOUR BEST RIDE — ORES 4 browser-local visual theme
+   Apply inside https://book.mylimobiz.com/v4/yourbestride
+   Visual changes only. Does not alter reservation logic. */
+:root {
+  --ybr-gold: #dca83e;
+  --ybr-gold-hover: #e4b459;
+  --ybr-ink: #101211;
+  --ybr-paper: #f5f4f0;
+  --ybr-line: #d6d3c9;
+  --ybr-muted: #666660;
+}
+body { background: var(--ybr-paper) !important; color: var(--ybr-ink); }
+.ors { margin-top: 12px; }
+.ors .container-fluid { max-width: 1200px; }
+.ors .brand-logo { max-width: 160px; width: auto !important; height: auto !important; max-height: 65px; object-fit: contain; }
+.ors .navbar { border: 0; border-bottom: 1px solid var(--ybr-line); margin-bottom: 16px; }
+.ors .panel { background: #fff; border: 1px solid #e6e3da; border-radius: 12px; overflow: visible; }
+.ors #ores4Wizard > .panel { box-shadow: 0 6px 22px rgba(16,18,17,.035); margin-bottom: 14px; }
+.ors #ores4Wizard > .panel > .panel-heading {
+  background: #fbfaf7 !important; color: #101211 !important;
+  border: 0; border-bottom: 1px solid #e3dfd6 !important; border-radius: 11px 11px 0 0; padding: 14px 18px; margin: 0;
+}
+.ors #ores4Wizard > .panel > .panel-heading .panel-title,
+.ors #ores4Wizard > .panel > .panel-heading .panel-title a { color: #101211 !important; font-size: 15px; font-weight: 600; }
+.ors #ores4Wizard > .panel > .panel-heading .svg-icon { color: var(--ybr-gold); fill: currentColor; }
+.ors #ores4Wizard .panel-body-book { padding: 20px; }
+.ors label { color: #242622; font-weight: 600; font-size: 13px; margin-bottom: 7px; }
+.ors .form-group { margin-bottom: 17px; }
+.ors .form-control,
+.ors .ors-custom-select select,
+.ors .ors-autocomplete-wrap-lg .form-control,
+.ors .ipp-picker {
+  height: 48px; min-height: 48px; background: #fff !important; color: #20221e !important;
+  border: 1px solid var(--ybr-line) !important; border-radius: 8px !important;
+  padding: 10px 13px; font-size: 15px; box-shadow: none; transition: border-color .15s, box-shadow .15s;
+}
+.ors .form-control:focus,
+.ors .ors-custom-select select:focus,
+.ors .ipp-picker.focused {
+  border-color: var(--ybr-gold) !important;
+  outline: none !important; box-shadow: 0 0 0 3px rgba(220,168,62,.20) !important;
+}
+.ors .form-control::placeholder { color: #8b8c86; opacity: 1; }
+.ors .form-control.input-validation-error,
+.ors .form-control.has-error { border-color: #b54444 !important; }
+/* Connected date/time controls: preserve button attachment and click targets */
+.ors #pickupDateHolder .form-control,
+.ors #pickupTimeHolder .form-control { border-radius: 8px 0 0 8px !important; }
+.ors #pickupDateHolder .input-group-btn .btn,
+.ors #pickupTimeHolder .input-group-btn .btn {
+  height: 48px; min-height: 48px; border: 1px solid var(--ybr-line) !important;
+  border-left: 0 !important; border-radius: 0 8px 8px 0 !important;
+  background: #fff !important; color: #6a685f !important; box-shadow: none;
+}
+.ors .btn { border-radius: 8px; transition: background-color .15s, border-color .15s, box-shadow .15s; }
+.ors .btn-primary,
+.ors .btn-primary:hover,
+.ors .btn-primary:focus,
+.ors .btn-primary:active,
+.ors .btn-primary.active {
+  background: var(--ybr-gold) !important; border-color: var(--ybr-gold) !important;
+  color: var(--ybr-ink) !important; font-weight: 700; text-shadow: none; box-shadow: none;
+}
+.ors .btn-primary:hover,
+.ors .btn-primary:focus { background: var(--ybr-gold-hover) !important; border-color: var(--ybr-gold-hover) !important; }
+.ors #showRatesBtn { min-height: 48px; height: auto; padding: 11px 22px; font-size: 15px; letter-spacing: .01em; }
+.ors .btn-outline { border-radius: 8px; }
+.ors a:not(.btn), .ors .text-link, .ors .ors-pseudo-link { color: #946c1d; }
+.ors a:not(.btn):hover, .ors .text-link:hover, .ors .ors-pseudo-link:hover { color: #775311; }
+.ors .ors-custom-select { border-radius: 8px; background: #fff; }
+.ors .ors-custom-select:after { border-top-color: #555950; }
+/* Keep autocomplete, picker and modal layers visible */
+.ors .ors-suggest-list,
+.ors .dropdown-menu,
+.ors .bootstrap-datetimepicker-widget,
+.ors .daterangepicker,
+.ors .chosen-container .chosen-drop,
+.ors .selectize-dropdown {
+  background: #fff !important; border: 1px solid var(--ybr-line) !important;
+  border-radius: 9px !important; box-shadow: 0 12px 28px rgba(16,18,17,.12) !important;
+}
+.ors .ors-suggest-list .suggest-item.active,
+.ors .ors-suggest-list .suggest-item.active:hover,
+.ors .chosen-container .chosen-results li.highlighted,
+.ors .bootstrap-datetimepicker-widget td.active,
+.ors .bootstrap-datetimepicker-widget td span.active,
+.ors .daterangepicker td.active { background: var(--ybr-gold) !important; color: var(--ybr-ink) !important; }
+.ors .bootstrap-datetimepicker-widget td,
+.ors .bootstrap-datetimepicker-widget td span { border-radius: 6px; }
+.ors .bootstrap-touchspin .input-group-btn .btn { min-height: 48px; height: 48px; background: #f8f7f4; border-color: var(--ybr-line); color: var(--ybr-ink); }
+.ors .bootstrap-touchspin .form-control { text-align: center; }
+.ors .bootstrap-touchspin .input-group-btn .btn:hover { background: #eceae2; }
+.ors .ors-map-room .ors-map-outer { border-radius: 10px; border: 1px solid var(--ybr-line); overflow: hidden; }
+.ors .vehicle-grid-item {
+  background: #fff; border: 1px solid var(--ybr-line); border-radius: 12px;
+  box-shadow: 0 3px 14px rgba(16,18,17,.04); transition: border-color .2s, box-shadow .2s;
+}
+.ors .vehicle-grid-item:hover,
+.ors .vehicle-grid-item.active { border-color: var(--ybr-gold) !important; box-shadow: 0 0 0 2px rgba(220,168,62,.25) !important; }
+.ors .vehicle-grid-item-price-numb,
+.ors .total-prise { color: #9b7020 !important; font-weight: 700; }
+.ors .vehicle-grid-item-details,
+.ors .vehicle-grid-item-details-well { background: #f8f7f4; }
+.ors .modal-content { border-radius: 12px; background: #fff; }
+.ors .ors-title, .ors .ors-sub-title { background: #f4f1e9; border-radius: 7px; color: var(--ybr-ink); }
+.ors .field-validation-error,
+.ors .validation-summary-errors { color: #a22c2c; }
+.ors :is(button, a, input, select, textarea):focus-visible { outline: 2px solid #a87a27; outline-offset: 2px; }
+@media (max-width: 767px) {
+  .ors { margin-top: 0; }
+  .ors #ores4Wizard .panel-body-book { padding: 14px; }
+  .ors #ores4Wizard > .panel > .panel-heading { padding: 12px 14px; }
+  .ors .brand-logo { max-width: 128px; max-height: 52px; }
+  .ors .form-control, .ors .ors-custom-select select { font-size: 16px; }
+  .ors #showRatesBtn { width: 100%; }
+  .ors .ors-map-room .ors-map-outer { height: 260px; }
+}
+
+/* ============================================================
+   V2 — Approved unified-card layout; browser-local experiment
+   Add after all vendor styles. Keep the actual ORES wizard intact.
+   ============================================================ */
+:root {
+  --ybr-panel: #f5f4f0;
+  --ybr-charcoal: #101211;
+  --ybr-border: #e2ded5;
+}
+body { background: #f5f4f0 !important; }
+.ors .container-fluid { max-width: 1230px; }
+/* The vendor logo is removed only visually; no asset is changed. */
+.ors .row.center:has(> .col-xs-12 > img.brand-logo) { display: none !important; }
+.ors .ors-menu-top { margin-top: 4px; }
+.ors .navbar { margin-bottom: 10px; }
+/* Unified charcoal frame and warm paper reservation panel */
+.ors #ores4Wizard {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+.ors #ores4Wizard::before { content: none !important; display: none !important; }
+.ors #ores4Wizard::after { content: ''; display: block; clear: both; }
+.ors #ores4Wizard > .panel {
+  margin: 0 0 13px;
+  background: var(--ybr-panel) !important;
+  border: 1px solid #e3dfd6 !important;
+  border-radius: 13px;
+  box-shadow: none;
+}
+.ors #ores4Wizard > .panel:last-child { margin-bottom: 0; }
+.ors #ores4Wizard > .panel > .panel-heading {
+  background: #fbfaf7 !important;
+  border-bottom: 1px solid #e3dfd6;
+  border-radius: 13px 13px 0 0;
+  padding: 15px 18px;
+}
+.ors #ores4Wizard > .panel > .panel-heading .panel-title,
+.ors #ores4Wizard > .panel > .panel-heading .panel-title a {
+  color: #101211 !important;
+  font-size: 16px;
+  font-weight: 700;
+}
+.ors #ores4Wizard > .panel > .panel-heading .svg-icon { color: #b58527; }
+.ors #ores4Wizard .panel-body-book {
+  background: #fff;
+  border-radius: 0 0 12px 12px;
+  padding: 19px 20px 20px;
+}
+.ors #ores4Wizard label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #343630;
+  margin-bottom: 7px;
+}
+.ors #ores4Wizard .form-group { margin-bottom: 14px; }
+.ors #ores4Wizard .form-control,
+.ors #ores4Wizard .ors-custom-select select,
+.ors #ores4Wizard .ipp-picker {
+  border-color: var(--ybr-border) !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+}
+/* Critical: leave ORES error red (never hide required-field validation). */
+.ors #ores4Wizard .form-control.input-validation-error,
+.ors #ores4Wizard .form-control.has-error,
+.ors #ores4Wizard .input-group.has-error .form-control {
+  border-color: #c43d42 !important;
+}
+.ors #ores4Wizard .field-validation-error { color: #b62930 !important; font-size: 12px; }
+.ors #ores4Wizard .ors-map-room { margin-top: 0; display: block; }
+.ors #ores4Wizard .ors-map-room .ors-map-outer {
+  height: 260px !important;
+  border-radius: 10px;
+  border: 1px solid #e2ded5;
+  margin-bottom: 7px;
+}
+.ors #ores4Wizard .ors-map-room .signature { font-size: 11px; }
+.ors #ores4Wizard #showRatesBtn {
+  min-height: 48px;
+  background: #dca83e !important;
+  border-color: #dca83e !important;
+  color: #101211 !important;
+  font-weight: 700;
+  border-radius: 9px;
+}
+/* TouchSpin counters: avoid detached square buttons and mismatched heights. */
+.ors #ores4Wizard .bootstrap-touchspin { width: 100%; }
+.ors #ores4Wizard .bootstrap-touchspin .input-group-btn .btn,
+.ors #ores4Wizard .bootstrap-touchspin .form-control,
+.ors #ores4Wizard .bootstrap-touchspin .input-group-addon {
+  height: 44px !important;
+  min-height: 44px !important;
+  border-color: #e2ded5 !important;
+}
+.ors #ores4Wizard .bootstrap-touchspin .input-group-btn .btn {
+  padding: 7px 9px;
+  color: #101211;
+  background: #f8f7f4;
+}
+.ors #ores4Wizard .bootstrap-touchspin .form-control { border-radius: 7px !important; }
+/* ============================================================
+   Step 1 Field Layout Refinements:
+   Left column: Service Type, Pick-Up Date/Time, Pick-Up Location,
+                Drop-Off Location, Number of Passengers, Luggage Count,
+                Add Child Seat, Accessible switch, Select Vehicle button
+   Right column: Route Map
+   ============================================================ */
+
+/* Passenger & Luggage counters: display side by side */
+.ors #step1Form .col-sm-6[style*='clear'] .form-group:first-child > .row,
+.ors #step1Form .row:has(> .col-md-6 > label[for="PassengerNumber"]) {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 14px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.ors #step1Form .col-sm-6[style*='clear'] .form-group:first-child > .row > .col-md-6,
+.ors #step1Form .row:has(> .col-md-6 > label[for="PassengerNumber"]) > .col-md-6 {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 50% !important;
+  max-width: 50% !important;
+  float: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Align Luggage Count label with Passenger Number */
+.ors #step1Form label[for="LuggageCount"].m-t-20-md,
+.ors #step1Form label[for="LuggageCount"] {
+  margin-top: 0 !important;
+}
+
+/* Hide empty HoursNumberCountainer row so Child Seat sits immediately below counters */
+.ors #step1Form .form-group:has(#HoursNumberCountainer:empty),
+.ors #step1Form #HoursNumberCountainer:empty {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Place Add Child Seat immediately below counters */
+.ors #step1Form #childSeatsContainer {
+  margin-top: 4px !important;
+  margin-bottom: 12px !important;
+}
+
+/* Desktop layout (>= 992px): Left column fields stack, Map on right */
+@media (min-width: 992px) {
+  .ors #step1Form > .row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr) !important;
+    column-gap: 28px !important;
+    row-gap: 0 !important;
+    margin: 0 !important;
+    align-items: start !important;
+  }
+
+  .ors #step1Form > .row > .col-sm-6 {
+    float: none !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Left column: Row 1 = Service Type, Date/Time, Pickup, Dropoff */
+  .ors #step1Form > .row > .col-sm-6:first-child {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  /* Left column: Row 2 = Passengers, Luggage, Child Seat, Accessible, Select Vehicle */
+  .ors #step1Form > .row > .col-sm-6[style*='clear'] {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    clear: none !important;
+    margin-top: 0 !important;
+  }
+
+  /* Right column: Spans rows 1 and 2 = Route Map */
+  .ors #step1Form > .row > .ors-col-map {
+    grid-column: 2 !important;
+    grid-row: 1 / span 2 !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+    align-self: start !important;
+  }
+
+  .ors #step1Form .ors-col-max-width {
+    max-width: none !important;
+  }
+  .ors #step1Form .ors-col-map .ors-map-room {
+    max-width: none !important;
+  }
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 380px !important;
+    min-height: 360px !important;
+  }
+
+  /* Full-width Select Vehicle button in left column */
+  .ors #step1Form #showRatesBtn {
+    width: 100% !important;
+  }
+  .ors #step1Form .col-md-7:has(#showRatesBtn),
+  .ors #step1Form .row.form-group:has(#showRatesBtn) > .col-md-7,
+  .ors #step1Form .row.form-group:has(> .col-md-7 > #showRatesBtn) > .col-md-7 {
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+  }
+}
+
+/* Tablet & Mobile layout (< 992px): Booking fields first, Map after */
+@media (max-width: 991px) {
+  .ors #step1Form > .row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    margin: 0 !important;
+  }
+  .ors #step1Form > .row > .col-sm-6 {
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Logical field order: Ride info (1), Passengers & Actions (2), Map (3) */
+  .ors #step1Form > .row > .col-sm-6:first-child {
+    order: 1 !important;
+  }
+  .ors #step1Form > .row > .col-sm-6[style*='clear'] {
+    order: 2 !important;
+    clear: none !important;
+    margin-top: 0 !important;
+  }
+  .ors #step1Form > .row > .ors-col-map {
+    order: 3 !important;
+    padding-top: 8px !important;
+    margin-top: 14px !important;
+  }
+
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 220px !important;
+  }
+}
+
+/* Mobile adjustments (<= 767px) */
+@media (max-width: 767px) {
+  .ors #step1Form .col-sm-6[style*='clear'] .form-group:first-child > .row,
+  .ors #step1Form .row:has(> .col-md-6 > label[for="PassengerNumber"]) {
+    gap: 10px !important;
+  }
+  .ors #step1Form .bootstrap-touchspin .input-group-btn,
+  .ors #step1Form .bootstrap-touchspin .input-group-btn .btn {
+    width: 36px !important;
+    min-width: 36px !important;
+  }
+  .ors #step1Form .bootstrap-touchspin .form-control {
+    font-size: 14px !important;
+    padding: 6px 2px !important;
+  }
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 195px !important;
+  }
+  .ors #step1Form .row.form-group:has(#showRatesBtn) > .col-md-7 {
+    width: 100% !important;
+  }
+}
+
+/* Ensure submit button fills available row across all viewports */
+.ors #step1Form .row.form-group:has(#showRatesBtn) #showRatesBtn {
+  width: 100% !important;
+}
+
+/* Maintain a predictable 48px connected field and icon height. */
+.ors #ores4Wizard #pickupDateHolder .form-control,
+.ors #ores4Wizard #pickupTimeHolder .form-control {
+  border-radius: 9px 0 0 9px !important;
+}
+.ors #ores4Wizard #pickupDateHolder .input-group-btn .btn,
+.ors #ores4Wizard #pickupTimeHolder .input-group-btn .btn {
+  height: 48px !important;
+  min-height: 48px !important;
+  border-radius: 0 9px 9px 0 !important;
+}
+
+/* Tidy Step 1 counters as contiguous, equally tall groups. */
+.ors #step1Form .bootstrap-touchspin {
+  border-radius: 9px;
+  overflow: visible;
+}
+.ors #step1Form .bootstrap-touchspin .input-group-btn {
+  width: 44px;
+}
+.ors #step1Form .bootstrap-touchspin .input-group-btn .btn {
+  width: 44px;
+  min-width: 44px;
+  padding: 8px;
+  border-radius: 0 !important;
+}
+.ors #step1Form .bootstrap-touchspin .form-control {
+  width: 100% !important;
+  min-width: 0;
+  border-radius: 0 !important;
+  padding: 6px 4px;
+}
+.ors #step1Form .bootstrap-touchspin .input-group-addon {
+  width: 42px;
+  padding: 7px 9px;
+}
+
+.ors #step1Form .form-group { margin-bottom: 12px; }
+.ors #step1Form .ors-autocomplete-wrap-lg.form-group { margin-bottom: 13px; }
+.ors #step1Form .ors-extra-info-outer { margin-bottom: 12px; }
+.ors #step1Form .ors-map-room .signature { margin: 5px 0 0; }
+
+/* Preserve pricing, vehicle actions and guest/payment dialogs in Steps 2–3. */
+.ors #ores4Wizard #wizardStep2 .vehicle-grid-item,
+.ors #ores4Wizard #wizardStep3 .modal-content {
+  overflow: visible;
+}
+.ors #ores4Wizard .btn-primary:disabled,
+.ors #ores4Wizard .btn-primary[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 991px) {
+  .ors #step1Form > .row > .ors-col-map { padding-top: 0; }
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 215px !important;
+  }
+}
+@media (max-width: 767px) {
+  .ors #step1Form .ors-map-room .ors-map-outer {
+    height: 195px !important;
+  }
+  .ors #step1Form .bootstrap-touchspin .input-group-btn,
+  .ors #step1Form .bootstrap-touchspin .input-group-btn .btn {
+    width: 40px;
+    min-width: 40px;
+  }
+  .ors #step1Form .row.form-group:has(#showRatesBtn) > .col-md-7 {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   V4 — ORES Step 2 / Select Vehicle refinement
+   Full V3 + V4; use this file ALONE (disable previous themes).
+   Cosmetic only: never hide fare/quote/book actions or invent rates.
+   ============================================================ */
+/* Sorting: existing vendor control was white on pale background. */
+.ors #ores4Wizard #wizardStep2Sorting,
+.ors #ores4Wizard #wizardStep2Sorting .sort-title,
+.ors #ores4Wizard #wizardStep2Sorting .sort-item,
+.ors #ores4Wizard #wizardStep2Sorting span,
+.ors #ores4Wizard #wizardStep2Sorting .svg-icon {
+  color: #343630 !important;
+  fill: currentColor;
+  text-shadow: none !important;
+}
+.ors #ores4Wizard #headingStep2 .panel-title a { color: #101211 !important; }
+.ors #ores4Wizard #headingStep2 .panel-title .svg-icon { color: #b78220 !important; }
+/* Scope Step 2 cards, not the generic .panel or checkout templates. */
+.ors #wizardStep2 #step2RateSection {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+  width: 100%;
+  max-width: none !important;
+}
+.ors #wizardStep2 #step2RateSection > .vehicle-grid-item {
+  float: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  height: 100%;
+  margin: 0 !important;
+  padding: 16px !important;
+  border: 1px solid #ded9ce !important;
+  border-radius: 12px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: #fff !important;
+}
+.ors #wizardStep2 #step2RateSection > .vehicle-grid-item:hover,
+.ors #wizardStep2 #step2RateSection > .vehicle-grid-item.active {
+  border-color: #dca83e !important;
+  box-shadow: 0 0 0 2px rgba(220,168,62,.20) !important;
+}
+/* Keep every vehicle name readable, including Premium Crossover SUV. */
+.ors #wizardStep2 .vehicle-grid-item-title {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+}
+.ors #wizardStep2 .vehicle-grid-item-heading {
+  min-width: 0;
+  width: auto !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+  font-size: 18px !important;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+.ors #wizardStep2 .vehicle-decription-btn { flex: 0 0 auto; }
+.ors #wizardStep2 .vehicle-grid-item-carousel-with-details {
+  min-width: 0;
+  width: 100%;
+  flex: 1 1 auto;
+}
+.ors #wizardStep2 .ors-vehicle-slick-slider .ors-vehicle-img {
+  max-width: 100%;
+  height: 112px;
+}
+.ors #wizardStep2 .ors-vehicle-slick-slider .ors-vehicle-img img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+.ors #wizardStep2 .vehicle-grid-item-specs {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ors #wizardStep2 .vehicle-grid-item-specs .input-group {
+  margin: 0 !important;
+}
+.ors #wizardStep2 .vehicle-grid-item-specs .input-group-addon {
+  color: #383a36;
+  background: #f8f7f4;
+  border-color: #e2ded5;
+}
+.ors #wizardStep2 .vehicle-grid-item-price {
+  margin-top: auto;
+  text-align: center;
+}
+.ors #wizardStep2 .vehicle-grid-item-price-numb {
+  font-size: 24px;
+  color: #101211 !important;
+  font-weight: 700;
+}
+.ors #wizardStep2 .vehicle-grid-item-btn-holder {
+  width: 100%;
+  margin: 0 !important;
+}
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn {
+  width: 100% !important;
+  min-width: 0;
+  min-height: 44px;
+  height: auto;
+  padding: 9px 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: normal;
+}
+/* Keep Request Quote visible as the secondary action. */
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn-outline {
+  background: #fff !important;
+  border: 1px solid #b58a33 !important;
+  color: #805c17 !important;
+}
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn-outline:hover,
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn-outline:focus {
+  background: #fbf5e7 !important;
+  color: #101211 !important;
+}
+/* Never conceal rate explanation popovers / detail panels. */
+.ors #wizardStep2 .vehicle-grid-item-details,
+.ors #wizardStep2 .vehicle-grid-item-details-well,
+.ors #wizardStep2 .vehicle-grid-item .collapse { max-width: 100%; }
+@media (max-width: 1000px) {
+  .ors #wizardStep2 #step2RateSection { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 650px) {
+  .ors #wizardStep2 #step2RateSection { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .ors #wizardStep2 #step2RateSection > .vehicle-grid-item { padding: 14px !important; }
+  .ors #wizardStep2 .vehicle-grid-item-heading { font-size: 17px !important; }
+}
+/* YOUR BEST RIDE — ORES STEP 2 V5 PATCH
+   Append AFTER V4, or use the complete V5 file.
+   Browser-local presentation only. Does not alter rates or actions. */
+
+/* Provide proper room around the actual generated vehicle grid. */
+.ors #wizardStep2 .vehicle-container {
+  width: 100%;
+}
+.ors #wizardStep2 #step2RateSection {
+  padding: 14px 4px 5px !important;
+  gap: 16px !important;
+  align-items: stretch;
+}
+
+/* Tight, premium cards — no artificial oversized image region. */
+.ors #wizardStep2 #step2RateSection > .vehicle-grid-item {
+  padding: 18px !important;
+  gap: 12px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+  box-shadow: 0 4px 18px rgba(16,18,17,.045);
+}
+.ors #wizardStep2 .vehicle-grid-item-title {
+  min-height: 46px !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  margin: 0 !important;
+}
+.ors #wizardStep2 .vehicle-grid-item-heading {
+  font-size: 17px !important;
+  line-height: 1.3 !important;
+  letter-spacing: -.2px;
+  color: #101211 !important;
+  font-weight: 650 !important;
+}
+
+/* V4's flex:1 made this section stretch to fill empty card space. */
+.ors #wizardStep2 .vehicle-grid-item-carousel-with-details {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+.ors #wizardStep2 .ors-vehicle-slick-slider {
+  min-height: 0 !important;
+  margin: 0 0 8px !important;
+}
+.ors #wizardStep2 .ors-vehicle-slick-slider .ors-vehicle-img {
+  height: 86px !important;
+  min-height: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.ors #wizardStep2 .ors-vehicle-slick-slider .ors-vehicle-img img {
+  max-height: 82px !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+/* Preserve ORES capacity values exactly as provided, including blanks. */
+.ors #wizardStep2 .vehicle-grid-item-specs {
+  margin: 0 !important;
+  padding: 9px 0 12px !important;
+  border-bottom: 1px solid #eae5da;
+  justify-content: space-between !important;
+  align-items: center;
+}
+.ors #wizardStep2 .vehicle-grid-item-specs .input-group-addon {
+  min-height: 32px;
+  padding: 6px 9px !important;
+  border-color: #e5e0d5 !important;
+}
+.ors #wizardStep2 .vehicle-grid-item-price {
+  margin: 2px 0 0 !important;
+  padding: 8px 0 !important;
+}
+
+/* Maintain both vendor actions; make them more proportional. */
+.ors #wizardStep2 .vehicle-grid-item-btn-holder {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn {
+  min-height: 42px !important;
+  padding: 9px 12px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  letter-spacing: .1px;
+}
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn-primary {
+  background-color: #dca83e !important;
+  border-color: #dca83e !important;
+  color: #101211 !important;
+}
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn-primary:hover,
+.ors #wizardStep2 .vehicle-grid-item-btn-holder .btn-primary:focus {
+  background-color: #e4b459 !important;
+  border-color: #e4b459 !important;
+}
+
+/* Sorting and step title: remain visible and readable. */
+.ors #headingStep2 #wizardStep2Sorting,
+.ors #headingStep2 #wizardStep2Sorting * {
+  color: #3b3b37 !important;
+  text-shadow: none !important;
+}
+
+@media (max-width: 767px) {
+  .ors #wizardStep2 #step2RateSection { padding: 12px 0 4px !important; }
+  .ors #wizardStep2 #step2RateSection > .vehicle-grid-item { padding: 15px !important; }
+  .ors #wizardStep2 .ors-vehicle-slick-slider .ors-vehicle-img { height: 98px !important; }
+}
+/* YOUR BEST RIDE — V6 Step 3 refinement (browser-local Stylus)
+   Append to V5, or use the complete V6 file. Visual CSS only.
+   Does not hide payment, SMS consent, validation, or booking controls. */
+
+/* A calm, integrated final-details panel */
+.ors #wizardStep3 > .panel-body,
+.ors #wizardStep3 .panel-body-book {
+  background: #f5f4f0 !important;
+  padding: 22px !important;
+}
+.ors #wizardStep3 #step3Login {
+  margin: 0 !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 16px 0;
+}
+/* Intro and total remain visible across both columns. */
+.ors #wizardStep3 #step3Login > .col-sm-12 {
+  width: 100% !important;
+  flex: 0 0 100%;
+  padding: 0 4px !important;
+  margin-bottom: 5px !important;
+  color: #41433e;
+}
+.ors #wizardStep3 #step3Login > .col-sm-12 p {
+  margin: 0 0 8px !important;
+  line-height: 1.5;
+}
+/* The ORES template groups both columns inside #formLoginOuterStep3. */
+.ors #wizardStep3 #formLoginOuterStep3 {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  margin: 0 !important;
+}
+.ors #wizardStep3 #formLoginOuterStep3 > .ors-column-l,
+.ors #wizardStep3 #formLoginOuterStep3 > .ors-column-r {
+  flex: 1 1 calc(50% - 9px);
+  width: calc(50% - 9px) !important;
+  max-width: none !important;
+  min-width: 0;
+  float: none !important;
+  margin: 0 !important;
+  padding: 18px 19px 20px !important;
+  background: #fff !important;
+  border: 1px solid #e1ddd3 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(16,18,17,.035);
+  overflow: visible;
+}
+/* Guest panel uses the same neutral border as login; no persistent selected state. */
+.ors #wizardStep3 #formLoginOuterStep3 > .ors-column-r {
+  border: 1px solid #e1ddd3 !important;
+  padding: 18px 19px 20px !important;
+}
+.ors #wizardStep3 #formLoginOuterStep3 .ors-title {
+  display: block;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #e9e5db !important;
+  border-radius: 0 !important;
+  color: #101211 !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  line-height: 1.35;
+  padding: 0 0 13px !important;
+  margin: 0 0 18px !important;
+  text-align: left !important;
+}
+.ors #wizardStep3 #formLoginOuterStep3 > .ors-column-r > .ors-title {
+  border-bottom-color: #e9e5db !important;
+}
+.ors #wizardStep3 #formLoginOuterStep3 .form-group {
+  margin-bottom: 14px !important;
+}
+.ors #wizardStep3 #formLoginOuterStep3 label {
+  display: inline-block;
+  font-weight: 600;
+  margin-bottom: 6px !important;
+  color: #292b28 !important;
+}
+.ors #wizardStep3 #formLoginOuterStep3 .form-control {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 46px !important;
+  min-height: 46px !important;
+  border-radius: 8px !important;
+  background-color: #fff !important;
+}
+/* Keep the legacy Bootstrap nested first-name / last-name rows intact. */
+.ors #wizardStep3 #step3LoginForm .row,
+.ors #wizardStep3 #accountLoginForm2 .row {
+  min-width: 0;
+}
+.ors #wizardStep3 #step3LoginForm .row > [class*='col-'],
+.ors #wizardStep3 #accountLoginForm2 .row > [class*='col-'] {
+  min-width: 0;
+}
+.ors #wizardStep3 #accountLoginForm2 .btn,
+.ors #wizardStep3 #step3LoginForm button[type='submit'] {
+  min-height: 46px !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 8px !important;
+  padding: 11px 16px !important;
+  font-weight: 700 !important;
+}
+/* Make Continue as guest gold while preserving its native submit action. */
+.ors #wizardStep3 #step3LoginForm button[type='submit'] {
+  background: #dca83e !important;
+  border: 1px solid #dca83e !important;
+  color: #101211 !important;
+}
+.ors #wizardStep3 #step3LoginForm button[type='submit']:hover,
+.ors #wizardStep3 #step3LoginForm button[type='submit']:focus {
+  background: #e4b459 !important;
+  border-color: #e4b459 !important;
+}
+/* Secondary login action: understated, still accessible. */
+.ors #wizardStep3 #accountLoginForm2 .btn-primary {
+  background: #f5f4f0 !important;
+  border: 1px solid #d6d3c9 !important;
+  color: #101211 !important;
+}
+.ors #wizardStep3 #accountLoginForm2 .btn-primary:hover,
+.ors #wizardStep3 #accountLoginForm2 .btn-primary:focus {
+  background: #ebe8df !important;
+  border-color: #b8aa8b !important;
+}
+.ors #wizardStep3 #step3LoginForm .form-group.center,
+.ors #wizardStep3 #accountLoginForm2 .form-group.center {
+  margin-bottom: 0 !important;
+  text-align: stretch;
+}
+/* Preserve opt-in and policy controls; don't force checkbox label widths. */
+.ors #wizardStep3 #divSMSOptInMessage,
+.ors #wizardStep3 #divSmsOptInPrivacylink {
+  color: #40423c;
+  line-height: 1.5;
+}
+.ors #wizardStep3 #divSMSOptInMessage input[type='checkbox'] {
+  accent-color: #dca83e;
+}
+.ors #wizardStep3 .field-validation-error,
+.ors #wizardStep3 .text-danger,
+.ors #wizardStep3 .validation-summary-errors {
+  color: #a52c2c !important;
+}
+.ors #wizardStep3 :is(input, button, a, select, textarea):focus-visible {
+  outline: 2px solid #ae7e26 !important;
+  outline-offset: 2px;
+}
+/* All subsequent ORES screens (post-guest details and payment) keep their
+   own layout; no blanket form or payment field overrides. */
+@media (max-width: 767px) {
+  .ors #wizardStep3 > .panel-body,
+  .ors #wizardStep3 .panel-body-book { padding: 13px !important; }
+  .ors #wizardStep3 #formLoginOuterStep3 { display: block; }
+  .ors #wizardStep3 #formLoginOuterStep3 > .ors-column-l,
+  .ors #wizardStep3 #formLoginOuterStep3 > .ors-column-r {
+    display: block;
+    width: 100% !important;
+    margin: 0 0 14px !important;
+    padding: 16px !important;
+  }
+  /* Native ORES mobile collapse controls remain visible and clickable. */
+  .ors #wizardStep3 #formLoginOuterStep3 .visible-xs-block { display: block; }
+  .ors #wizardStep3 #formLoginOuterStep3 .btn-200 { width: 100% !important; }
+  .ors #wizardStep3 #step3LoginForm .row > .col-sm-6 { margin-bottom: 11px; }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .ors #wizardStep3 #formLoginOuterStep3 { gap: 12px; }
+  .ors #wizardStep3 #formLoginOuterStep3 > .ors-column-l,
+  .ors #wizardStep3 #formLoginOuterStep3 > .ors-column-r {
+    flex-basis: calc(50% - 6px);
+    width: calc(50% - 6px) !important;
+    padding: 15px !important;
+  }
+}
