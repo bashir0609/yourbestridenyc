@@ -1790,7 +1790,7 @@ section[id] {
 .booking-page {
   background: #f7f6f2;
   min-height: 70vh;
-  padding-block: 40px 80px;
+  padding-block: 32px 64px;
 }
 .booking-container-wrap {
   max-width: 1040px;
@@ -1802,14 +1802,14 @@ section[id] {
   background: #101211;
   border-radius: 16px;
   border: 1px solid rgba(217, 164, 65, 0.22);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
-  padding: 38px 42px 32px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.25);
+  padding: 32px 36px 28px;
   color: #ffffff;
 }
 
 /* Header inside unified container */
 .booking-unified-header {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .booking-eyebrow {
   color: #d9a441;
@@ -1817,21 +1817,21 @@ section[id] {
   font-weight: 700;
   letter-spacing: 1.6px;
   text-transform: uppercase;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
 }
 .booking-unified-title {
   color: #ffffff;
-  font-size: clamp(28px, 3.2vw, 42px);
+  font-size: clamp(26px, 3vw, 38px);
   line-height: 1.15;
   letter-spacing: -1px;
   font-weight: 600;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
 }
 .booking-unified-description {
   color: #c4c5c0;
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 0 0 18px 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin: 0 0 14px 0;
   max-width: 680px;
 }
 
@@ -1840,7 +1840,7 @@ section[id] {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 24px;
+  gap: 6px 20px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1850,7 +1850,7 @@ section[id] {
   align-items: center;
   gap: 7px;
   color: #d8d7d2;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.1px;
 }
@@ -1864,15 +1864,15 @@ section[id] {
   background: #f5f4f0;
   border-radius: 12px;
   border: 1px solid #e3e0d8;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: 24px 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  padding: 16px 20px 20px;
   color: #1a1c18;
 }
 .booking-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 .booking-panel-titles {
   display: flex;
@@ -1881,14 +1881,14 @@ section[id] {
 }
 .booking-panel-heading {
   color: #121413;
-  font-size: clamp(20px, 2.2vw, 24px);
-  letter-spacing: -0.6px;
+  font-size: clamp(18px, 2vw, 22px);
+  letter-spacing: -0.5px;
   font-weight: 600;
   margin: 0;
 }
 .booking-panel-sub {
   color: #72746c;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   margin: 0;
 }
@@ -1896,8 +1896,8 @@ section[id] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(217, 164, 65, 0.12);
   color: #c6943b;
@@ -1906,22 +1906,21 @@ section[id] {
 .booking-panel-divider {
   height: 1px;
   background: #e3e0d8;
-  margin: 16px 0 20px;
+  margin: 10px 0 12px;
   border: none;
 }
 .booking-panel-body {
   position: relative;
 }
 
-/* ORES widget embedded container inside off-white panel */
+/* Streamlined ORES widget container: zero padding, transparent, no double border */
 .ores-booking {
   background: #ffffff;
   border: 1px solid #e3e0d8;
-  border-top: 3px solid #c6943b;
   border-radius: 8px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
   min-height: 520px;
-  padding: 24px;
+  padding: 0;
+  overflow: hidden;
 }
 .ores-widget-frame {
   min-height: 400px;
@@ -1937,6 +1936,7 @@ section[id] {
   justify-content: center;
   letter-spacing: 0.8px;
   min-height: 48px;
+  margin: 16px;
   padding: 13px 22px;
   border-radius: 5px;
   text-transform: uppercase;
@@ -1971,30 +1971,31 @@ section[id] {
   border-left: 3px solid #c6943b;
   color: #4b4437;
   font-size: 13px;
-  margin-bottom: 20px;
+  margin: 14px;
   padding: 14px 16px;
 }
 .ores-fallback {
   align-items: center;
   border-top: 1px solid #e7e5de;
   display: flex;
-  gap: 24px;
+  gap: 20px;
   justify-content: space-between;
-  margin-top: 24px;
-  padding-top: 24px;
+  margin-top: 14px;
+  padding: 14px 18px;
+  background: #faf9f6;
 }
 .ores-fallback p {
   color: #666860;
   font-size: 11.5px;
-  line-height: 1.7;
+  line-height: 1.6;
   margin: 0;
 }
 
 /* Disclosures inside unified card */
 .booking-disclosures {
-  margin-top: 24px;
+  margin-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 18px;
+  padding-top: 16px;
 }
 .booking-disclosures .booking-privacy-note {
   color: #9da098;
@@ -2054,38 +2055,37 @@ section[id] {
 }
 @media (max-width: 860px) {
   .booking-unified-card {
-    padding: 28px 24px 24px;
+    padding: 24px 20px 20px;
   }
   .booking-panel-nested {
-    padding: 20px 18px;
+    padding: 14px 16px 16px;
   }
   .booking-trust-strip {
-    gap: 8px 16px;
+    gap: 6px 14px;
   }
 }
 @media (max-width: 640px) {
   .booking-page {
-    padding-block: 16px 44px;
+    padding-block: 14px 36px;
   }
   .booking-container-wrap {
     width: 100%;
-    padding-inline: 12px;
+    padding-inline: 10px;
   }
   .booking-unified-card {
-    padding: 20px 14px 18px;
+    padding: 18px 12px 16px;
     border-radius: 14px;
   }
   .booking-unified-title {
-    font-size: 26px;
+    font-size: 24px;
     letter-spacing: -0.6px;
   }
   .booking-panel-nested {
-    padding: 16px 12px;
+    padding: 12px 10px 14px;
     border-radius: 10px;
   }
   .ores-booking {
     min-height: 440px;
-    padding: 14px 10px;
   }
   .ores-widget-frame {
     min-height: 340px;
@@ -2102,7 +2102,8 @@ section[id] {
   .ores-fallback {
     align-items: stretch;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
+    padding: 12px;
   }
   .ores-fallback .button {
     width: 100%;
