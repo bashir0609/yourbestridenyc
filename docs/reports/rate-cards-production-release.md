@@ -1,25 +1,32 @@
 # Your Best Ride — Rate Cards & Pricing Engine Production Release Report
 
 **Project:** Your Best Ride Inc.  
-**Release Date:** October 23, 2026 (19:15 UTC+6)  
+**Release Date:** October 23, 2026 (19:55 UTC+6)  
 **Target Environment:** Production (`https://www.yourbestridenyc.com`)  
 **Production Branch:** `master`  
-**Shared Database:** Neon Serverless PostgreSQL (`neondb`)  
+**Production Commit SHA:** `a7d7b38` (`a7d7b381ec802778da50e58fae32230da3f185db`)  
+**Vercel Deployment ID:** `dpl_Azvq5xEZrCXHXcknoRKHqhvb2TDX`  
+**Shared Database:** Neon Serverless PostgreSQL (`ep-quiet-sky-b8ned4h6-pooler`)  
 **Status:** **SUCCESS (Deployed & Verified Live)**
 
 ---
 
 ## 1. Executive Summary & Release Scope
 
-This release officially deploys the **Admin-Controlled Pricing Architecture and Rate Cards System** to Production on `master`.
+This release officially deploys the **Admin-Controlled Pricing Architecture, Rate Cards System, and Location-Specific Route Pricing Integration** to Production on `master`.
 
 ### Core Capabilities Released:
 
 1. **CMS Rate Cards System:** Administrator management of transportation tariffs in Payload CMS (`/admin` &rarr; Rate Cards) across Fixed Route, Hourly, Mileage, and Custom pricing models.
 2. **Reconciliation & Audit Gate:** Mandatory verification against Limo Anywhere test quotes before publishing. Server-side derivers enforce `verifiedBy` and `verifiedAt`. Material changes automatically invalidate verification.
 3. **Transparent Public Pricing (`/rates-and-options`):** Responsive multi-model tariff comparison interface with vehicle class specifications, statutory fee disclosures, and prefilled custom quote inquiry scenarios.
-4. **Service & Fleet Integration:** Service pages dynamically display eligible starting prices derived from published rate cards. Fleet vehicle cards and detail pages dynamically link to vehicle class rate profiles.
-5. **Customer-Facing Terminology:** Complete removal of internal "ORES" booking terminology across all public components, standardizing on "Book Now", "Check Availability & Book", and "Request a Custom Quote".
+4. **Location-Specific Route Pricing (`/locations/[slug]`):**
+   - **Hero Action:** "View Route Pricing" CTA linking directly to `/rates-and-options?location=<slug>&tab=airport`.
+   - **Dedicated Rates Section:** "Transportation Rates From [Location Name]" displaying eligible published outbound tariffs grouped by destination, vehicle class pills, base flat fare, and non-misleading additional-stop disclosures.
+   - **Non-Reversal Safety:** Outbound tariffs (e.g. Manhattan &rarr; JFK at $205.00) are never automatically inferred as return fares without an explicit, administrator-verified inbound route entry.
+   - **URL State & Filter Banner:** Centralized Rates & Options page supports `?location=<slug>` with a dynamic filter banner and a 1-click "Show All Locations" reset control.
+5. **Service & Fleet Integration:** Service pages dynamically display eligible starting prices derived from published rate cards. Fleet vehicle cards and detail pages dynamically link to vehicle class rate profiles.
+6. **Customer-Facing Terminology:** Complete removal of internal "ORES" booking terminology across all public components, standardizing on "Book Now", "Check Availability & Book", and "Request a Custom Quote".
 
 ---
 
@@ -27,12 +34,12 @@ This release officially deploys the **Admin-Controlled Pricing Architecture and 
 
 The four planned commercial tariffs are configured in the shared database as follows:
 
-| Rate Card Title                                        | ID  | Vehicle Class         | Pricing Model | Published Tariff / Benchmark    | Reconciliation Status         | Customer Presentation            |
-| :----------------------------------------------------- | :-: | :-------------------- | :------------ | :------------------------------ | :---------------------------- | :------------------------------- |
-| **Standard SUV — Hourly Chauffeur Rate 2026**          | `1` | Standard SUV          | Hourly        | $115.00/hr (3-hr minimum)       | `draft`                       | Protected (Empty state CTA)      |
-| **Premium Crossover SUV — Hourly Chauffeur Rate 2026** | `2` | Premium Crossover SUV | Hourly        | $135.00/hr (3-hr minimum)       | `draft`                       | Protected (Empty state CTA)      |
-| **Standard SUV — NYC Airport Transfers 2026**          | `3` | Standard SUV          | Fixed Route   | JFK: $175, LGA: $150, EWR: $185 | `draft`                       | Protected (Empty state CTA)      |
-| **Premium Crossover SUV — NYC Airport Transfers 2026** | `4` | Premium Crossover SUV | Fixed Route   | JFK: $205, LGA: $175, EWR: $215 | **`published`** (LA Verified) | **Live on `/rates-and-options`** |
+| Rate Card Title                                        | ID  | Vehicle Class         | Pricing Model | Published Tariff / Benchmark    | Reconciliation Status         | Customer Presentation                                       |
+| :----------------------------------------------------- | :-: | :-------------------- | :------------ | :------------------------------ | :---------------------------- | :---------------------------------------------------------- |
+| **Standard SUV — Hourly Chauffeur Rate 2026**          | `1` | Standard SUV          | Hourly        | $115.00/hr (3-hr minimum)       | `draft`                       | Protected (Empty state CTA)                                 |
+| **Premium Crossover SUV — Hourly Chauffeur Rate 2026** | `2` | Premium Crossover SUV | Hourly        | $135.00/hr (3-hr minimum)       | `draft`                       | Protected (Empty state CTA)                                 |
+| **Standard SUV — NYC Airport Transfers 2026**          | `3` | Standard SUV          | Fixed Route   | JFK: $175, LGA: $150, EWR: $185 | `draft`                       | Protected (Empty state CTA)                                 |
+| **Premium Crossover SUV — NYC Airport Transfers 2026** | `4` | Premium Crossover SUV | Fixed Route   | JFK: $205, LGA: $175, EWR: $215 | **`published`** (LA Verified) | **Live on `/rates-and-options` and `/locations/manhattan`** |
 
 _Rate Card ID 4 was verified against Limo Anywhere matrix `Default Fixed Rate Matrix / MHT / PCSUV / JFK-LGA-EWR` by Administrator ID 1 on `2026-10-23T12:46:07Z` and published. Draft cards remain protected from customer display until administrator reconciliation._
 
@@ -42,6 +49,7 @@ _Rate Card ID 4 was verified against Limo Anywhere matrix `Default Fixed Rate Ma
 
 - **Chauffeur Gratuity:** 20% standard gratuity is disclosed as calculated upon net base fare during checkout in Limo Anywhere.
 - **Statutory Surcharges:** NYS Congestion Surcharge ($2.75 Tax Law § 1281), Port Authority Airport Access Fee, and MTA CBD entry fees are itemized transparently.
+- **Unverified Additional-Stop Charge Resolution:** The $25 intermediate-stop charge is preserved in data storage but presented strictly as _"En-route stops: quoted on request (est. $25, pending LA confirmation)"_ until officially reconciled in Limo Anywhere.
 - **Commercial Policies:** Curbside grace (15 mins), Domestic airport grace (30 mins), International airport grace (60 mins), and late-night window (23:00–05:00) are fully documented.
 
 ---
@@ -52,39 +60,34 @@ _Rate Card ID 4 was verified against Limo Anywhere matrix `Default Fixed Rate Ma
 - **Migration Batch 2:** Migration `20261022_182542_add_pricing_engine` was applied transactionally to Neon on `2026-10-22T18:27:25Z`.
 - **Zero Migration Execution:** No database schema alterations or migrations were run during this Production release.
 - **`DATABASE_PUSH=false`:** Enforced across all environments, preventing accidental DDL schema sync at build or runtime.
+- **Data Preservation:** All existing users, media assets in Cloudflare R2, location pages, and service pages were preserved with zero destructive operations.
 
 ---
 
 ## 5. Deployment Verification & Production Health
 
-| Verification Vector                             | Production (`www.yourbestridenyc.com`) | Outcome  |
-| :---------------------------------------------- | :------------------------------------: | :------: |
-| **Production Homepage (`/`)**                   |                `200 OK`                | **PASS** |
-| **Rates & Options Page (`/rates-and-options`)** | `200 OK` (Live Published Tariff Table) | **PASS** |
-| **Limo Anywhere Booking (`/book`)**             |  `200 OK` (ORES Secure Iframe Active)  | **PASS** |
-| **Fleet Directory (`/fleet`)**                  |                `200 OK`                | **PASS** |
-| **Services Directory (`/services`)**            |                `200 OK`                | **PASS** |
-| **Admin Portal (`/admin/login`)**               |                `200 OK`                | **PASS** |
-| **Limo Anywhere Rates & API**                   |         Untouched & Preserved          | **PASS** |
-| **Cloudflare R2 Media Delivery**                |         Untouched & Preserved          | **PASS** |
+| Verification Vector              | Target Endpoint                                       | HTTP Status |                                                                                          Production Verification Outcome                                                                                           |
+| :------------------------------- | :---------------------------------------------------- | :---------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| **Production Homepage**          | `https://www.yourbestridenyc.com/`                    |  `200 OK`   |                                                                    **PASS** — Live with verified branding, fleet highlights, and service links.                                                                    |
+| **Rates & Options**              | `https://www.yourbestridenyc.com/rates-and-options`   |  `200 OK`   |                                **PASS** — Renders live fixed airport tariffs for Card ID 4 ($205/$175/$215); draft tariffs protected; client-side location filtering bundle active.                                |
+| **Service Area Detail**          | `https://www.yourbestridenyc.com/locations/manhattan` |  `200 OK`   | **PASS** — Hero "View Route Pricing" CTA active; "Transportation Rates From Manhattan, New York" renders JFK ($205), LGA ($175), EWR ($215) for Premium Crossover SUV; 20% gratuity and toll disclosures verified. |
+| **Limo Anywhere Booking**        | `https://www.yourbestridenyc.com/book`                |  `200 OK`   |                                                             **PASS** — Secure vendor iframe loaded directly to official Limo Anywhere booking engine.                                                              |
+| **Payload Admin Portal**         | `https://www.yourbestridenyc.com/admin/login`         |  `200 OK`   |                                                           **PASS** — Admin login accessible; Rate Cards collection with reconciliation gate operational.                                                           |
+| **Limo Anywhere Rates & API**    | Upstream Booking Services                             |     N/A     |                                                                                   **PASS** — Completely untouched and preserved.                                                                                   |
+| **Cloudflare R2 Media Delivery** | Public Media Assets                                   |     N/A     |                                                                                   **PASS** — Completely untouched and preserved.                                                                                   |
 
 ---
 
-## 6. Location-Specific Route Pricing Integration (Pending Production Release)
+## 6. Post-Deployment Verification Summary
 
-### Implementation Summary:
-
-1. **Location Detail Pages (`/locations/[slug]`):**
-   - Hero: Added "View Route Pricing" CTA linking to `/rates-and-options?location=<slug>&tab=airport` with responsive button wrapping.
-   - Dedicated Section: "Transportation Rates From [Location Name]" rendering published outbound routes grouped by destination with vehicle class pills, base flat fare, stop fees, Book Now and Request Quote CTAs.
-   - Disclosures: Clarified base-fare terms, mandatory 20% chauffeur gratuity calculated in Limo Anywhere checkout, and pass-through commercial tolls.
-   - Fallback: Graceful empty-state card with custom quotation actions when no fixed routes are published for that area.
-2. **Rates & Options Filtering (`/rates-and-options`):**
-   - Query Parameters: Supports `location` parameter and aliases `tab=airport` &rarr; `tab=fixed`.
-   - Filter Banner: Shows active location filter with "Show All Locations &times;" clear action.
-   - Non-Reversal Safety: Strictly avoids reverse-direction fare inference from outbound rates.
-3. **Quality Assurance:**
-   - 143/143 tests passing including new location-specific route pricing regression tests.
-   - TypeScript typecheck passed with 0 errors.
-   - ESLint passed with 0 warnings.
-   - Prettier formatting validated.
+1. **Eligible Published Tariffs:**
+   - Card ID 4 (_Premium Crossover SUV — NYC Airport Transfers 2026_) is confirmed rendering live on both `/rates-and-options` and `/locations/manhattan`.
+   - Outbound rates for Manhattan to JFK ($205.00), LaGuardia ($175.00), and Newark ($215.00) display correctly with "Base Flat Fare" labeling.
+2. **Draft Tariffs Protected:**
+   - Rate Card ID 1, 2, and 3 remain in `_status = 'draft'` and are completely excluded from public customer views.
+3. **Additional-Stop Charge Non-Misleading Presentation:**
+   - Renders as _"En-route stops: quoted on request (est. $25, pending LA confirmation)"_ rather than a confirmed tariff.
+4. **Booking Integration:**
+   - Direct booking CTAs route to `/book`, which securely embeds the official Limo Anywhere ORES booking widget.
+5. **Remaining Operational Tasks:**
+   - Operational reconciliation with Limo Anywhere test quotes for Rate Cards 1, 2, and 3 before administrator transition to `la_verified` and publishing.
