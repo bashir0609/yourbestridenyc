@@ -583,6 +583,116 @@ export function resolveVehicleClassDisplayName(
     .join(' ');
 }
 
+export type FilterResetType = 'location' | 'vehicleClass' | 'all';
+
+export interface RatesFilterBannerState {
+  hasBanner: boolean;
+  showLocation: boolean;
+  showVehicleClass: boolean;
+  buttonLabel: string;
+  ariaLabel: string;
+  resetType: FilterResetType | null;
+}
+
+/**
+ * Resolves filter banner visibility, labels, and reset behavior for Rates & Options.
+ * Strictly guarantees:
+ * - Location filter only: "Filtered by Location: [Name]", button "Show All Locations ×", clears location.
+ * - Vehicle class filter only: "Vehicle Class: [Name]", button "Show All Vehicle Classes ×", clears vehicleClass.
+ * - Both filters active: Displays both, button "Clear All Filters ×", clears both.
+ * - Neither active: hasBanner is false.
+ */
+export function resolveRatesFilterBanner(
+  locationQuery?: string | null,
+  vehicleClassQuery?: string | number | null,
+): RatesFilterBannerState {
+  const hasLoc = Boolean(locationQuery && String(locationQuery).trim());
+  const hasClass = Boolean(
+    vehicleClassQuery !== undefined &&
+      vehicleClassQuery !== null &&
+      String(vehicleClassQuery).trim(),
+  );
+
+  if (hasLoc && hasClass) {
+    return {
+      hasBanner: true,
+      showLocation: true,
+      showVehicleClass: true,
+      buttonLabel: 'Clear All Filters \u00D7',
+      ariaLabel: 'Clear all filters',
+      resetType: 'all',
+    };
+  }
+
+  if (hasLoc) {
+    return {
+      hasBanner: true,
+      showLocation: true,
+      showVehicleClass: false,
+      buttonLabel: 'Show All Locations \u00D7',
+      ariaLabel: 'Clear location filter',
+      resetType: 'location',
+    };
+  }
+
+  if (hasClass) {
+    return {
+      hasBanner: true,
+      showLocation: false,
+      showVehicleClass: true,
+      buttonLabel: 'Show All Vehicle Classes \u00D7',
+      ariaLabel: 'Clear vehicle class filter',
+      resetType: 'vehicleClass',
+    };
+  }
+
+  return {
+    hasBanner: false,
+    showLocation: false,
+    showVehicleClass: false,
+    buttonLabel: '',
+    ariaLabel: '',
+    resetType: null,
+  };
+}
+
+/**
+ * Computes updated URL when clearing rates-and-options filters.
+ * Strictly preserves:
+ * - Active pricing tab (e.g. ?tab=airport, ?tab=hourly, ?tab=fixed)
+ * - All unrelated query parameters (e.g. ?promo=abc, ?source=google, ?ref=partner)
+ * - Only deletes the designated filter parameter(s).
+ */
+export function computeClearedFilterUrl(
+  currentUrl: string,
+  filterToClear: FilterResetType,
+  activeTab?: string,
+): string {
+  try {
+    const isRelative = !currentUrl.startsWith('http://') && !currentUrl.startsWith('https://');
+    const dummyBase = 'https://dummy.local';
+    const parsed = new URL(currentUrl, dummyBase);
+
+    if (filterToClear === 'location' || filterToClear === 'all') {
+      parsed.searchParams.delete('location');
+    }
+    if (filterToClear === 'vehicleClass' || filterToClear === 'all') {
+      parsed.searchParams.delete('vehicleClass');
+    }
+
+    if (activeTab && activeTab !== 'fixed' && !parsed.searchParams.has('tab')) {
+      parsed.searchParams.set('tab', activeTab);
+    }
+
+    if (isRelative) {
+      return parsed.pathname + parsed.search + parsed.hash;
+    }
+    return parsed.toString();
+  } catch {
+    return currentUrl;
+  }
+}
+
 export function mapEligibleRateCardsToContent(
   classes: VehicleClassCard[],
   rateCards: RateCardCandidate[],

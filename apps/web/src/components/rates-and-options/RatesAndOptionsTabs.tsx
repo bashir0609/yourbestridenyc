@@ -10,6 +10,8 @@ import {
   isRouteMatchingVehicleClass,
   isHourlyMatchingVehicleClass,
   resolveVehicleClassDisplayName,
+  resolveRatesFilterBanner,
+  computeClearedFilterUrl,
 } from '@/lib/cms/pricing-rules';
 import type {
   FeeRuleEntry,
@@ -115,18 +117,16 @@ export function RatesAndOptionsTabs({
   const handleClearLocationFilter = () => {
     setSelectedLocation(null);
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('location');
-      window.history.replaceState(null, '', url.toString());
+      const nextUrl = computeClearedFilterUrl(window.location.href, 'location', activeTab);
+      window.history.replaceState(null, '', nextUrl);
     }
   };
 
   const handleClearVehicleClassFilter = () => {
     setSelectedVehicleClass(null);
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('vehicleClass');
-      window.history.replaceState(null, '', url.toString());
+      const nextUrl = computeClearedFilterUrl(window.location.href, 'vehicleClass', activeTab);
+      window.history.replaceState(null, '', nextUrl);
     }
   };
 
@@ -134,10 +134,8 @@ export function RatesAndOptionsTabs({
     setSelectedLocation(null);
     setSelectedVehicleClass(null);
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('location');
-      url.searchParams.delete('vehicleClass');
-      window.history.replaceState(null, '', url.toString());
+      const nextUrl = computeClearedFilterUrl(window.location.href, 'all', activeTab);
+      window.history.replaceState(null, '', nextUrl);
     }
   };
 
@@ -158,6 +156,7 @@ export function RatesAndOptionsTabs({
     selectedVehicleClass,
     vehicleClasses,
   );
+  const bannerConfig = resolveRatesFilterBanner(selectedLocation, selectedVehicleClass);
 
   const handleTabChange = (key: TabKey) => {
     setActiveTab(key);
@@ -237,16 +236,16 @@ export function RatesAndOptionsTabs({
               </div>
             </div>
 
-            {(selectedLocation || selectedVehicleClass) && (
+            {bannerConfig.hasBanner && (
               <div className="location-filter-banner">
                 <div className="location-filter-info">
-                  {selectedLocation && (
-                    <span style={{ marginRight: selectedVehicleClass ? '14px' : '0' }}>
+                  {bannerConfig.showLocation && (
+                    <span style={{ marginRight: bannerConfig.showVehicleClass ? '14px' : '0' }}>
                       <span className="location-filter-label">Filtered by Location:</span>{' '}
                       <strong>{locationDisplayName}</strong>
                     </span>
                   )}
-                  {selectedVehicleClass && (
+                  {bannerConfig.showVehicleClass && (
                     <span>
                       <span className="location-filter-label">Vehicle Class:</span>{' '}
                       <strong>{vehicleClassDisplayName}</strong>
@@ -263,16 +262,20 @@ export function RatesAndOptionsTabs({
                 <button
                   type="button"
                   onClick={
-                    selectedLocation && !selectedVehicleClass
+                    bannerConfig.resetType === 'location'
                       ? handleClearLocationFilter
-                      : !selectedLocation && selectedVehicleClass
+                      : bannerConfig.resetType === 'vehicleClass'
                         ? handleClearVehicleClassFilter
                         : handleClearAllFilters
                   }
                   className="clear-location-filter-btn"
-                  aria-label="Clear location filter"
+                  aria-label={bannerConfig.ariaLabel}
                 >
-                  Show All Locations &times;
+                  {bannerConfig.resetType === 'location'
+                    ? 'Show All Locations \u00D7'
+                    : bannerConfig.resetType === 'vehicleClass'
+                      ? 'Show All Vehicle Classes \u00D7'
+                      : 'Clear All Filters \u00D7'}
                 </button>
               </div>
             )}
@@ -379,9 +382,9 @@ export function RatesAndOptionsTabs({
                   <button
                     type="button"
                     onClick={
-                      selectedLocation && !selectedVehicleClass
+                      bannerConfig.resetType === 'location'
                         ? handleClearLocationFilter
-                        : !selectedLocation && selectedVehicleClass
+                        : bannerConfig.resetType === 'vehicleClass'
                           ? handleClearVehicleClassFilter
                           : handleClearAllFilters
                     }
@@ -483,7 +486,7 @@ export function RatesAndOptionsTabs({
             {selectedVehicleClass && (
               <div className="location-filter-banner" style={{ marginBottom: '24px' }}>
                 <div className="location-filter-info">
-                  <span className="location-filter-label">Filtered by Vehicle Class:</span>{' '}
+                  <span className="location-filter-label">Vehicle Class:</span>{' '}
                   <strong>{vehicleClassDisplayName}</strong>
                 </div>
                 <button

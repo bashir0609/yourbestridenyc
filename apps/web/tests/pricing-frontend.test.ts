@@ -13,6 +13,8 @@ import {
   isRouteMatchingVehicleClass,
   isHourlyMatchingVehicleClass,
   resolveVehicleClassDisplayName,
+  resolveRatesFilterBanner,
+  computeClearedFilterUrl,
   type RateCardCandidate,
 } from '../src/lib/cms/pricing-rules';
 import type {
@@ -989,4 +991,98 @@ test('Fleet dynamic pricing UI contracts: card View Rates, detail View Vehicle R
   assert.ok(tabsSource.includes('isHourlyMatchingVehicleClass(charter, selectedVehicleClass)'));
   assert.ok(tabsSource.includes('handleClearVehicleClassFilter'));
   assert.ok(tabsSource.includes('Show All Vehicle Classes'));
+});
+
+test('resolveRatesFilterBanner correctly manages the 3 reset scenarios and neither-active state', () => {
+  // Scenario 1: Location filter only
+  const locOnly = resolveRatesFilterBanner('manhattan', null);
+  assert.equal(locOnly.hasBanner, true);
+  assert.equal(locOnly.showLocation, true);
+  assert.equal(locOnly.showVehicleClass, false);
+  assert.equal(locOnly.buttonLabel, 'Show All Locations \u00D7');
+  assert.equal(locOnly.ariaLabel, 'Clear location filter');
+  assert.equal(locOnly.resetType, 'location');
+
+  // Scenario 2: Vehicle class filter only (the reported bug scenario)
+  const vehicleOnly = resolveRatesFilterBanner(null, 'standard-suv');
+  assert.equal(vehicleOnly.hasBanner, true);
+  assert.equal(vehicleOnly.showLocation, false);
+  assert.equal(vehicleOnly.showVehicleClass, true);
+  assert.equal(vehicleOnly.buttonLabel, 'Show All Vehicle Classes \u00D7');
+  assert.equal(vehicleOnly.ariaLabel, 'Clear vehicle class filter');
+  assert.equal(vehicleOnly.resetType, 'vehicleClass');
+
+  // Scenario 3: Both filters active
+  const bothActive = resolveRatesFilterBanner('manhattan', 'premium-crossover-suv');
+  assert.equal(bothActive.hasBanner, true);
+  assert.equal(bothActive.showLocation, true);
+  assert.equal(bothActive.showVehicleClass, true);
+  assert.equal(bothActive.buttonLabel, 'Clear All Filters \u00D7');
+  assert.equal(bothActive.ariaLabel, 'Clear all filters');
+  assert.equal(bothActive.resetType, 'all');
+
+  // Scenario 4: Neither filter active
+  const neitherActive = resolveRatesFilterBanner(null, null);
+  assert.equal(neitherActive.hasBanner, false);
+  assert.equal(neitherActive.showLocation, false);
+  assert.equal(neitherActive.showVehicleClass, false);
+  assert.equal(neitherActive.resetType, null);
+
+  // Empty strings also evaluate to neither active
+  const emptyStrings = resolveRatesFilterBanner('   ', '');
+  assert.equal(emptyStrings.hasBanner, false);
+});
+
+test('computeClearedFilterUrl strictly preserves active tab and unrelated parameters', () => {
+  // 1. Clear location only: removes location, keeps vehicleClass, tab, and unrelated query params
+  const url1 =
+    'https://www.yourbestridenyc.com/rates-and-options?location=manhattan&vehicleClass=standard-suv&tab=airport&utm_source=google&promo=save10';
+  const clearedLoc = computeClearedFilterUrl(url1, 'location', 'fixed');
+  assert.ok(!clearedLoc.includes('location='));
+  assert.ok(clearedLoc.includes('vehicleClass=standard-suv'));
+  assert.ok(clearedLoc.includes('tab=airport'));
+  assert.ok(clearedLoc.includes('utm_source=google'));
+  assert.ok(clearedLoc.includes('promo=save10'));
+
+  // 2. Clear vehicleClass only: removes vehicleClass, keeps location, tab, and unrelated query params
+  const clearedVehicle = computeClearedFilterUrl(url1, 'vehicleClass', 'fixed');
+  assert.ok(clearedVehicle.includes('location=manhattan'));
+  assert.ok(!clearedVehicle.includes('vehicleClass='));
+  assert.ok(clearedVehicle.includes('tab=airport'));
+  assert.ok(clearedVehicle.includes('utm_source=google'));
+  assert.ok(clearedVehicle.includes('promo=save10'));
+
+  // 3. Clear all filters: removes both location and vehicleClass, preserves tab and unrelated params
+  const clearedAll = computeClearedFilterUrl(url1, 'all', 'fixed');
+  assert.ok(!clearedAll.includes('location='));
+  assert.ok(!clearedAll.includes('vehicleClass='));
+  assert.ok(clearedAll.includes('tab=airport'));
+  assert.ok(clearedAll.includes('utm_source=google'));
+  assert.ok(clearedAll.includes('promo=save10'));
+
+  // 4. Preserves activeTab when not in URL and non-default
+  const hourlyUrl = '/rates-and-options?vehicleClass=premium-crossover-suv';
+  const clearedHourly = computeClearedFilterUrl(hourlyUrl, 'vehicleClass', 'hourly');
+  assert.ok(!clearedHourly.includes('vehicleClass='));
+  assert.ok(clearedHourly.includes('tab=hourly'));
+
+  // 5. Preserves anchor / hash
+  const hashUrl = '/rates-and-options?vehicleClass=standard-suv#rates-inquiry';
+  const clearedHash = computeClearedFilterUrl(hashUrl, 'vehicleClass', 'fixed');
+  assert.ok(clearedHash.endsWith('#rates-inquiry'));
+  assert.ok(!clearedHash.includes('vehicleClass='));
+});
+
+test('RatesAndOptionsTabs source contract enforces dynamic banner labels and URL state update', () => {
+  const tabsSource = readFileSync(
+    new URL('../src/components/rates-and-options/RatesAndOptionsTabs.tsx', import.meta.url),
+    'utf-8',
+  );
+  assert.ok(tabsSource.includes('resolveRatesFilterBanner'));
+  assert.ok(tabsSource.includes('computeClearedFilterUrl'));
+  assert.ok(tabsSource.includes('bannerConfig.hasBanner'));
+  assert.ok(tabsSource.includes('Show All Locations'));
+  assert.ok(tabsSource.includes('Show All Vehicle Classes'));
+  assert.ok(tabsSource.includes('Clear All Filters'));
+  assert.ok(tabsSource.includes('window.history.replaceState'));
 });
