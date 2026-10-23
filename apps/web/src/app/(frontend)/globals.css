@@ -1924,12 +1924,12 @@ section[id] {
 .ores-booking {
   width: 100%;
   box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid #e3e0d8;
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   min-height: 520px;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 .ores-widget-frame {
   min-height: 400px;

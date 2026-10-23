@@ -17,11 +17,11 @@ body { background: var(--ybr-paper) !important; color: var(--ybr-ink); }
 .ors .panel { background: #fff; border: 1px solid #e6e3da; border-radius: 12px; overflow: visible; }
 .ors #ores4Wizard > .panel { box-shadow: 0 6px 22px rgba(16,18,17,.035); margin-bottom: 14px; }
 .ors #ores4Wizard > .panel > .panel-heading {
-  background: var(--ybr-ink) !important; color: #fff !important;
-  border: 0; border-radius: 11px 11px 0 0; padding: 14px 18px; margin: 0;
+  background: #fbfaf7 !important; color: #101211 !important;
+  border: 0; border-bottom: 1px solid #e3dfd6 !important; border-radius: 11px 11px 0 0; padding: 14px 18px; margin: 0;
 }
 .ors #ores4Wizard > .panel > .panel-heading .panel-title,
-.ors #ores4Wizard > .panel > .panel-heading .panel-title a { color: #fff !important; font-size: 15px; font-weight: 600; }
+.ors #ores4Wizard > .panel > .panel-heading .panel-title a { color: #101211 !important; font-size: 15px; font-weight: 600; }
 .ors #ores4Wizard > .panel > .panel-heading .svg-icon { color: var(--ybr-gold); fill: currentColor; }
 .ors #ores4Wizard .panel-body-book { padding: 20px; }
 .ors label { color: #242622; font-weight: 600; font-size: 13px; margin-bottom: 7px; }
@@ -133,21 +133,13 @@ body { background: #f5f4f0 !important; }
 .ors .navbar { margin-bottom: 10px; }
 /* Unified charcoal frame and warm paper reservation panel */
 .ors #ores4Wizard {
-  background: var(--ybr-charcoal);
-  border: 1px solid rgba(220,168,62,.28);
-  border-radius: 18px;
-  padding: 22px;
-  box-shadow: 0 18px 40px rgba(16,18,17,.12);
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 }
-.ors #ores4Wizard::before {
-  content: 'PRIVATE CHAUFFEURED TRANSPORTATION';
-  display: block;
-  color: #dca83e;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .18em;
-  padding: 0 0 8px 4px;
-}
+.ors #ores4Wizard::before { content: none !important; display: none !important; }
 .ors #ores4Wizard::after { content: ''; display: block; clear: both; }
 .ors #ores4Wizard > .panel {
   margin: 0 0 13px;
@@ -158,7 +150,7 @@ body { background: #f5f4f0 !important; }
 }
 .ors #ores4Wizard > .panel:last-child { margin-bottom: 0; }
 .ors #ores4Wizard > .panel > .panel-heading {
-  background: var(--ybr-panel) !important;
+  background: #fbfaf7 !important;
   border-bottom: 1px solid #e3dfd6;
   border-radius: 13px 13px 0 0;
   padding: 15px 18px;
@@ -261,12 +253,12 @@ body { background: #f5f4f0 !important; }
   .ors #step1Form .ors-col-map .ors-map-room { max-width: none; }
 }
 @media (max-width: 991px) {
-  .ors #ores4Wizard { padding: 14px; border-radius: 14px; }
+  .ors #ores4Wizard { padding: 0 !important; border-radius: 0 !important; }
   .ors #ores4Wizard .ors-map-room .ors-map-outer { height: 220px !important; }
 }
 @media (max-width: 767px) {
-  .ors #ores4Wizard { padding: 10px; border-radius: 12px; }
-  .ors #ores4Wizard::before { font-size: 9px; letter-spacing: .11em; padding: 5px 3px 10px; }
+  .ors #ores4Wizard { padding: 0 !important; border-radius: 0 !important; }
+  .ors #ores4Wizard::before { content: none !important; display: none !important; }
   .ors #ores4Wizard > .panel > .panel-heading { padding: 13px 12px; }
   .ors #ores4Wizard .panel-body-book { padding: 14px 12px; }
   .ors #ores4Wizard .ors-map-room .ors-map-outer { height: 200px !important; }
