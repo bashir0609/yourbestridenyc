@@ -1792,13 +1792,18 @@ section[id] {
   min-height: 70vh;
   padding-block: 32px 64px;
 }
+.booking-page .booking-container-wrap,
+.booking-container-wrap.container-shell,
 .booking-container-wrap {
-  max-width: 1040px;
+  width: min(1360px, 96%);
+  max-width: 1360px;
   margin-inline: auto;
 }
 
 /* Outer unified dark booking container */
 .booking-unified-card {
+  width: 100%;
+  box-sizing: border-box;
   background: #101211;
   border-radius: 16px;
   border: 1px solid rgba(217, 164, 65, 0.22);
@@ -1861,6 +1866,8 @@ section[id] {
 
 /* Nested warm off-white reservation panel */
 .booking-panel-nested {
+  width: 100%;
+  box-sizing: border-box;
   background: #f5f4f0;
   border-radius: 12px;
   border: 1px solid #e3e0d8;
@@ -1915,6 +1922,8 @@ section[id] {
 
 /* Streamlined ORES widget container: zero padding, transparent, no double border */
 .ores-booking {
+  width: 100%;
+  box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #e3e0d8;
   border-radius: 8px;
@@ -2054,6 +2063,10 @@ section[id] {
   }
 }
 @media (max-width: 860px) {
+  .booking-page .booking-container-wrap,
+  .booking-container-wrap.container-shell {
+    width: min(1360px, calc(100% - 32px));
+  }
   .booking-unified-card {
     padding: 24px 20px 20px;
   }
@@ -2068,9 +2081,13 @@ section[id] {
   .booking-page {
     padding-block: 14px 36px;
   }
+  .booking-page .booking-container-wrap,
+  .booking-container-wrap.container-shell,
   .booking-container-wrap {
     width: 100%;
+    max-width: 100%;
     padding-inline: 10px;
+    box-sizing: border-box;
   }
   .booking-unified-card {
     padding: 18px 12px 16px;
