@@ -166,7 +166,7 @@ test('vendor script is scoped to the booking integration only', async () => {
   );
 });
 
-test('book page delivers unified black container with nested off-white reservation panel and single reservation engine', async () => {
+test('book page delivers unified black container with direct single reservation engine', async () => {
   const { readFile } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const source = await readFile(
@@ -190,9 +190,17 @@ test('book page delivers unified black container with nested off-white reservati
   assert.match(source, /Secure booking/);
 
   // Nested warm off-white reservation panel
-  assert.match(source, /booking-panel-nested/);
-  assert.match(source, /Your reservation/);
-  assert.doesNotMatch(source, /Powered by Limo Anywhere/i, 'provider branding must not be exposed on custom booking page');
+  assert.doesNotMatch(
+    source,
+    /booking-panel-nested/,
+    'redundant reservation panel wrapper must be removed',
+  );
+  assert.doesNotMatch(source, /Your reservation/, 'duplicate heading must be removed');
+  assert.doesNotMatch(
+    source,
+    /Powered by Limo Anywhere/i,
+    'provider branding must not be exposed on custom booking page',
+  );
 
   // Single booking form only (no QuickRes)
   const widgetOccurrences = source.match(/<LimoAnywhereBooking\b/g) ?? [];
@@ -200,7 +208,11 @@ test('book page delivers unified black container with nested off-white reservati
   assert.doesNotMatch(source, /quickres/i, 'QuickRes widget must not be included');
 
   // Accessible fallback and privacy notices preserved
-  assert.doesNotMatch(source, /Payload CMS/i, 'internal technology names must not be exposed on public booking page');
+  assert.doesNotMatch(
+    source,
+    /Payload CMS/i,
+    'internal technology names must not be exposed on public booking page',
+  );
   assert.match(source, /interior-footnote/);
 });
 
@@ -219,11 +231,29 @@ test('widget component immediately verifies existing iframe and triggers navigat
   assert.match(source, /reinitializeAfterClientNavigation\(\);/);
 });
 
+test('booking wrappers allow edge-to-edge iframe width without decorative nesting', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const css = await readFile(new URL('../src/app/(frontend)/globals.css', import.meta.url), 'utf8');
+  assert.match(css, /\.booking-page\s*\{[^}]*background:\s*#101211;[^}]*padding:\s*0;/);
+  assert.match(
+    css,
+    /\.booking-container-wrap\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*none;[^}]*margin:\s*0;[^}]*padding:\s*0;/,
+  );
+  assert.match(
+    css,
+    /\.booking-unified-card\s*\{[^}]*border-radius:\s*0;[^}]*border:\s*0;[^}]*box-shadow:\s*none;[^}]*padding:\s*0;/,
+  );
+  assert.match(css, /\.ores-widget-frame \.ores4iframe\s*\{[^}]*width:\s*100%;/);
+  assert.doesNotMatch(css, /\.booking-panel-nested/);
+});
+
 test('ORES theme positions Step 1 passenger controls in left column beneath drop-off and map on right', async () => {
   const { readFile } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const source = await readFile(
-    fileURLToPath(new URL('../src/app/(frontend)/book/yourbestride-ores-theme-v6-fixed.css', import.meta.url)),
+    fileURLToPath(
+      new URL('../src/app/(frontend)/book/yourbestride-ores-theme-v6-fixed.css', import.meta.url),
+    ),
     'utf8',
   );
 

@@ -5,7 +5,6 @@ import { LimoAnywhereBooking } from '@/components/limo-anywhere-booking';
 import { getPublicConfig } from '@/lib/config';
 import { getBusinessConfig } from '@/lib/cms/queries';
 import { resolveOresBookingUrl } from '@/lib/booking';
-import './yourbestride-ores-theme-v6-fixed.css';
 
 export function generateMetadata(): Metadata {
   const { siteUrl } = getPublicConfig();
@@ -52,36 +51,21 @@ export default async function BookPage() {
             </ul>
           </div>
 
-          {/* Nested reservation panel */}
-          <div className="booking-panel-nested" aria-labelledby="reservation-heading">
-            <div className="booking-panel-header">
-              <h2 id="reservation-heading" className="booking-panel-heading">
-                Your reservation
-              </h2>
-              <div className="booking-panel-badge" aria-label="Secure reservation">
-                <Icon name="shield" width={18} height={18} aria-hidden="true" />
-              </div>
-            </div>
-
-            <div className="booking-panel-divider" role="separator" />
-
-            <div className="booking-panel-body">
-              {oresBookingUrl ? (
-                <LimoAnywhereBooking bookingUrl={oresBookingUrl} />
-              ) : (
-                <Card className="booking-card booking-unavailable">
-                  <h2>Online booking isn&apos;t connected yet.</h2>
-                  <p>
-                    The approved online booking destination is not configured. No reservation or
-                    payment information is collected by this website.
-                  </p>
-                  <Button href="/#contact">
-                    View contact information <Icon name="arrow" width={18} />
-                  </Button>
-                </Card>
-              )}
-            </div>
-          </div>
+          {/* Official ORES booking engine directly inside unified booking card */}
+          {oresBookingUrl ? (
+            <LimoAnywhereBooking bookingUrl={oresBookingUrl} />
+          ) : (
+            <Card className="booking-card booking-unavailable">
+              <h2>Online booking isn&apos;t connected yet.</h2>
+              <p>
+                The approved online booking destination is not configured. No reservation or
+                payment information is collected by this website.
+              </p>
+              <Button href="/#contact">
+                View contact information <Icon name="arrow" width={18} />
+              </Button>
+            </Card>
+          )}
 
           {/* Regulatory / policy disclosures */}
           <div className="booking-disclosures">
